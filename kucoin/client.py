@@ -4,9 +4,9 @@
 import base64
 import hashlib
 import hmac
+import time
 import requests
 import six
-import time
 
 from .exceptions import KucoinAPIException, KucoinRequestException, KucoinResolutionException
 
