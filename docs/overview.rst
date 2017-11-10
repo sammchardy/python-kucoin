@@ -36,6 +36,15 @@ Pass your API Key and Secret
     # see client.get_languages() for options
     client = Client(api_key, api_secret, language='zh_CN)
 
+Response Timestamps
+-------------------
+
+Most responses return a server timestamp, to fetch this use the `get_last_timestamp` function.
+
+.. code:: python
+
+    products = client.get_currencies()
+    timestamp = client.get_last_timestamp()
 
 API Rate Limit
 --------------
