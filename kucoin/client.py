@@ -145,7 +145,7 @@ class Client(object):
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
-        print(response.content)
+
         if not str(response.status_code).startswith('2'):
             raise KucoinAPIException(response)
         try:
