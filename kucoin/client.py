@@ -6,14 +6,8 @@ import hashlib
 import hmac
 import time
 import requests
-import six
 
 from .exceptions import KucoinAPIException, KucoinRequestException, KucoinResolutionException
-
-if six.PY2:
-    from urllib import urlencode
-elif six.PY3:
-    from urllib.parse import urlencode
 
 
 class Client(object):
