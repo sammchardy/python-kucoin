@@ -1189,9 +1189,9 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group:
+        :param group: optional - not sure what this means
         :type group: int
-        :param limit: Depth to return
+        :param limit: optional - Depth to return
         :type limit: int
 
         .. code:: python
