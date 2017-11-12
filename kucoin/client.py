@@ -18,7 +18,7 @@ class Client(object):
 
     _last_timestamp = None
 
-    TRANSFER_WITHDRAWAL = 'WITHDRAWAL'
+    TRANSFER_WITHDRAWAL = 'WITHDRAW'
     TRANSFER_DEPOSIT = 'DEPOSIT'
 
     SIDE_BUY = 'BUY'
