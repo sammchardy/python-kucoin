@@ -18,8 +18,8 @@ class Client(object):
 
     _last_timestamp = None
 
-    RECORD_WITHDRAWAL = 'WITHDRAWAL'
-    RECORD_DEPOSIT = 'DEPOSIT'
+    TRANSFER_WITHDRAWAL = 'WITHDRAWAL'
+    TRANSFER_DEPOSIT = 'DEPOSIT'
 
     SIDE_BUY = 'BUY'
     SIDE_SELL = 'SELL'
@@ -624,7 +624,7 @@ class Client(object):
         """
 
         data = {
-            'type': self.RECORD_DEPOSIT
+            'type': self.TRANSFER_DEPOSIT
         }
         if status:
             data['status'] = status
@@ -700,7 +700,7 @@ class Client(object):
         """
 
         data = {
-            'type': self.RECORD_WITHDRAWAL
+            'type': self.TRANSFER_WITHDRAWAL
         }
         if status:
             data['status'] = status
