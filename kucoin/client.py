@@ -6,14 +6,8 @@ import hashlib
 import hmac
 import time
 import requests
-import six
 
 from .exceptions import KucoinAPIException, KucoinRequestException, KucoinResolutionException
-
-if six.PY2:
-    from urllib import urlencode
-elif six.PY3:
-    from urllib.parse import urlencode
 
 
 class Client(object):
@@ -24,13 +18,14 @@ class Client(object):
 
     _last_timestamp = None
 
-    RECORD_WITHDRAWAL = 'WITHDRAWAL'
-    RECORD_DEPOSIT = 'DEPOSIT'
+    TRANSFER_WITHDRAWAL = 'WITHDRAW'
+    TRANSFER_DEPOSIT = 'DEPOSIT'
 
     SIDE_BUY = 'BUY'
     SIDE_SELL = 'SELL'
 
-    ORDER_STATUS_CANCELLED = 'CANCEL'
+    TRANSFER_STATUS_CANCELLED = 'CANCEL'
+    TRANSFER_STATUS_SUCCESS = 'SUCCESS'
 
     RESOLUTION_1MINUTE = '1'
     RESOLUTION_5MINUTES = '5'
@@ -564,14 +559,14 @@ class Client(object):
 
         return self._get('account/{}/withdraw/cancel'.format(coin), True, data=data)
 
-    def get_deposits(self, coin, status, limit=None, page=None):
+    def get_deposits(self, coin, status=None, limit=None, page=None):
         """Get deposit records for a coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/assets-operation/list-deposit-&-withdrawal-records
 
         :param coin: Name of coin
         :type coin: string
-        :param status: Status of withdrawal
+        :param status: optional - Status of deposit
         :type status: string
         :param limit: optional - Number of transactions
         :type limit: int
@@ -629,9 +624,10 @@ class Client(object):
         """
 
         data = {
-            'type': self.RECORD_DEPOSIT,
-            'status': status
+            'type': self.TRANSFER_DEPOSIT
         }
+        if status:
+            data['status'] = status
         if limit:
             data['limit'] = limit
         if page:
@@ -639,14 +635,14 @@ class Client(object):
 
         return self._get('account/{}/wallet/records'.format(coin), True, data=data)
 
-    def get_withdrawals(self, coin, status, limit=None, page=None):
+    def get_withdrawals(self, coin, status=None, limit=None, page=None):
         """Get withdrawal records for a coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/assets-operation/list-deposit-&-withdrawal-records
 
         :param coin: Name of coin
         :type coin: string
-        :param status: Status of withdrawal
+        :param status: optional - Status of withdrawal
         :type status: string
         :param limit: optional - Number of transactions
         :type limit: int
@@ -704,9 +700,10 @@ class Client(object):
         """
 
         data = {
-            'type': self.RECORD_WITHDRAWAL,
-            'status': status
+            'type': self.TRANSFER_WITHDRAWAL
         }
+        if status:
+            data['status'] = status
         if limit:
             data['limit'] = limit
         if page:
@@ -1145,9 +1142,9 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group:
+        :param group: optional - not sure what this means
         :type group: int
-        :param limit: Depth to return
+        :param limit: optional - Depth to return
         :type limit: int
 
         .. code:: python
@@ -1192,9 +1189,9 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group:
+        :param group: optional - not sure what this means
         :type group: int
-        :param limit: Depth to return
+        :param limit: optional - Depth to return
         :type limit: int
 
         .. code:: python

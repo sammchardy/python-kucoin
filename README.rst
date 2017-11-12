@@ -91,4 +91,5 @@ Other Exchanges
 ---------------
 
 If you use Binance check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+
 If you use Quoinex or Qryptos check out my `python-quoine <https://github.com/sammchardy/python-quoine>`_ library.

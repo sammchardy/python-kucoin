@@ -5,13 +5,14 @@ Kucoin defines constants for Redord Types, Order Side, Order Status and Resoluti
 
 .. code:: python
 
-    RECORD_WITHDRAWAL = 'WITHDRAW'
-    RECORD_DEPOSIT = 'DEPOSIT'
+    TRANSFER_WITHDRAWAL = 'WITHDRAW'
+    TRANSFER_DEPOSIT = 'DEPOSIT'
+
+    TRANSFER_STATUS_SUCCESS = 'SUCCESS'
+    TRANSFER_STATUS_CANCELLED = 'CANCEL'
 
     SIDE_BUY = 'BUY'
     SIDE_SELL = 'SELL'
-
-    ORDER_STATUS_CANCELLED = 'CANCEL'
 
     # Kucoin has 2 kline endpoint and they have been setup to take the below values
 

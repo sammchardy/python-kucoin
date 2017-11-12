@@ -10,7 +10,7 @@ setup(
     author='Sam McHardy',
     license='MIT',
     author_email='',
-    install_requires=['requests', 'six', 'Twisted', 'pyOpenSSL', 'autobahn', 'service-identity'],
+    install_requires=['requests'],
     keywords='kucoin exchange rest api bitcoin ethereum btc eth kcs',
     classifiers=[
           'Intended Audience :: Developers',
