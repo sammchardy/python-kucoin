@@ -22,6 +22,9 @@ Welcome to python-kucoin v0.1.0
 
 This is an unofficial Python wrapper for the `Kucoin exchanges REST API v1 <https://kucoinapidocs.docs.apiary.io/>`_. I am in no way affiliated with Kucoin, use at your own risk.
 
+PyPi
+  https://pypi.python.org/pypi/python-kucoin
+
 Source code
   https://github.com/sammchardy/python-kucoin
 
@@ -90,6 +93,7 @@ If this library helped you out feel free to donate.
 Other Exchanges
 ---------------
 
-If you use Binance check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+If you use `Binance <https://www.binance.com/register.html?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
 
-If you use Quoinex or Qryptos check out my `python-quoine <https://github.com/sammchardy/python-quoine>`_ library.
+If you use `Quoinex <https://accounts.quoinex.com/sign-up?affiliate=PAxghztC67615>`_
+or `Qryptos <https://accounts.qryptos.com/sign-up?affiliate=PAxghztC67615>`_ check out my `python-quoine <https://github.com/sammchardy/python-quoine>`_ library.
