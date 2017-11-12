@@ -11,7 +11,8 @@ Kucoin defines constants for Redord Types, Order Side, Order Status and Resoluti
     SIDE_BUY = 'BUY'
     SIDE_SELL = 'SELL'
 
-    ORDER_STATUS_CANCELLED = 'CANCEL'
+    TRANSFER_STATUS_SUCCESS = 'SUCCESS'
+    TRANSFER_STATUS_CANCELLED = 'CANCEL'
 
     # Kucoin has 2 kline endpoint and they have been setup to take the below values
 
