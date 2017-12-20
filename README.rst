@@ -97,3 +97,7 @@ If you use `Binance <https://www.binance.com/register.html?ref=10099792>`_ check
 
 If you use `Quoinex <https://accounts.quoinex.com/sign-up?affiliate=PAxghztC67615>`_
 or `Qryptos <https://accounts.qryptos.com/sign-up?affiliate=PAxghztC67615>`_ check out my `python-quoine <https://github.com/sammchardy/python-quoine>`_ library.
+
+If you use `IDEX <https://idex.market>`_ check out my `python-idex <https://github.com/sammchardy/python-idex>`_ library.
+
+.. image:: https://analytics-pixel.appspot.com/UA-111417213-1/github/python-kucoin?pixel
