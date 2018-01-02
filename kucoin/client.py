@@ -867,19 +867,26 @@ class Client(object):
 
         return self.create_order(symbol, self.SIDE_SELL, price, amount)
 
-    def get_active_orders(self, symbol):
+    def get_active_orders(self, symbol, kv_format=False):
         """Get list of active orders
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/trading/list-active-orders
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
+        :param kv_format: optional - whether to return as kv format or not
+        :type kv_format: bool
 
         .. code:: python
 
             orders = client.get_active_orders('KCS-BTC')
 
+            # return orders in KV format
+            orders_kv = client.get_active_orders('KCS-BTC', True)
+
         :returns: ApiResponse
+
+        Non KV Format
 
         .. code:: python
 
@@ -911,6 +918,47 @@ class Client(object):
                         "596186b207015679730ffa03"
                     ]
                 ]
+            }
+
+        KV Format
+
+            {
+                "success": true,
+                "code": "OK",
+                "msg": "Operation succeeded.",
+                "timestamp": 1508306965706,
+                "data": {
+                    "SELL": [
+                        {
+                            "oid": "59e59b279bd8d31d093d956e",
+                            "type": "SELL",
+                            "userOid": null,
+                            "coinType": "KCS",
+                            "coinTypePair": "BTC",
+                            "direction": "SELL",
+                            "price": 0.1,
+                            "dealAmount": 0,
+                            "pendingAmount": 100,
+                            "createdAt": 1508219688000,
+                            "updatedAt": 1508219688000
+                        }
+                    ],
+                    "BUY": [
+                        {
+                            "oid": "59e42bf09bd8d374c9956caa",
+                            "type": "BUY",
+                            "userOid": null,
+                            "coinType": "KCS",
+                            "coinTypePair": "BTC",
+                            "direction": "BUY",
+                            "price": 0.00009727,
+                            "dealAmount": 31.14503,
+                            "pendingAmount": 16.94827,
+                            "createdAt": 1508125681000,
+                            "updatedAt": 1508125681000
+                        }
+                    ]
+                }
             }
 
         :raises: KucoinResponseException,  KucoinAPIException
