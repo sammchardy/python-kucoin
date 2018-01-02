@@ -985,7 +985,7 @@ class Client(object):
 
         .. code:: python
 
-            orders = client.cancel_order('KCS-BTC', ')
+            client.cancel_order('KCS-BTC', 1, 'BUY')
 
         :returns: None
 
@@ -1001,10 +1001,126 @@ class Client(object):
 
         return self._post('cancel-order', True, data=data)
 
-    def get_deal_orders(self, symbol, order_type, limit=None, page=None):
-        """Get a list of deal orders with pagination
+    def cancel_all_orders(self, symbol=None, order_type=None):
+        """Cancel all orders
 
-        https://kucoinapidocs.docs.apiary.io/#reference/0/trading/list-deal-orders
+        https://kucoinapidocs.docs.apiary.io/#reference/0/trading/cancel-all-orders
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_type: Order type
+        :type order_type: string
+
+        .. code:: python
+
+            # cancel all active orders
+            client.cancel_all_orders()
+
+            # cancel all KCS-BTC Buy orders
+            client.cancel_all_orders('KCS-BTC', 'BUY')
+
+        :returns: None
+
+        :raises: KucoinResponseException,  KucoinAPIException
+
+        """
+
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+        if order_type:
+            data['type'] = order_type
+
+        return self._post('order/cancel-all', True, data=data)
+
+    def get_dealt_orders(self, symbol=None, order_type=None, limit=None, page=None, since=None, before=None):
+        """Get a list of dealt orders with pagination
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/trading/list-dealt-orders(merged)
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_type: Order type
+        :type order_type: string
+        :param limit: optional - Number of deals
+        :type limit: int
+        :param page: optional - Page to fetch
+        :type page: int
+        :param since: optional - Since timestamp filter
+        :type since: int
+        :param before: optional - Before timestamp filter
+        :type before: int
+
+        .. code:: python
+
+            orders = client.get_dealt_orders(limit=10, page=2)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "total": 1416,
+                "datas": [
+                    {
+                        "createdAt": 1508219588000,
+                        "amount": 92.79323381,
+                        "dealValue": 0.00927932,
+                        "dealPrice": 0.0001,
+                        "fee": 1e-8,
+                        "feeRate": 0,
+                        "oid": "59e59ac49bd8d31d09f85fa8",
+                        "orderOid": "59e59ac39bd8d31d093d956a",
+                        "coinType": "KCS",
+                        "coinTypePair": "BTC",
+                        "direction": "BUY",
+                        "dealDirection": "BUY"
+                    },
+                    {
+                        "createdAt": 1508219588000,
+                        "amount": 92.79323381,
+                        "dealValue": 0.00927932,
+                        "dealPrice": 0.0001,
+                        "fee": 1e-8,
+                        "feeRate": 0,
+                        "oid": "59e59ac49bd8d31d09f85fa7",
+                        "orderOid": "59e41c949bd8d374c9956c74",
+                        "coinType": "KCS",
+                        "coinTypePair": "BTC",
+                        "direction": "SELL",
+                        "dealDirection": "BUY"
+                    }
+                ],
+                "limit": 2,
+                "page": 1
+            }
+
+        :raises: KucoinResponseException,  KucoinAPIException
+
+        """
+
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+        if order_type:
+            data['type'] = order_type
+        if limit:
+            data['limit'] = limit
+        if page:
+            data['page'] = page
+        if since:
+            data['since'] = since
+        if before:
+            data['before'] = before
+
+        return self._get('order/dealt', True, data=data)
+
+    def get_symbol_dealt_orders(self, symbol, order_type=None, limit=None, page=None):
+        """Get a list of dealt orders for a specific symbol with pagination
+
+        Does not return symbol info in response, unlike get_dealt_orders
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/trading/list-dealt-orders(specific-symbol)
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -1017,7 +1133,7 @@ class Client(object):
 
         .. code:: python
 
-            orders = client.get_deal_orders('KCS-BTC', Client.SIDE_SELL, limit=10, page=2)
+            orders = client.get_symbol_dealt_orders('KCS-BTC', Client.SIDE_SELL, limit=10, page=2)
 
         :returns: ApiResponse
 
@@ -1067,15 +1183,94 @@ class Client(object):
         """
 
         data = {
-            'symbol': symbol,
-            'type': order_type
+            'symbol': symbol
         }
+        if order_type:
+            data['type'] = order_type
         if limit:
             data['limit'] = limit
         if page:
             data['page'] = page
 
         return self._get('deal-orders', True, data=data)
+
+    def get_order_details(self, symbol, order_type, limit=None, page=None, order_id=None):
+        """Get order details
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/trading/order-details
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_type: Order type
+        :type order_type: string
+        :param limit: optional - Number of deals
+        :type limit: int
+        :param page: optional - Page to fetch
+        :type page: int
+        :param order_id: optional - orderOid value
+        :type order_id: int
+
+        .. code:: python
+
+            orders = client.get_order_details('KCS-BTC', Client.SIDE_SELL)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "coinType": "KCS",
+                "dealValueTotal": 0.00938022,
+                "dealPriceAverage": 0.0001009,
+                "feeTotal": 2e-8,
+                "userOid": "5969ddc96732d54312eb960e",
+                "dealAmount": 0,
+                "dealOrders": {
+                    "total": 709,
+                    "firstPage": true,
+                    "lastPage": false,
+                    "datas": [
+                        {
+                            "amount": 1,
+                            "dealValue": 0.0001009,
+                            "fee": 1e-8,
+                            "dealPrice": 0.0001009,
+                            "feeRate": 0
+                        },
+                        {
+                            "amount": 92.79323381,
+                            "dealValue": 0.00927932,
+                            "fee": 1e-8,
+                            "dealPrice": 0.0001,
+                            "feeRate": 0
+                        }
+                    ],
+                    "currPageNo": 1,
+                    "limit": 2,
+                    "pageNos": 355
+                },
+                "coinTypePair": "BTC",
+                "orderPrice": 0.0001067,
+                "type": "SELL",
+                "orderOid": "59e41cd69bd8d374c9956c75",
+                "pendingAmount": 187.34
+            }
+
+        :raises: KucoinResponseException,  KucoinAPIException
+
+        """
+
+        data = {
+            'type': order_type
+        }
+        if limit:
+            data['limit'] = limit
+        if page:
+            data['page'] = page
+        if order_id:
+            data['orderOid'] = order_id
+
+        return self._get('{}/order/detail'.format(symbol), True, data=data)
 
     # Market Endpoints
 
