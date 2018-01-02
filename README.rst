@@ -93,7 +93,7 @@ If this library helped you out feel free to donate.
 Other Exchanges
 ---------------
 
-If you use `Binance <https://www.binance.com/register.html?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
 
 If you use `Quoinex <https://accounts.quoinex.com/sign-up?affiliate=PAxghztC67615>`_
 or `Qryptos <https://accounts.qryptos.com/sign-up?affiliate=PAxghztC67615>`_ check out my `python-quoine <https://github.com/sammchardy/python-quoine>`_ library.
