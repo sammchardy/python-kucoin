@@ -985,7 +985,7 @@ class Client(object):
 
         .. code:: python
 
-            orders = client.cancel_order('KCS-BTC', ')
+            client.cancel_order('KCS-BTC', 1, 'BUY')
 
         :returns: None
 
