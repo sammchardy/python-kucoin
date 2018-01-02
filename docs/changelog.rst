@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.1.1 - 2017-11-12
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- cancel all orders function
+- get order details function
+- get dealt orders function
+
+**Updated**
+
+- old get_deal_orders function to get_symbol_dealt_orders
+
 v0.1.0 - 2017-11-12
 ^^^^^^^^^^^^^^^^^^^
 
