@@ -49,4 +49,4 @@ Most responses return a server timestamp, to fetch this use the `get_last_timest
 API Rate Limit
 --------------
 
-10,000 requests per day
+Currently no rate limits
