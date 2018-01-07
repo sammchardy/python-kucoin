@@ -1,5 +1,5 @@
 ===============================
-Welcome to python-kucoin v0.1.1
+Welcome to python-kucoin v0.1.2
 ===============================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
@@ -35,7 +35,7 @@ Documentation
 Features
 --------
 
-- Implementation of all REST endpoints.
+- Implementation of most REST endpoints, more coming soon.
 - Simple handling of authentication
 - Response exception handling
 - Simple buy and sell order functions

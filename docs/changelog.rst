@@ -1,7 +1,16 @@
 Changelog
 =========
 
-v0.1.1 - 2017-11-12
+v0.1.2 - 2010-01-07
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- api key endpoints
+- set default currency function
+- extract invite bonus function
+
+v0.1.1 - 2018-01-02
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
