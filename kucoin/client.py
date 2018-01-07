@@ -616,6 +616,36 @@ class Client(object):
 
         return self._get('account/promotion/sum', True, data=data)
 
+    def extract_invite_bonus(self, coin):
+        """Extract the invitation bonus for a coin
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/invitation-bonus/extract-invitation-bonus
+
+        :param coin: Name of coin to extract the invitation bonus
+        :type coin: string
+
+        .. code:: python
+
+            user = client.extract_invite_bonus('KCS')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "count": 0  # The number of successful extracted
+            }
+
+        :raises: KucoinResponseException,  KucoinAPIException
+
+        """
+
+        data = {
+            'coin': coin
+        }
+
+        return self._get('account/promotion/draw', True, data=data)
+
     # Asset Endpoints
 
     def get_deposit_address(self, coin):
