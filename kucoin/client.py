@@ -384,6 +384,31 @@ class Client(object):
 
         return self._get('open/currencies', False, data=data)
 
+    def set_default_currency(self, currency):
+        """Set your default currency
+
+        Get a list of available currency from the get_currencies call
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/currencies-plugin/set-default-currency
+
+        :param currency: Currency string e.g USD,CNY,JPY
+        :type currency: string
+
+        .. code:: python
+
+            # call with no coins
+            products = client.set_default_currency('USD')
+
+        :returns: None
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        return self._post('user/change-currency', False, data=data)
+
     # Language Endpoints
 
     def get_languages(self):
