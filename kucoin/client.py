@@ -178,6 +178,121 @@ class Client(object):
         """
         return self._last_timestamp
 
+    # User API Endpoints
+
+    def create_api_key(self):
+        """Create a new API Key
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/user-api-management/create-api-key
+
+        .. code:: python
+
+            result = client.create_api_key()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "remark": null,
+                "secret": "54e1a7f3-f5c0-47f2-bdce-f1d5124602e1",
+                "enabled": true,
+                "userOid": "59663b126732d50be3ac8bcb",
+                "accessKey": "59c5ecfe18497f5394ded813",
+                "createdAt": 1506143486528,
+                "updatedAt": 1506143486528,
+                "permissions": null
+            }
+
+        """
+
+        return self._post('api/create', True)
+
+    def update_api_key(self, key, enabled=None, remark=None, permissions=None):
+        """Update an API Key
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/user-api-management/update-api-key
+
+        :param key: API Key string
+        :type key: string
+        :param enabled: optional - Enable or disable key
+        :type enabled: boolean
+        :param remark: optional - Remark for API Key
+        :type remark: string
+        :param permissions: optional - Permissions for API Key
+        :type permissions: string
+
+        .. code:: python
+
+            result = client.update_api_key("59c5ecfe18497f5394ded813", enabled=False)
+
+        :returns: True on success
+
+        """
+
+        data = {
+            'key': key
+        }
+        if enabled is not None:
+            data['enabled'] = enabled
+        if remark:
+            data['remark'] = remark
+        if permissions:
+            data['permissions'] = permissions
+
+        return self._post('api/update', True, data=data)
+
+    def get_api_keys(self):
+        """Get list of API Keys
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/user-api-management/list-api-key
+
+        .. code:: python
+
+            result = client.get_api_keys()
+
+        :returns: API Response
+
+        .. code-block:: python
+            [
+                {
+                    "remark": null,
+                    "secret": "*",  # display within 30 minutes after created
+                    "enabled": true,
+                    "userOid": "59663b126732d50be3ac8bcb",
+                    "accessKey": "59c5ecfe18497f5394ded813",
+                    "createdAt": 1506143487000,
+                    "updatedAt": 1506143487000,
+                    "permissions": null
+                }
+            ]
+
+        """
+
+        return self._get('api/list', True)
+
+    def delete_api_key(self, key):
+        """Update an API Key
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/user-api-management/delete-api-key
+
+        :param key: API Key string
+        :type key: string
+
+        .. code:: python
+
+            result = client.delete_api_key("59c5ecfe18497f5394ded813")
+
+        :returns: True on success
+
+        """
+
+        data = {
+            'key': key
+        }
+
+        return self._post('api/delete', True, data=data)
+
     # Currency Endpoints
 
     def get_currencies(self, coins=None):
