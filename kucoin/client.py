@@ -204,6 +204,8 @@ class Client(object):
                 "permissions": null
             }
 
+        :raises:  KucoinResponseException,  KucoinAPIException
+
         """
 
         return self._post('api/create', True)
@@ -227,6 +229,8 @@ class Client(object):
             result = client.update_api_key("59c5ecfe18497f5394ded813", enabled=False)
 
         :returns: True on success
+
+        :raises:  KucoinResponseException,  KucoinAPIException
 
         """
 
@@ -267,6 +271,8 @@ class Client(object):
                 }
             ]
 
+        :raises:  KucoinResponseException,  KucoinAPIException
+
         """
 
         return self._get('api/list', True)
@@ -284,6 +290,8 @@ class Client(object):
             result = client.delete_api_key("59c5ecfe18497f5394ded813")
 
         :returns: True on success
+
+        :raises:  KucoinResponseException,  KucoinAPIException
 
         """
 
