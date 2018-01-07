@@ -204,6 +204,8 @@ class Client(object):
                 "permissions": null
             }
 
+        :raises:  KucoinResponseException,  KucoinAPIException
+
         """
 
         return self._post('api/create', True)
@@ -227,6 +229,8 @@ class Client(object):
             result = client.update_api_key("59c5ecfe18497f5394ded813", enabled=False)
 
         :returns: True on success
+
+        :raises:  KucoinResponseException,  KucoinAPIException
 
         """
 
@@ -267,6 +271,8 @@ class Client(object):
                 }
             ]
 
+        :raises:  KucoinResponseException,  KucoinAPIException
+
         """
 
         return self._get('api/list', True)
@@ -284,6 +290,8 @@ class Client(object):
             result = client.delete_api_key("59c5ecfe18497f5394ded813")
 
         :returns: True on success
+
+        :raises:  KucoinResponseException,  KucoinAPIException
 
         """
 
@@ -383,6 +391,31 @@ class Client(object):
             data['coins'] = ','.join(coins)
 
         return self._get('open/currencies', False, data=data)
+
+    def set_default_currency(self, currency):
+        """Set your default currency
+
+        Get a list of available currency from the get_currencies call
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/currencies-plugin/set-default-currency
+
+        :param currency: Currency string e.g USD,CNY,JPY
+        :type currency: string
+
+        .. code:: python
+
+            # call with no coins
+            products = client.set_default_currency('USD')
+
+        :returns: None
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        return self._post('user/change-currency', False, data=data)
 
     # Language Endpoints
 
