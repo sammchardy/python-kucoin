@@ -917,14 +917,23 @@ class Client(object):
 
         return self._get('account/{}/balance'.format(coin), True)
 
-    def get_all_balances(self):
+    def get_all_balances(self, limit=None, page=None):
         """Get all coin balances
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/assets-operation/get-all-balance
 
+        :param limit: optional - Number of balances default 12, max 20
+        :type limit: int
+        :param page: optional - Page to fetch
+        :type page: int
+
         .. code:: python
 
+            # get the default response
             balances = client.get_all_balances()
+
+            # get a paged response
+            balances = client.get_all_balances(limit=20, page=2)
 
         :returns: ApiResponse
 
@@ -942,7 +951,13 @@ class Client(object):
 
         """
 
-        return self._get('account/balance', True)
+        data = {}
+        if limit:
+            data['limit'] = limit
+        if page:
+            data['page'] = page
+
+        return self._get('account/balance', True, data=data)
 
     # Trading Endpoints
 
