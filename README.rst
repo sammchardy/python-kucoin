@@ -31,6 +31,9 @@ Source code
 Documentation
   https://python-kucoin.readthedocs.io/en/latest/
 
+Blog with examples
+  https://sammchardy.github.io
+
 
 Features
 --------
