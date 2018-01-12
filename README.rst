@@ -1,5 +1,5 @@
 ===============================
-Welcome to python-kucoin v0.1.2
+Welcome to python-kucoin v0.1.3
 ===============================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
@@ -39,6 +39,7 @@ Features
 - Simple handling of authentication
 - Response exception handling
 - Simple buy and sell order functions
+- Helper function `get_total_balance` to get balance in fiat
 
 Quick Start
 -----------

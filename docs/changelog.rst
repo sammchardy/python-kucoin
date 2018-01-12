@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.1.3 - 2010-01-12
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- add function `get_total_balance` to get balance in Fiat
+- added pagination params to `get_all_balances`
+
 v0.1.2 - 2010-01-07
 ^^^^^^^^^^^^^^^^^^^
 
