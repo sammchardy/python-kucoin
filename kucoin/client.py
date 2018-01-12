@@ -308,7 +308,7 @@ class Client(object):
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/currencies-plugin/list-exchange-rate-of-coins(open)
 
-        :param coins: optional - List of coins to get exchange rate for
+        :param coins: optional - Comma separated list of coins to get exchange rate for
         :type coins: string or list
 
         .. code:: python
@@ -410,7 +410,6 @@ class Client(object):
         :returns: None
 
         """
-
         data = {
             'currency': currency
         }
@@ -917,14 +916,23 @@ class Client(object):
 
         return self._get('account/{}/balance'.format(coin), True)
 
-    def get_all_balances(self):
+    def get_all_balances(self, limit=None, page=None):
         """Get all coin balances
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/assets-operation/get-all-balance
 
+        :param limit: optional - Number of balances default 12, max 20
+        :type limit: int
+        :param page: optional - Page to fetch
+        :type page: int
+
         .. code:: python
 
+            # get the default response
             balances = client.get_all_balances()
+
+            # get a paged response
+            balances = client.get_all_balances(limit=20, page=2)
 
         :returns: ApiResponse
 
@@ -934,7 +942,9 @@ class Client(object):
                 {
                     coinType: "BTC",
                     balance: 1233214,
-                    freezeBalance: 321321
+                    freezeBalance: 321321,
+                    balanceStr: "1233214"
+                    freezeBalanceStr: "321321"
                 }
             ]
 
@@ -942,7 +952,57 @@ class Client(object):
 
         """
 
-        return self._get('account/balance', True)
+        data = {}
+        if limit:
+            data['limit'] = limit
+        if page:
+            data['page'] = page
+
+        return self._get('account/balance', True, data=data)
+
+    def get_total_balance(self, currency='USD'):
+        """Get total balance in your currency, USD by default
+
+        :param currency: Currency string
+        :type currency: str
+
+        .. code:: python
+
+            # get balance in USD
+            balances = client.get_total_balance()
+
+            # get balance in EUR
+            balances = client.get_total_balance('EUR')
+
+        :returns: float balance value
+
+        :raises: Exception, KucoinResponseException,  KucoinAPIException
+
+        """
+
+        # get balances
+        balances = self.get_all_balances()
+        # find unique coin names
+        coins_csl = ','.join([b['coinType'] for b in balances])
+        # get rates for these coins
+        currency_res = self.get_currencies(coins_csl)
+        rates = currency_res['rates']
+
+        total = 0
+        for b in balances:
+            # ignore any coins of 0 value
+            if b['balanceStr'] == '0.0' and b['freezeBalanceStr'] == '0.0':
+                continue
+            # ignore the coin if we don't have a rate for it
+            if b['coinType'] not in rates:
+                continue
+            # add the value for this coin to the total
+            try:
+                total += (b['balance'] + b['freezeBalance']) * rates[b['coinType']][currency]
+            except KeyError:
+                raise Exception("Unknown currency:{}".format(currency))
+
+        return total
 
     # Trading Endpoints
 
