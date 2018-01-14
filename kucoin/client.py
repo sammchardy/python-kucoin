@@ -146,6 +146,10 @@ class Client(object):
             raise KucoinAPIException(response)
         try:
             json = response.json()
+
+            if 'success' in json and not json['success']:
+                raise KucoinAPIException(response)
+
             self._last_timestamp = None
             if 'timestamp' in json:
                 self._last_timestamp = json['timestamp']

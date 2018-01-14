@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import json
+
 
 class KucoinAPIException(Exception):
     """Exception class to handle general API Exceptions
@@ -24,6 +26,11 @@ class KucoinAPIException(Exception):
                 self.message = json_res['msg']
             if 'code' in json_res:
                 self.code = json_res['code']
+            if 'data' in json_res:
+                try:
+                    self.message += " " + json.dumps(json_res['data'])
+                except ValueError:
+                    pass
 
         self.status_code = response.status_code
         self.response = response
