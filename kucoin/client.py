@@ -1922,7 +1922,7 @@ class Client(object):
 
         data = {
             'symbol': symbol,
-            'resolution': resolution,
+            'type': resolution,
             'from': from_time,
             'to': to_time
         }
