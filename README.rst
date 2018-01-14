@@ -1,5 +1,5 @@
 ===============================
-Welcome to python-kucoin v0.1.3
+Welcome to python-kucoin v0.1.4
 ===============================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
@@ -43,6 +43,7 @@ Features
 - Response exception handling
 - Simple buy and sell order functions
 - Helper function `get_total_balance` to get balance in fiat
+- Historical Kline/Candle fetching function `get_historical_klines_tv`
 
 Quick Start
 -----------
@@ -82,6 +83,18 @@ Register an account with `Kucoin <https://www.kucoin.com/#/?r=E42cWB>`_.
 
     # get list of active orders
     orders = client.get_active_orders('KCS-BTC')
+
+    # get historical kline data from any date range
+
+    # fetch 1 minute klines for the last day up until now
+    klines = client.get_historical_klines_tv("KCS-BTC", Client.KLINE_INTERVAL_1MINUTE, "1 day ago UTC")
+
+    # fetch 30 minute klines for the last month of 2017
+    klines = client.get_historical_klines_tv("ETH-BTC", Client.KLINE_INTERVAL_30MINUTE, "1 Dec, 2017", "1 Jan, 2018")
+
+    # fetch weekly klines since it listed
+    klines = client.get_historical_klines_tv("NEO-BTC", KLINE_INTERVAL_1WEEK, "1 Jan, 2017")
+
 
 For more `check out the documentation <https://python-kucoin.readthedocs.io/en/latest/>`_.
 
