@@ -2184,8 +2184,6 @@ class Client(object):
 
         kline_res = self.get_kline_data_tv(symbol, interval, start_ts, end_ts)
 
-        print(kline_res)
-
         # check if we got a result
         if 't' in kline_res and len(kline_res['t']):
             # now convert this array to OHLCV format and add to the array
