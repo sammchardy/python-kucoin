@@ -18,6 +18,7 @@ Contents
    assets
    trading
    market
+   helpers
    exceptions
    changelog
 
