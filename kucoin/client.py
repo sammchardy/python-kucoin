@@ -8,6 +8,7 @@ import time
 import requests
 
 from .exceptions import KucoinAPIException, KucoinRequestException, KucoinResolutionException
+from .helpers import date_to_seconds
 
 
 class Client(object):
@@ -2135,6 +2136,67 @@ class Client(object):
         }
 
         return self._get('open/chart/history', False, data=data)
+
+    def get_historical_klines_tv(self, symbol, interval, start_str, end_str=None):
+        """Get Historical Klines in OHLCV format (Trading View)
+
+        See dateparse docs for valid start and end string formats http://dateparser.readthedocs.io/en/latest/
+
+        If using offset strings for dates add "UTC" to date string e.g. "now UTC", "11 hours ago UTC"
+
+        :param symbol: Name of symbol pair e.g BNBBTC
+        :type symbol: str
+        :param interval: Trading View Kline interval
+        :type interval: str
+        :param start_str: Start date string in UTC format
+        :type start_str: str
+        :param end_str: optional - end date string in UTC format
+        :type end_str: str
+
+        .. code:: python
+
+            klines = client.get_historical_klines_tv('KCS-BTC', Client.RESOLUTION_1MINUTE, '1 hour ago UTC')
+
+            # fetch 30 minute klines for the last month of 2017
+            klines = client.get_historical_klines_tv("NEO-BTC", Client.RESOLUTION_30MINUTES, "1 Dec, 2017", "1 Jan, 2018"))
+
+            # fetch weekly klines since it listed
+            klines = client.get_historical_klines_tv("XRP-BTC", Client.RESOLUTION_1WEEK, "1 Jan, 2017"))
+
+        :return: list of OHLCV values
+
+        """
+
+        # init our array for klines
+        klines = []
+
+        # convert our date strings to seconds
+        start_ts = date_to_seconds(start_str)
+
+        # if an end time was not passed we need to use now
+        if end_str is None:
+            end_str = 'now UTC'
+        end_ts = date_to_seconds(end_str)
+
+        kline_res = self.get_kline_data_tv(symbol, interval, start_ts, end_ts)
+
+        print(kline_res)
+
+        # check if we got a result
+        if 't' in kline_res and len(kline_res['t']):
+            # now convert this array to OHLCV format and add to the array
+            for i in range(1, len(kline_res['t'])):
+                klines.append((
+                    kline_res['t'][i],
+                    kline_res['o'][i],
+                    kline_res['h'][i],
+                    kline_res['l'][i],
+                    kline_res['c'][i],
+                    kline_res['v'][i]
+                ))
+
+        # finally return our converted klines
+        return klines
 
     def get_coin_list(self):
         """Get a list of coins with trade and withdrawal information

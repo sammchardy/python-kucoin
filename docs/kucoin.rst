@@ -18,3 +18,12 @@ exceptions module
     :undoc-members:
     :show-inheritance:
     :member-order: bysource
+
+helpers module
+--------------------------
+
+.. automodule:: kucoin.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :member-order: bysource
