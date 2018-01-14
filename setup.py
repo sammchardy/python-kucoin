@@ -10,7 +10,7 @@ setup(
     author='Sam McHardy',
     license='MIT',
     author_email='',
-    install_requires=['requests'],
+    install_requires=['requests', 'dateparser'],
     keywords='kucoin exchange rest api bitcoin ethereum btc eth kcs',
     classifiers=[
           'Intended Audience :: Developers',
