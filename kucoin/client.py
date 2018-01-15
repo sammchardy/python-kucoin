@@ -26,7 +26,8 @@ class Client(object):
     SIDE_SELL = 'SELL'
 
     TRANSFER_STATUS_CANCELLED = 'CANCEL'
-    TRANSFER_STATUS_SUCCESS = 'SUCCESS'
+    TRANSFER_STATUS_PENDING = 'PENDING'
+    TRANSFER_STATUS_FINISHED = 'FINISHED'
 
     RESOLUTION_1MINUTE = '1'
     RESOLUTION_5MINUTES = '5'
@@ -760,7 +761,7 @@ class Client(object):
 
         :param coin: Name of coin
         :type coin: string
-        :param status: optional - Status of deposit
+        :param status: optional - Status of deposit (FINISHED, CANCEL, PENDING)
         :type status: string
         :param limit: optional - Number of transactions
         :type limit: int
