@@ -2330,4 +2330,4 @@ class Client(object):
 
         """
 
-        return self._get('market/open/coins-list')
+        return self._get('market/open/coins')
