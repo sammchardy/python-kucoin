@@ -1225,7 +1225,11 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('order/active', True, data=data)
+        path = 'order/active'
+        if kv_format:
+            path += '-map'
+
+        return self._get(path, True, data=data)
 
     def cancel_order(self, symbol, order_id, order_type):
         """Cancel an order
