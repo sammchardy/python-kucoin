@@ -547,12 +547,12 @@ class Client(object):
 
         return self._get('referrer/descendant/count', True)
 
-    def get_reward_info(self, coin):
-        """Get promotion reward info for a coin
+    def get_reward_info(self, coin=None):
+        """Get promotion reward info all coins or an individual coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/inviting-promotion/get-promotion-reward-info
 
-        :param coin: Name of coin to get reward info
+        :param coin: optional - Name of coin to get reward info
         :type coin: string
 
         .. code:: python
@@ -573,9 +573,9 @@ class Client(object):
 
         """
 
-        data = {
-            'coin': coin
-        }
+        data = {}
+        if coin:
+            data['coin'] =  coin
 
         return self._get('account/promotion/info', True, data=data)
 
