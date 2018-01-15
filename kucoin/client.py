@@ -557,6 +557,10 @@ class Client(object):
 
         .. code:: python
 
+            # all coins
+            user = client.get_reward_info('NEO')
+
+            # specific coin
             user = client.get_reward_info('NEO')
 
         :returns: ApiResponse
@@ -575,20 +579,24 @@ class Client(object):
 
         data = {}
         if coin:
-            data['coin'] =  coin
+            data['coin'] = coin
 
         return self._get('account/promotion/info', True, data=data)
 
-    def get_reward_summary(self, coin):
-        """Get promotion reward summary for a coin
+    def get_reward_summary(self, coin=None):
+        """Get promotion reward summary for all coins or a specific coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/inviting-promotion/get-promotion-reward-summary
 
-        :param coin: Name of coin to get reward summary
+        :param coin: optional - Name of coin to get reward summary
         :type coin: string
 
         .. code:: python
 
+            # all coins
+            user = client.get_reward_summary()
+
+            # specific coin
             user = client.get_reward_summary('NEO')
 
         :returns: ApiResponse
@@ -614,22 +622,26 @@ class Client(object):
 
         """
 
-        data = {
-            'coin': coin
-        }
+        data = {}
+        if coin:
+            data['coin'] = coin
 
         return self._get('account/promotion/sum', True, data=data)
 
-    def extract_invite_bonus(self, coin):
-        """Extract the invitation bonus for a coin
+    def extract_invite_bonus(self, coin=None):
+        """Extract the invitation bonus for all coins or a specific coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/invitation-bonus/extract-invitation-bonus
 
-        :param coin: Name of coin to extract the invitation bonus
+        :param coin: optional - Name of coin to extract the invitation bonus
         :type coin: string
 
         .. code:: python
 
+            # all coins
+            user = client.extract_invite_bonus()
+
+            # specific coin
             user = client.extract_invite_bonus('KCS')
 
         :returns: ApiResponse
@@ -644,9 +656,9 @@ class Client(object):
 
         """
 
-        data = {
-            'coin': coin
-        }
+        data = {}
+        if coin:
+            data['coin'] = coin
 
         return self._get('account/promotion/draw', True, data=data)
 
