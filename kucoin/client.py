@@ -209,7 +209,7 @@ class Client(object):
                 "permissions": null
             }
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -235,7 +235,7 @@ class Client(object):
 
         :returns: True on success
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -276,7 +276,7 @@ class Client(object):
                 }
             ]
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -296,7 +296,7 @@ class Client(object):
 
         :returns: True on success
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -385,7 +385,7 @@ class Client(object):
                 }
             }
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -449,7 +449,7 @@ class Client(object):
                 ]
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -471,7 +471,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -514,7 +514,7 @@ class Client(object):
                 "email": "robert2041@163.com"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -541,7 +541,7 @@ class Client(object):
                 "countThree": 60
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -569,7 +569,7 @@ class Client(object):
                 "grantCountDownSeconds": 604800
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -610,7 +610,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -640,7 +640,7 @@ class Client(object):
                 "count": 0  # The number of successful extracted
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -680,7 +680,7 @@ class Client(object):
                 "lastReceivedAt": 1502276446000
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -704,7 +704,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -731,7 +731,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -801,7 +801,7 @@ class Client(object):
                 "startRow": 0
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -877,7 +877,7 @@ class Client(object):
                 "startRow": 0
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -915,7 +915,7 @@ class Client(object):
                 freezeBalance: 321321
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -953,7 +953,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -981,7 +981,7 @@ class Client(object):
 
         :returns: float balance value
 
-        :raises: Exception, KucoinResponseException,  KucoinAPIException
+        :raises: Exception, KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1037,7 +1037,7 @@ class Client(object):
                 "orderOid": "596186ad07015679730ffa02"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1074,7 +1074,7 @@ class Client(object):
                 "orderOid": "596186ad07015679730ffa02"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1104,7 +1104,7 @@ class Client(object):
                 "orderOid": "596186ad07015679730ffa02"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1204,7 +1204,7 @@ class Client(object):
                 }
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1232,7 +1232,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1264,7 +1264,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1338,7 +1338,7 @@ class Client(object):
                 "page": 1
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1421,7 +1421,7 @@ class Client(object):
                 "lastPage": false
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1499,7 +1499,7 @@ class Client(object):
                 "pendingAmount": 187.34
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1550,7 +1550,7 @@ class Client(object):
                 "changeRate": -0.2642
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1607,7 +1607,7 @@ class Client(object):
                 ]
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1654,7 +1654,7 @@ class Client(object):
                 ]
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1701,7 +1701,7 @@ class Client(object):
                 ]
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1754,7 +1754,7 @@ class Client(object):
                     593214
                 ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1816,7 +1816,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1859,7 +1859,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1915,7 +1915,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException, KucoinResolutionException
+        :raises: KucoinResponseException, KucoinAPIException, KucoinResolutionException
 
         """
 
@@ -1965,7 +1965,7 @@ class Client(object):
                 ]
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -2018,7 +2018,7 @@ class Client(object):
                 "has_no_volume": true
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -2128,7 +2128,7 @@ class Client(object):
                 ]
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -2234,7 +2234,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
