@@ -1031,7 +1031,7 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param order_type: Buy or Sell
+        :param order_type: BUY or SELL
         :type order_type: string
         :param price: Name of coin
         :type price: string
