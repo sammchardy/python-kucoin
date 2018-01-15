@@ -1254,12 +1254,11 @@ class Client(object):
         """
 
         data = {
-            'symbol': symbol,
             'orderOid': order_id,
             'type': order_type
         }
 
-        return self._post('cancel-order', True, data=data)
+        return self._post('cancel-order?symbol={}'.format(symbol), True, data=data)
 
     def cancel_all_orders(self, symbol=None, order_type=None):
         """Cancel all orders
