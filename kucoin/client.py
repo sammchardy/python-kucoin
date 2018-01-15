@@ -26,7 +26,8 @@ class Client(object):
     SIDE_SELL = 'SELL'
 
     TRANSFER_STATUS_CANCELLED = 'CANCEL'
-    TRANSFER_STATUS_SUCCESS = 'SUCCESS'
+    TRANSFER_STATUS_PENDING = 'PENDING'
+    TRANSFER_STATUS_FINISHED = 'FINISHED'
 
     RESOLUTION_1MINUTE = '1'
     RESOLUTION_5MINUTES = '5'
@@ -209,7 +210,7 @@ class Client(object):
                 "permissions": null
             }
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -235,7 +236,7 @@ class Client(object):
 
         :returns: True on success
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -276,7 +277,7 @@ class Client(object):
                 }
             ]
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -296,7 +297,7 @@ class Client(object):
 
         :returns: True on success
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -385,7 +386,7 @@ class Client(object):
                 }
             }
 
-        :raises:  KucoinResponseException,  KucoinAPIException
+        :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
@@ -449,7 +450,7 @@ class Client(object):
                 ]
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -471,7 +472,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -514,7 +515,7 @@ class Client(object):
                 "email": "robert2041@163.com"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -541,22 +542,26 @@ class Client(object):
                 "countThree": 60
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
         return self._get('referrer/descendant/count', True)
 
-    def get_reward_info(self, coin):
-        """Get promotion reward info for a coin
+    def get_reward_info(self, coin=None):
+        """Get promotion reward info all coins or an individual coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/inviting-promotion/get-promotion-reward-info
 
-        :param coin: Name of coin to get reward info
+        :param coin: optional - Name of coin to get reward info
         :type coin: string
 
         .. code:: python
 
+            # all coins
+            user = client.get_reward_info('NEO')
+
+            # specific coin
             user = client.get_reward_info('NEO')
 
         :returns: ApiResponse
@@ -569,26 +574,30 @@ class Client(object):
                 "grantCountDownSeconds": 604800
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
-        data = {
-            'coin': coin
-        }
+        data = {}
+        if coin:
+            data['coin'] = coin
 
         return self._get('account/promotion/info', True, data=data)
 
-    def get_reward_summary(self, coin):
-        """Get promotion reward summary for a coin
+    def get_reward_summary(self, coin=None):
+        """Get promotion reward summary for all coins or a specific coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/inviting-promotion/get-promotion-reward-summary
 
-        :param coin: Name of coin to get reward summary
+        :param coin: optional - Name of coin to get reward summary
         :type coin: string
 
         .. code:: python
 
+            # all coins
+            user = client.get_reward_summary()
+
+            # specific coin
             user = client.get_reward_summary('NEO')
 
         :returns: ApiResponse
@@ -610,26 +619,30 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
-        data = {
-            'coin': coin
-        }
+        data = {}
+        if coin:
+            data['coin'] = coin
 
         return self._get('account/promotion/sum', True, data=data)
 
-    def extract_invite_bonus(self, coin):
-        """Extract the invitation bonus for a coin
+    def extract_invite_bonus(self, coin=None):
+        """Extract the invitation bonus for all coins or a specific coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/invitation-bonus/extract-invitation-bonus
 
-        :param coin: Name of coin to extract the invitation bonus
+        :param coin: optional - Name of coin to extract the invitation bonus
         :type coin: string
 
         .. code:: python
 
+            # all coins
+            user = client.extract_invite_bonus()
+
+            # specific coin
             user = client.extract_invite_bonus('KCS')
 
         :returns: ApiResponse
@@ -640,13 +653,13 @@ class Client(object):
                 "count": 0  # The number of successful extracted
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
-        data = {
-            'coin': coin
-        }
+        data = {}
+        if coin:
+            data['coin'] = coin
 
         return self._get('account/promotion/draw', True, data=data)
 
@@ -680,7 +693,7 @@ class Client(object):
                 "lastReceivedAt": 1502276446000
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -704,7 +717,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -731,7 +744,7 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -748,7 +761,7 @@ class Client(object):
 
         :param coin: Name of coin
         :type coin: string
-        :param status: optional - Status of deposit
+        :param status: optional - Status of deposit (FINISHED, CANCEL, PENDING)
         :type status: string
         :param limit: optional - Number of transactions
         :type limit: int
@@ -801,7 +814,7 @@ class Client(object):
                 "startRow": 0
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -824,7 +837,7 @@ class Client(object):
 
         :param coin: Name of coin
         :type coin: string
-        :param status: optional - Status of withdrawal
+        :param status: optional - Status of withdrawal (FINISHED, CANCEL, PENDING)
         :type status: string
         :param limit: optional - Number of transactions
         :type limit: int
@@ -877,7 +890,7 @@ class Client(object):
                 "startRow": 0
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -915,7 +928,7 @@ class Client(object):
                 freezeBalance: 321321
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -953,7 +966,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -981,7 +994,7 @@ class Client(object):
 
         :returns: float balance value
 
-        :raises: Exception, KucoinResponseException,  KucoinAPIException
+        :raises: Exception, KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1018,7 +1031,7 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param order_type: Buy or Sell
+        :param order_type: BUY or SELL
         :type order_type: string
         :param price: Name of coin
         :type price: string
@@ -1037,7 +1050,7 @@ class Client(object):
                 "orderOid": "596186ad07015679730ffa02"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1074,7 +1087,7 @@ class Client(object):
                 "orderOid": "596186ad07015679730ffa02"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1104,7 +1117,7 @@ class Client(object):
                 "orderOid": "596186ad07015679730ffa02"
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1204,7 +1217,7 @@ class Client(object):
                 }
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1212,7 +1225,11 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('order/active', True, data=data)
+        path = 'order/active'
+        if kv_format:
+            path += '-map'
+
+        return self._get(path, True, data=data)
 
     def cancel_order(self, symbol, order_id, order_type):
         """Cancel an order
@@ -1232,17 +1249,16 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
         data = {
-            'symbol': symbol,
             'orderOid': order_id,
             'type': order_type
         }
 
-        return self._post('cancel-order', True, data=data)
+        return self._post('cancel-order?symbol={}'.format(symbol), True, data=data)
 
     def cancel_all_orders(self, symbol=None, order_type=None):
         """Cancel all orders
@@ -1264,17 +1280,19 @@ class Client(object):
 
         :returns: None
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
         data = {}
-        if symbol:
-            data['symbol'] = symbol
         if order_type:
             data['type'] = order_type
 
-        return self._post('order/cancel-all', True, data=data)
+        path = 'order/cancel-all'
+        if symbol:
+            path += '?symbol={}'.format(symbol)
+
+        return self._post(path, True, data=data)
 
     def get_dealt_orders(self, symbol=None, order_type=None, limit=None, page=None, since=None, before=None):
         """Get a list of dealt orders with pagination
@@ -1338,7 +1356,7 @@ class Client(object):
                 "page": 1
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1421,7 +1439,7 @@ class Client(object):
                 "lastPage": false
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1499,11 +1517,12 @@ class Client(object):
                 "pendingAmount": 187.34
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
         data = {
+            'symbol': symbol,
             'type': order_type
         }
         if limit:
@@ -1513,25 +1532,51 @@ class Client(object):
         if order_id:
             data['orderOid'] = order_id
 
-        return self._get('{}/order/detail'.format(symbol), True, data=data)
+        return self._get('/order/detail', True, data=data)
 
     # Market Endpoints
 
-    def get_tick(self, symbol):
-        """Get a symbol tick
+    def get_tick(self, symbol=None):
+        """Get all ticks or a symbol tick
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/tick(open)
 
-        :param symbol: Name of symbol e.g. KCS-BTC
+        :param symbol: optional - Name of symbol e.g. KCS-BTC
         :type symbol: string
 
         .. code:: python
 
-            orders = client.get_tick('KCS-BTC')
+            # get all ticks
+            ticks = client.get_tick()
+
+            tick = client.get_tick('KCS-BTC')
 
         :returns: ApiResponse
 
+        Without a symbol param
+
         .. code:: python
+
+            [
+                {
+                    "coinType": "KCS",
+                    "trading": true,
+                    "lastDealPrice": 5040,
+                    "buy": 5000,
+                    "sell": 5040,
+                    "coinTypePair": "BTC",
+                    "sort": 0,
+                    "feeRate": 0.001,
+                    "volValue": 308140577,
+                    "high": 6890,
+                    "datetime": 1506050394000,
+                    "vol": 5028739175025,
+                    "low": 5040,
+                    "changeRate": -0.2642
+                }
+            ]
+
+        With a symbol param
 
             {
                 "coinType": "KCS",
@@ -1550,13 +1595,13 @@ class Client(object):
                 "changeRate": -0.2642
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
-        data = {
-            'symbol': symbol
-        }
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
 
         return self._get('open/tick', False, data=data)
 
@@ -1567,9 +1612,9 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group:
+        :param group: optional - sets the price display precision - valid values (1-8)
         :type group: int
-        :param limit: Depth to return
+        :param limit: optional - depth to return
         :type limit: int
 
         .. code:: python
@@ -1607,7 +1652,7 @@ class Client(object):
                 ]
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1628,7 +1673,7 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group: optional - not sure what this means
+        :param group: optional - sets the price display precision - valid values (1-8)
         :type group: int
         :param limit: optional - Depth to return
         :type limit: int
@@ -1654,7 +1699,7 @@ class Client(object):
                 ]
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1675,7 +1720,7 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group: optional - not sure what this means
+        :param group: optional - sets the price display precision - valid values (1-8)
         :type group: int
         :param limit: optional - Depth to return
         :type limit: int
@@ -1701,7 +1746,7 @@ class Client(object):
                 ]
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1754,7 +1799,7 @@ class Client(object):
                     593214
                 ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -1768,14 +1813,47 @@ class Client(object):
 
         return self._get('open/deal-orders', False, data=data)
 
-    def get_trading_symbols(self):
-        """Get list of trading symbols
+    def get_trading_markets(self):
+        """Get list of trading markets
 
-        https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trading-symbols(open)
+        https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trading-markets(open)
 
         .. code:: python
 
+            coins = client.get_trading_markets()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                "BTC",
+                "ETH",
+                "NEO",
+                "USDT"
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('open/markets')
+
+    def get_trading_symbols(self, market=None):
+        """Get list of trading symbols for an optional market
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trading-symbols(open)
+
+        :param market: Name of market e.g. BTC
+        :type market: string
+
+        .. code:: python
+
+            # get all trading symbols
             coins = client.get_trading_symbols()
+
+            # get KCS trading symbols
+            coins = client.get_trading_symbols('KCS)
 
         :returns: ApiResponse
 
@@ -1816,20 +1894,31 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
-        return self._get('market/open/symbols')
+        data = {}
+        if market:
+            data['market'] = market
 
-    def get_trending_coins(self):
-        """Get list of trending coins
+        return self._get('market/open/symbols', False, data=data)
+
+    def get_trending_coins(self, market=None):
+        """Get list of trending coins for an optional market
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trendings(open)
 
+        :param market: Name of market e.g. BTC
+        :type market: string
+
         .. code:: python
 
+            # get all trending coins
             coins = client.get_trending_coins()
+
+            # get trending coins for BTC
+            coins = client.get_trending_coins('BTC')
 
         :returns: ApiResponse
 
@@ -1859,11 +1948,14 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
+        data = {}
+        if market:
+            data['market'] = market
 
-        return self._get('market/open/coins-trending')
+        return self._get('market/open/coins-trending', False, data=data)
 
     def get_kline_data(self, symbol, resolution, from_time, to_time, limit=None):
         """Get kline data
@@ -1915,7 +2007,7 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException, KucoinResolutionException
+        :raises: KucoinResponseException, KucoinAPIException, KucoinResolutionException
 
         """
 
@@ -1965,7 +2057,7 @@ class Client(object):
                 ]
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -2018,7 +2110,7 @@ class Client(object):
                 "has_no_volume": true
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -2128,7 +2220,7 @@ class Client(object):
                 ]
             }
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
@@ -2200,6 +2292,48 @@ class Client(object):
         # finally return our converted klines
         return klines
 
+    def get_coin_info(self, coin=None):
+        """Get info about all coins or a coin
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/market/get-coin-info(open)
+
+        .. code:: python
+
+            # all coin info
+            info = client.get_coin_info()
+
+            # EOS coin info
+            info = client.get_coin_info('EOS')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "withdrawMinFee": 100000,
+                "withdrawMinAmount": 200000,
+                "withdrawFeeRate": 0.001,
+                "confirmationCount": 12,
+                "name": "Bitcoin",
+                "tradePrecision": 7,
+                "coin": "BTC",
+                "infoUrl": null,
+                "enableWithdraw": true,
+                "enableDeposit": true,
+                "depositRemark": "",
+                "withdrawRemark": ""
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if coin:
+            data['coin'] = coin
+
+        return self._get('market/open/coin-info', False, data=data)
+
     def get_coin_list(self):
         """Get a list of coins with trade and withdrawal information
 
@@ -2234,8 +2368,8 @@ class Client(object):
                 }
             ]
 
-        :raises: KucoinResponseException,  KucoinAPIException
+        :raises: KucoinResponseException, KucoinAPIException
 
         """
 
-        return self._get('market/open/coins-list')
+        return self._get('market/open/coins')
