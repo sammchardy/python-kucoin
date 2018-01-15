@@ -1536,21 +1536,47 @@ class Client(object):
 
     # Market Endpoints
 
-    def get_tick(self, symbol):
-        """Get a symbol tick
+    def get_tick(self, symbol=None):
+        """Get all ticks or a symbol tick
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/tick(open)
 
-        :param symbol: Name of symbol e.g. KCS-BTC
+        :param symbol: optional - Name of symbol e.g. KCS-BTC
         :type symbol: string
 
         .. code:: python
 
-            orders = client.get_tick('KCS-BTC')
+            # get all ticks
+            ticks = client.get_tick()
+
+            tick = client.get_tick('KCS-BTC')
 
         :returns: ApiResponse
 
+        Without a symbol param
+
         .. code:: python
+
+            [
+                {
+                    "coinType": "KCS",
+                    "trading": true,
+                    "lastDealPrice": 5040,
+                    "buy": 5000,
+                    "sell": 5040,
+                    "coinTypePair": "BTC",
+                    "sort": 0,
+                    "feeRate": 0.001,
+                    "volValue": 308140577,
+                    "high": 6890,
+                    "datetime": 1506050394000,
+                    "vol": 5028739175025,
+                    "low": 5040,
+                    "changeRate": -0.2642
+                }
+            ]
+
+        With a symbol param
 
             {
                 "coinType": "KCS",
@@ -1573,9 +1599,9 @@ class Client(object):
 
         """
 
-        data = {
-            'symbol': symbol
-        }
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
 
         return self._get('open/tick', False, data=data)
 
