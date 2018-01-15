@@ -837,7 +837,7 @@ class Client(object):
 
         :param coin: Name of coin
         :type coin: string
-        :param status: optional - Status of withdrawal
+        :param status: optional - Status of withdrawal (FINISHED, CANCEL, PENDING)
         :type status: string
         :param limit: optional - Number of transactions
         :type limit: int
