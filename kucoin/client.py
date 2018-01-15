@@ -1839,14 +1839,21 @@ class Client(object):
 
         return self._get('open/markets')
 
-    def get_trading_symbols(self):
-        """Get list of trading symbols
+    def get_trading_symbols(self, market=None):
+        """Get list of trading symbols for an optional market
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trading-symbols(open)
 
+        :param market: Name of market e.g. BTC
+        :type market: string
+
         .. code:: python
 
+            # get all trading symbols
             coins = client.get_trading_symbols()
+
+            # get KCS trading symbols
+            coins = client.get_trading_symbols('KCS)
 
         :returns: ApiResponse
 
@@ -1891,7 +1898,11 @@ class Client(object):
 
         """
 
-        return self._get('market/open/symbols')
+        data = {}
+        if market:
+            data['market'] = market
+
+        return self._get('market/open/symbols', False, data=data)
 
     def get_trending_coins(self):
         """Get list of trending coins
