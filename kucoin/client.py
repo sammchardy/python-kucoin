@@ -1904,14 +1904,21 @@ class Client(object):
 
         return self._get('market/open/symbols', False, data=data)
 
-    def get_trending_coins(self):
-        """Get list of trending coins
+    def get_trending_coins(self, market=None):
+        """Get list of trending coins for an optional market
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trendings(open)
 
+        :param market: Name of market e.g. BTC
+        :type market: string
+
         .. code:: python
 
+            # get all trending coins
             coins = client.get_trending_coins()
+
+            # get trending coins for BTC
+            coins = client.get_trending_coins('BTC')
 
         :returns: ApiResponse
 
@@ -1944,8 +1951,11 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
+        data = {}
+        if market:
+            data['market'] = market
 
-        return self._get('market/open/coins-trending')
+        return self._get('market/open/coins-trending', False, data=data)
 
     def get_kline_data(self, symbol, resolution, from_time, to_time, limit=None):
         """Get kline data
@@ -2320,4 +2330,4 @@ class Client(object):
 
         """
 
-        return self._get('market/open/coins-list')
+        return self._get('market/open/coins')
