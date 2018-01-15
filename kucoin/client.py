@@ -1612,9 +1612,9 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group:
+        :param group: optional - sets the price display precision - valid values (1-8)
         :type group: int
-        :param limit: Depth to return
+        :param limit: optional - depth to return
         :type limit: int
 
         .. code:: python
@@ -1673,7 +1673,7 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group: optional - not sure what this means
+        :param group: optional - sets the price display precision - valid values (1-8)
         :type group: int
         :param limit: optional - Depth to return
         :type limit: int
@@ -1720,7 +1720,7 @@ class Client(object):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param group: optional - not sure what this means
+        :param group: optional - sets the price display precision - valid values (1-8)
         :type group: int
         :param limit: optional - Depth to return
         :type limit: int
