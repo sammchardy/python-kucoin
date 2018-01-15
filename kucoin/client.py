@@ -1285,12 +1285,14 @@ class Client(object):
         """
 
         data = {}
-        if symbol:
-            data['symbol'] = symbol
         if order_type:
             data['type'] = order_type
 
-        return self._post('order/cancel-all', True, data=data)
+        path = 'order/cancel-all'
+        if symbol:
+            path += '?symbol={}'.format(symbol)
+
+        return self._post(path, True, data=data)
 
     def get_dealt_orders(self, symbol=None, order_type=None, limit=None, page=None, since=None, before=None):
         """Get a list of dealt orders with pagination
