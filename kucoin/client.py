@@ -1813,6 +1813,32 @@ class Client(object):
 
         return self._get('open/deal-orders', False, data=data)
 
+    def get_trading_markets(self):
+        """Get list of trading markets
+
+        https://kucoinapidocs.docs.apiary.io/#reference/0/market/list-trading-markets(open)
+
+        .. code:: python
+
+            coins = client.get_trading_markets()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                "BTC",
+                "ETH",
+                "NEO",
+                "USDT"
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('open/markets')
+
     def get_trading_symbols(self):
         """Get list of trading symbols
 
