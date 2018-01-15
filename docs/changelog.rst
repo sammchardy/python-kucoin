@@ -1,6 +1,28 @@
 Changelog
 =========
 
+v0.1.6 - 2010-01-15
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- constants for transfer types, pending, finished and cancelled
+- documentation for `group` param on `get_order_book`, `get_buy_orders` and `get_sell_orders`
+- add `get_trading_markets` endpoint
+- add `market` param to `get_trading_symbols` and `get_trending_coins`
+- add `get_coin_info` function with optional `coin` param
+
+**Fixed**
+
+- set coin param to optional for `get_reward_info`, `get_reward_summary` and `extract_invite_bonus`
+- actually use the `kv_format` param on `get_active_orders`
+- `cancel_order` format to send symbol in URL
+- `cancel_all_orders` format to send symbol in URL
+- `order_details` removed symbol from URL
+- `get_tick` symbol is now optional
+- fix `get_coin_list` URL
+
+
 v0.1.5 - 2010-01-14
 ^^^^^^^^^^^^^^^^^^^
 
