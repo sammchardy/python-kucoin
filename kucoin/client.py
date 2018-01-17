@@ -61,7 +61,7 @@ class Client(object):
 
         .. code:: python
 
-            products = Client(api_key, api_secret)
+            client = Client(api_key, api_secret)
 
         """
 
@@ -1231,39 +1231,49 @@ class Client(object):
 
         return self._get(path, True, data=data)
 
-    def cancel_order(self, symbol, order_id, order_type):
+    def cancel_order(self, order_id, symbol=None, order_type=None):
         """Cancel an order
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/trading/cancel-orders
 
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
+        Note: The Kucoin documentation is incorrect, the symbol parameter goes in the body not the query string
+
         :param order_id: Order id
         :type order_id: string
-        :param order_type: Order type
+        :param symbol: optional - Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_type: optional - Order type
         :type order_type: string
 
         .. code:: python
 
-            client.cancel_order('KCS-BTC', 1, 'BUY')
+            client.cancel_order(1)
 
-        :returns: None
+            client.cancel_order(1, 'KCS-BTC', 'BUY')
+
+        :returns: None on success
 
         :raises: KucoinResponseException, KucoinAPIException
 
         """
 
         data = {
-            'orderOid': order_id,
-            'type': order_type
+            'orderOid': order_id
         }
 
-        return self._post('cancel-order?symbol={}'.format(symbol), True, data=data)
+        if order_type:
+            data['type'] = order_type
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._post('cancel-order', True, data=data)
 
     def cancel_all_orders(self, symbol=None, order_type=None):
         """Cancel all orders
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/trading/cancel-all-orders
+
+        Note: The Kucoin documentation is incorrect, the symbol parameter goes in the body not the query string
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -1278,7 +1288,7 @@ class Client(object):
             # cancel all KCS-BTC Buy orders
             client.cancel_all_orders('KCS-BTC', 'BUY')
 
-        :returns: None
+        :returns: None on success
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -1287,12 +1297,10 @@ class Client(object):
         data = {}
         if order_type:
             data['type'] = order_type
-
-        path = 'order/cancel-all'
         if symbol:
-            path += '?symbol={}'.format(symbol)
+            data['symbol'] = symbol
 
-        return self._post(path, True, data=data)
+        return self._post('order/cancel-all', True, data=data)
 
     def get_dealt_orders(self, symbol=None, order_type=None, limit=None, page=None, since=None, before=None):
         """Get a list of dealt orders with pagination
