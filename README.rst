@@ -1,5 +1,5 @@
 ===============================
-Welcome to python-kucoin v0.1.6
+Welcome to python-kucoin v0.1.7
 ===============================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
