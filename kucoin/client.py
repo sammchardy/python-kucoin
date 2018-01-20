@@ -1230,7 +1230,7 @@ class Client(object):
 
         return self._get(path, True, data=data)
 
-    def cancel_order(self, order_id, symbol=None, order_type=None):
+    def cancel_order(self, order_id, order_type, symbol=None):
         """Cancel an order
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/trading/cancel-orders
@@ -1239,10 +1239,10 @@ class Client(object):
 
         :param order_id: Order id
         :type order_id: string
+        :param order_type: Order type
+        :type order_type: string
         :param symbol: optional - Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param order_type: optional - Order type
-        :type order_type: string
 
         .. code:: python
 
@@ -1253,6 +1253,8 @@ class Client(object):
         :returns: None on success
 
         :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
 
         """
 
