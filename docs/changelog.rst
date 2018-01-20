@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v0.1.7 - 2010-01-17
+^^^^^^^^^^^^^^^^^^^
+
+**Fixed**
+
+- `cancel_order` format to send symbol in payload, remove URL params
+- `cancel_all_orders` format to send symbol in payload, remove URL params
+
+
 v0.1.6 - 2010-01-15
 ^^^^^^^^^^^^^^^^^^^
 
