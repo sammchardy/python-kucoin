@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='python-kucoin',
-    version='0.1.7',
+    version='0.1.8',
     packages=['kucoin'],
     description='Kucoin REST API python implementation',
     url='https://github.com/sammchardy/python-kucoin',

@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.1.8 - 2010-01-20
+^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- better exception error messages
+
+**Fixed**
+
+- `cancel_order` format to make `order_type` required
+
 v0.1.7 - 2010-01-17
 ^^^^^^^^^^^^^^^^^^^
 
