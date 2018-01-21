@@ -660,7 +660,7 @@ class Client(object):
         if coin:
             data['coin'] = coin
 
-        return self._get('account/promotion/draw', True, data=data)
+        return self._post('account/promotion/draw', True, data=data)
 
     # Asset Endpoints
 
