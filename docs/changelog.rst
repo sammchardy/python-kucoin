@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v0.1.8 - 2010-01-20
+v0.1.8 - 2018-01-20
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -12,7 +12,7 @@ v0.1.8 - 2010-01-20
 
 - `cancel_order` format to make `order_type` required
 
-v0.1.7 - 2010-01-17
+v0.1.7 - 2018-01-17
 ^^^^^^^^^^^^^^^^^^^
 
 **Fixed**
@@ -21,7 +21,7 @@ v0.1.7 - 2010-01-17
 - `cancel_all_orders` format to send symbol in payload, remove URL params
 
 
-v0.1.6 - 2010-01-15
+v0.1.6 - 2018-01-15
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -43,14 +43,14 @@ v0.1.6 - 2010-01-15
 - fix `get_coin_list` URL
 
 
-v0.1.5 - 2010-01-14
+v0.1.5 - 2018-01-14
 ^^^^^^^^^^^^^^^^^^^
 
 **Fixed**
 
 - remove debug output
 
-v0.1.4 - 2010-01-14
+v0.1.4 - 2018-01-14
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -62,7 +62,7 @@ v0.1.4 - 2010-01-14
 - handle success: false type errors properly to raise exception
 - fix passed param name on `get_kline_data`
 
-v0.1.3 - 2010-01-12
+v0.1.3 - 2018-01-12
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
@@ -70,7 +70,7 @@ v0.1.3 - 2010-01-12
 - add function `get_total_balance` to get balance in Fiat
 - added pagination params to `get_all_balances`
 
-v0.1.2 - 2010-01-07
+v0.1.2 - 2018-01-07
 ^^^^^^^^^^^^^^^^^^^
 
 **Added**
