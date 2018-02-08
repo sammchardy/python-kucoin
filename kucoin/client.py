@@ -975,7 +975,7 @@ class Client(object):
         if page:
             data['page'] = page
 
-        return self._get('account/balance', True, data=data)
+        return self._get('account/balances', True, data=data)
 
     def get_total_balance(self, currency='USD'):
         """Get total balance in your currency, USD by default
