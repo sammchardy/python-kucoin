@@ -1588,7 +1588,7 @@ class Client(object):
         With a symbol param
 
         .. code:: python
-        
+
             {
                 "coinType": "KCS",
                 "trading": true,
