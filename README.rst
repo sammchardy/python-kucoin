@@ -1,6 +1,6 @@
-===============================
-Welcome to python-kucoin v0.1.9
-===============================
+================================
+Welcome to python-kucoin v0.1.10
+================================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
