@@ -1541,7 +1541,7 @@ class Client(object):
         if order_id:
             data['orderOid'] = order_id
 
-        return self._get('/order/detail', True, data=data)
+        return self._get('order/detail', True, data=data)
 
     # Market Endpoints
 
