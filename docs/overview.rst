@@ -46,6 +46,50 @@ Most responses return a server timestamp, to fetch this use the `get_last_timest
     products = client.get_currencies()
     timestamp = client.get_last_timestamp()
 
+
+Requests Settings
+-----------------
+
+`python-binance` uses the `requests <http://docs.python-requests.org/en/master/>`_ library.
+
+You can set custom requests parameters for all API calls when creating the client.
+
+.. code:: python
+
+    client = Client("api-key", "api-secret", {"verify": False, "timeout": 20})
+
+Check out the `requests documentation <http://docs.python-requests.org/en/master/>`_ for all options.
+
+**Proxy Settings**
+
+You can use the Requests Settings method above
+
+.. code:: python
+
+    proxies = {
+        'http': 'http://10.10.1.10:3128',
+        'https': 'http://10.10.1.10:1080'
+    }
+
+    # in the Client instantiation
+    client = Client("api-key", "api-secret", {'proxies': proxies})
+
+Or set an environment variable for your proxy if required to work across all requests.
+
+An example for Linux environments from the `requests Proxies documentation <http://docs.python-requests.org/en/master/user/advanced/#proxies>`_ is as follows.
+
+.. code-block:: bash
+
+    $ export HTTP_PROXY="http://10.10.1.10:3128"
+    $ export HTTPS_PROXY="http://10.10.1.10:1080"
+
+For Windows environments
+
+.. code-block:: bash
+
+    C:\>set HTTP_PROXY=http://10.10.1.10:3128
+    C:\>set HTTPS_PROXY=http://10.10.1.10:1080
+
 API Rate Limit
 --------------
 

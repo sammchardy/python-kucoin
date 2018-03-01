@@ -48,7 +48,7 @@ class Client(object):
         RESOLUTION_1WEEK: '1week',
     }
 
-    def __init__(self, api_key, api_secret, language=None):
+    def __init__(self, api_key, api_secret, language=None, requests_params=None):
         """Kucoin API Client constructor
 
         https://kucoinapidocs.docs.apiary.io/
@@ -57,6 +57,8 @@ class Client(object):
         :type api_key: string
         :param api_secret: Api Secret
         :type api_secret: string
+        :param requests_params: optional - Dictionary of requests params to use for all calls
+        :type requests_params: dict.
 
         .. code:: python
 
@@ -68,6 +70,7 @@ class Client(object):
         self.API_SECRET = api_secret
         if language:
             self._language = language
+        self._requests_params = requests_params
         self.session = self._init_session()
 
     def _init_session(self):
@@ -116,6 +119,13 @@ class Client(object):
         return '{}{}'.format(self.API_URL, path)
 
     def _request(self, method, path, signed, **kwargs):
+
+        # set default requests timeout
+        kwargs['timeout'] = 10
+
+        # add our global requests params
+        if self._requests_params:
+            kwargs.update(self._requests_params)
 
         kwargs['data'] = kwargs.get('data', {})
         kwargs['headers'] = kwargs.get('headers', {})
