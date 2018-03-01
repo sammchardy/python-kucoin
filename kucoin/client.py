@@ -1208,6 +1208,8 @@ class Client(object):
 
         KV Format
 
+        .. code:: python
+
             {
                 "success": true,
                 "code": "OK",
