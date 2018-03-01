@@ -1,8 +1,19 @@
 Changelog
 =========
 
+v0.1.11 - 2018-03-01
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- option for passing requests module parameters on Client initialisation
+
+**Restored**
+
+- old `get_all_balances` non-paged functionality
+
 v0.1.10 - 2018-02-10
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
 
 **Fixed**
 
