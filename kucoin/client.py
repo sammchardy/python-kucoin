@@ -1511,7 +1511,7 @@ class Client(object):
         :param page: optional - Page to fetch
         :type page: int
         :param order_id: optional - orderOid value
-        :type order_id: int
+        :type order_id: str
 
         .. code:: python
 
