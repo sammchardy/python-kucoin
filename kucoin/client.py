@@ -48,7 +48,7 @@ class Client(object):
         RESOLUTION_1WEEK: '1week',
     }
 
-    def __init__(self, api_key, api_secret, language=None):
+    def __init__(self, api_key, api_secret, language=None, requests_params=None):
         """Kucoin API Client constructor
 
         https://kucoinapidocs.docs.apiary.io/
@@ -57,6 +57,8 @@ class Client(object):
         :type api_key: string
         :param api_secret: Api Secret
         :type api_secret: string
+        :param requests_params: optional - Dictionary of requests params to use for all calls
+        :type requests_params: dict.
 
         .. code:: python
 
@@ -68,6 +70,7 @@ class Client(object):
         self.API_SECRET = api_secret
         if language:
             self._language = language
+        self._requests_params = requests_params
         self.session = self._init_session()
 
     def _init_session(self):
@@ -116,6 +119,13 @@ class Client(object):
         return '{}{}'.format(self.API_URL, path)
 
     def _request(self, method, path, signed, **kwargs):
+
+        # set default requests timeout
+        kwargs['timeout'] = 10
+
+        # add our global requests params
+        if self._requests_params:
+            kwargs.update(self._requests_params)
 
         kwargs['data'] = kwargs.get('data', {})
         kwargs['headers'] = kwargs.get('headers', {})
@@ -933,8 +943,39 @@ class Client(object):
 
         return self._get('account/{}/balance'.format(coin), True)
 
-    def get_all_balances(self, limit=None, page=None):
+    def get_all_balances(self):
         """Get all coin balances
+
+        This is an old, now undocumented call that may not work
+
+        .. code:: python
+
+            balances = client.get_all_balances()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                {
+                    coinType: "BTC",
+                    balance: 1233214,
+                    freezeBalance: 321321,
+                    balanceStr: "1233214"
+                    freezeBalanceStr: "321321"
+                }
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        return self._get('account/balance', True, data=data)
+
+    def get_all_balances_paged(self, limit=None, page=None):
+        """Get all coin balances with paging if that's what you want
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/assets-operation/get-all-balance
 
@@ -1176,6 +1217,8 @@ class Client(object):
             }
 
         KV Format
+
+        .. code:: python
 
             {
                 "success": true,
@@ -1478,7 +1521,7 @@ class Client(object):
         :param page: optional - Page to fetch
         :type page: int
         :param order_id: optional - orderOid value
-        :type order_id: int
+        :type order_id: str
 
         .. code:: python
 
