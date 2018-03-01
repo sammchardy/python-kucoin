@@ -933,8 +933,39 @@ class Client(object):
 
         return self._get('account/{}/balance'.format(coin), True)
 
-    def get_all_balances(self, limit=None, page=None):
+    def get_all_balances(self):
         """Get all coin balances
+
+        This is an old, now undocumented call that may not work
+
+        .. code:: python
+
+            balances = client.get_all_balances()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                {
+                    coinType: "BTC",
+                    balance: 1233214,
+                    freezeBalance: 321321,
+                    balanceStr: "1233214"
+                    freezeBalanceStr: "321321"
+                }
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        return self._get('account/balance', True, data=data)
+
+    def get_all_balances_paged(self, limit=None, page=None):
+        """Get all coin balances with paging if that's what you want
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/assets-operation/get-all-balance
 
