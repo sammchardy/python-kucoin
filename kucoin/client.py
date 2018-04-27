@@ -2298,10 +2298,10 @@ class Client(object):
         :type symbol: str
         :param interval: Trading View Kline interval
         :type interval: str
-        :param start_str: Start date string in UTC format
-        :type start_str: str
-        :param end_str: optional - end date string in UTC format
-        :type end_str: str
+        :param start_str: Start date string in UTC format or timestamp in milliseconds
+        :type start_str: str|int
+        :param end_str: optional - end date string in UTC format or timestamp in milliseconds
+        :type end_str: str|int
 
         .. code:: python
 
@@ -2321,12 +2321,18 @@ class Client(object):
         klines = []
 
         # convert our date strings to seconds
-        start_ts = date_to_seconds(start_str)
+        if type(start_str) == int:
+            start_ts = start_str
+        else:
+            start_ts = date_to_seconds(start_str)
 
         # if an end time was not passed we need to use now
         if end_str is None:
             end_str = 'now UTC'
-        end_ts = date_to_seconds(end_str)
+        if type(end_str) == 'int':
+            end_ts = end_str
+        else:
+            end_ts = date_to_seconds(end_str)
 
         kline_res = self.get_kline_data_tv(symbol, interval, start_ts, end_ts)
 
@@ -2346,15 +2352,12 @@ class Client(object):
         # finally return our converted klines
         return klines
 
-    def get_coin_info(self, coin=None):
+    def get_coin_info(self, coin):
         """Get info about all coins or a coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/get-coin-info(open)
 
         .. code:: python
-
-            # all coin info
-            info = client.get_coin_info()
 
             # EOS coin info
             info = client.get_coin_info('EOS')
@@ -2382,9 +2385,9 @@ class Client(object):
 
         """
 
-        data = {}
-        if coin:
-            data['coin'] = coin
+        data = {
+            'coin': coin
+        }
 
         return self._get('market/open/coin-info', False, data=data)
 
