@@ -2346,15 +2346,12 @@ class Client(object):
         # finally return our converted klines
         return klines
 
-    def get_coin_info(self, coin=None):
+    def get_coin_info(self, coin):
         """Get info about all coins or a coin
 
         https://kucoinapidocs.docs.apiary.io/#reference/0/market/get-coin-info(open)
 
         .. code:: python
-
-            # all coin info
-            info = client.get_coin_info()
 
             # EOS coin info
             info = client.get_coin_info('EOS')
@@ -2382,9 +2379,9 @@ class Client(object):
 
         """
 
-        data = {}
-        if coin:
-            data['coin'] = coin
+        data = {
+            'coin': coin
+        }
 
         return self._get('market/open/coin-info', False, data=data)
 
