@@ -1,6 +1,17 @@
 Changelog
 =========
 
+v0.1.12 - 2018-04-27
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- timestamp in milliseconds to `get_historical_klines_tv` function
+
+**Fixed**
+
+- make `coin` parameter required in `get_coin_info` function
+
 v0.1.11 - 2018-03-01
 ^^^^^^^^^^^^^^^^^^^^
 
