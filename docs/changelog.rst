@@ -8,7 +8,6 @@ v2.0.0 - 2010-01-22
 
 - support for REST endpoint of v2 API
 
-
 v0.1.12 - 2018-04-27
 ^^^^^^^^^^^^^^^^^^^^
 

@@ -22,7 +22,6 @@ Welcome to python-kucoin v2.0.0
 
 This is an unofficial Python wrapper for the `Kucoin exchanges REST API v2 <https://docs.kucoin.com/>`_. I am in no way affiliated with Kucoin, use at your own risk.
 
-If you are looking for the v1 API install python-kycoin==0.1.12
 
 PyPi
   https://pypi.python.org/pypi/python-kucoin
@@ -40,12 +39,14 @@ Blog with examples
 Features
 --------
 
-- Implementation of most REST endpoints, more coming soon.
+- Implementation of REST endpoints
 - Simple handling of authentication
 - Response exception handling
-- Simple buy and sell order functions
-- Helper function `get_total_balance` to get balance in fiat
-- Historical Kline/Candle fetching function `get_historical_klines_tv`
+
+TODO
+----
+
+- Implement websockets
 
 Quick Start
 -----------
@@ -60,6 +61,11 @@ To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com
 
     pip install python-kucoin
 
+If you are looking for the older v1 API install python-kucoin==0.1.12
+
+.. code:: bash
+
+    pip install python-kucoin==0.1.12
 
 .. code:: python
 
@@ -70,34 +76,16 @@ To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com
     currencies = client.get_currencies()
 
     # get market depth
-    depth = client.get_order_book('KCS-BTC', limit=50)
+    depth = client.get_order_book('KCS-BTC')
 
     # get symbol klines
-    from_time = 1507479171
-    to_time = 1510278278
-    klines = client.get_kline_data_tv(
-        'KCS-BTC',
-        Client.RESOLUTION_1MINUTE,
-        from_time,
-        to_time
-    )
+    klines = client.get_kline_dat('KCS-BTC')
 
-    # place a buy order
-    transaction = client.create_buy_order('KCS-BTC', '0.01', '1000')
+    # place a market buy order
+    order = client.create_market_order('NEO', Client.SIDE_BUY, size=20)
 
     # get list of active orders
     orders = client.get_active_orders('KCS-BTC')
-
-    # get historical kline data from any date range
-
-    # fetch 1 minute klines for the last day up until now
-    klines = client.get_historical_klines_tv("KCS-BTC", Client.KLINE_INTERVAL_1MINUTE, "1 day ago UTC")
-
-    # fetch 30 minute klines for the last month of 2017
-    klines = client.get_historical_klines_tv("ETH-BTC", Client.KLINE_INTERVAL_30MINUTE, "1 Dec, 2017", "1 Jan, 2018")
-
-    # fetch weekly klines since it listed
-    klines = client.get_historical_klines_tv("NEO-BTC", KLINE_INTERVAL_1WEEK, "1 Jan, 2017")
 
 
 For more `check out the documentation <https://python-kucoin.readthedocs.io/en/latest/>`_.
@@ -118,9 +106,6 @@ Other Exchanges
 If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
 
 If you use `Allcoin <https://www.allcoin.com/Account/RegisterByPhoneNumber/?InviteCode=MTQ2OTk4MDgwMDEzNDczMQ==>`_ check out my `python-allucoin <https://github.com/sammchardy/python-allcoin>`_ library.
-
-If you use `Quoinex <https://accounts.quoinex.com/sign-up?affiliate=PAxghztC67615>`_
-or `Qryptos <https://accounts.qryptos.com/sign-up?affiliate=PAxghztC67615>`_ check out my `python-quoine <https://github.com/sammchardy/python-quoine>`_ library.
 
 If you use `IDEX <https://idex.market>`_ check out my `python-idex <https://github.com/sammchardy/python-idex>`_ library.
 

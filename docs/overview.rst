@@ -13,7 +13,7 @@ Install with ``pip``:
 
     pip install python-kucoin
 
-For previous API install with
+For previous v1 API install with
 
 .. code:: bash
 
