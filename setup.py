@@ -3,14 +3,14 @@ from setuptools import setup
 
 setup(
     name='python-kucoin',
-    version='0.1.12',
+    version='2.0.0',
     packages=['kucoin'],
-    description='Kucoin REST API python implementation',
+    description='Kucoin REST API v2 python implementation',
     url='https://github.com/sammchardy/python-kucoin',
     author='Sam McHardy',
     license='MIT',
     author_email='',
-    install_requires=['requests', 'dateparser'],
+    install_requires=['requests'],
     keywords='kucoin exchange rest api bitcoin ethereum btc eth kcs',
     classifiers=[
           'Intended Audience :: Developers',

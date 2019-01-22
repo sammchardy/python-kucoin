@@ -1,5 +1,5 @@
 ================================
-Welcome to python-kucoin v0.1.12
+Welcome to python-kucoin v2.0.0
 ================================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
@@ -20,7 +20,9 @@ Welcome to python-kucoin v0.1.12
 .. image:: https://img.shields.io/pypi/pyversions/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
 
-This is an unofficial Python wrapper for the `Kucoin exchanges REST API v1 <https://kucoinapidocs.docs.apiary.io/>`_. I am in no way affiliated with Kucoin, use at your own risk.
+This is an unofficial Python wrapper for the `Kucoin exchanges REST API v2 <https://docs.kucoin.com/>`_. I am in no way affiliated with Kucoin, use at your own risk.
+
+If you are looking for the v1 API install python-kycoin==0.1.12
 
 PyPi
   https://pypi.python.org/pypi/python-kucoin
@@ -50,7 +52,9 @@ Quick Start
 
 Register an account with `Kucoin <https://www.kucoin.com/#/?r=E42cWB>`_.
 
-`Generate an API Key <https://www.kucoin.com/#/user/setting/api>`_ and enable it.
+To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
+
+`Generate an API Key <https://kucoin.com/account/api>`_ and enable it.
 
 .. code:: bash
 
@@ -60,7 +64,7 @@ Register an account with `Kucoin <https://www.kucoin.com/#/?r=E42cWB>`_.
 .. code:: python
 
     from kucoin.client import Client
-    client = Client(api_key, api_secret)
+    client = Client(api_key, api_secret, api_passphrase, sandbox=True)
 
     # get currencies
     currencies = client.get_currencies()

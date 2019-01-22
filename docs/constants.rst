@@ -5,26 +5,30 @@ Kucoin defines constants for Redord Types, Order Side, Order Status and Resoluti
 
 .. code:: python
 
-    TRANSFER_WITHDRAWAL = 'WITHDRAW'
-    TRANSFER_DEPOSIT = 'DEPOSIT'
+    SIDE_BUY = 'buy'
+    SIDE_SELL = 'sell'
 
-    TRANSFER_STATUS_CANCELLED = 'CANCEL'
-    TRANSFER_STATUS_PENDING = 'PENDING'
-    TRANSFER_STATUS_FINISHED = 'FINISHED'
+    ACCOUNT_MAIN = 'main'
+    ACCOUNT_TRADE = 'trade'
 
-    SIDE_BUY = 'BUY'
-    SIDE_SELL = 'SELL'
 
-    # Kucoin has 2 kline endpoint and they have been setup to take the below values
+    ORDER_LIMIT = 'limit'
+    ORDER_MARKET = 'market'
+    ORDER_LIMIT_STOP = 'limit_stop'
+    ORDER_MARKET_STOP = 'market_stop'
 
-    RESOLUTION_1MINUTE = '1'
-    RESOLUTION_5MINUTES = '5'
-    RESOLUTION_15MINUTES = '15'
-    RESOLUTION_30MINUTES = '30'
-    RESOLUTION_1HOUR = '60'
-    RESOLUTION_8HOURS = '480'
-    RESOLUTION_1DAY = 'D'
-    RESOLUTION_1WEEK = 'W'
+    STOP_LOSS = 'loss'
+    STOP_ENTRY = 'entry'
+
+    STP_CANCEL_NEWEST = 'CN'
+    STP_CANCEL_OLDEST = 'CO'
+    STP_DECREASE_AND_CANCEL = 'DC'
+    STP_CANCEL_BOTH = 'CB'
+
+    TIMEINFORCE_GOOD_TILL_CANCELLED = 'GTC'
+    TIMEINFORCE_GOOD_TILL_TIME = 'GTT'
+    TIMEINFORCE_IMMEDIATE_OR_CANCEL = 'IOC'
+    TIMEINFORCE_FILL_OR_KILL = 'FOK'
 
 Use in your code like below.
 

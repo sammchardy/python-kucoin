@@ -10,15 +10,11 @@ Contents
 
    overview
    constants
-   api_keys
+   general
    currencies
-   language
-   user
-   invites
-   assets
+   account
    trading
    market
-   helpers
    exceptions
    changelog
 
