@@ -26,7 +26,12 @@ The exception provides access to the
         print(e.status_code)
         print(e.message)
 
-KucoinResolutionException
--------------------------
+MarketOrderException
+--------------------
 
-Raised if resolution entered for kline data is invalid
+Raised if market order params are incorrect
+
+LimitOrderException
+-------------------
+
+Raised if limit order params are incorrect
