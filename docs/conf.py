@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'python-kucoin'
-copyright = '2017, Sam McHardy'
+copyright = '2019, Sam McHardy'
 author = 'Sam McHardy'
 
 # The version info for the project you're documenting, acts as replacement for

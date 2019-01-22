@@ -1,6 +1,8 @@
 Getting Started
 ===============
 
+This API has been updated to work with the v2 Sandbox
+
 Installation
 ------------
 
@@ -11,52 +13,45 @@ Install with ``pip``:
 
     pip install python-kucoin
 
+For previous v1 API install with
+
+.. code:: bash
+
+    pip install python-kucoin==0.1.12
 
 Register on Kucoin
 -------------------
 
 Firstly register an account with `Kucoin <https://www.kucoin.com/#/?r=E42cWB>`_.
 
+To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
+
 Generate an API Key
 -------------------
 
-To use signed account methods you are required to `create an API Key <https://www.kucoin.com/#/user/setting/api>`_ and enable it.
+To use signed account methods you are required to `create an API Key <https://kucoin.com/account/api>`_ and enable it.
 
 Initialise the client
 ---------------------
 
-Pass your API Key and Secret
+Pass your API Key, Secret and API Passphrase
 
 .. code:: python
 
     from kucoin.client import Client
-    client = Client(api_key, api_secret)
-
-    # optionally pass the language you would like to use
-    # see client.get_languages() for options
-    client = Client(api_key, api_secret, language='zh_CN)
-
-Response Timestamps
--------------------
-
-Most responses return a server timestamp, to fetch this use the `get_last_timestamp` function.
-
-.. code:: python
-
-    products = client.get_currencies()
-    timestamp = client.get_last_timestamp()
+    client = Client(api_key, api_secret, api_passphrase)
 
 
 Requests Settings
 -----------------
 
-`python-binance` uses the `requests <http://docs.python-requests.org/en/master/>`_ library.
+`python-kucoin` uses the `requests <http://docs.python-requests.org/en/master/>`_ library.
 
 You can set custom requests parameters for all API calls when creating the client.
 
 .. code:: python
 
-    client = Client("api-key", "api-secret", {"verify": False, "timeout": 20})
+    client = Client("api-key", "api-secret", "api-passphrase", {"verify": False, "timeout": 20})
 
 Check out the `requests documentation <http://docs.python-requests.org/en/master/>`_ for all options.
 
@@ -93,4 +88,14 @@ For Windows environments
 API Rate Limit
 --------------
 
-Currently no rate limits
+Public Endpoints - 30 requests per ten seconds.
+
+Private Endpoints - 50 requests per ten seconds.
+
+* Websocket *
+
+Connect - 30 times per minutes
+
+Subscribe - 120 times per minute
+
+Unsubscribe - 120 times per minute

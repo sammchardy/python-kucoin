@@ -2,6 +2,14 @@
 
 import json
 
+# System error codes
+# Code	Meaning
+# 403000	No Auth -- The requested is forbidden for current API key.
+# 404000	Url Not Found -- The request resource could not be found
+# 400100	Parameter Error -- You tried to access the resource with invalid parameters
+# 411100	User are frozen -- User are frozen, please contact us via support center.
+# 500000	Internal Server Error -- We had a problem with our server. Try again later.
+
 
 class KucoinAPIException(Exception):
     """Exception class to handle general API Exceptions
@@ -49,9 +57,17 @@ class KucoinRequestException(Exception):
         return 'KucoinRequestException: {}'.format(self.message)
 
 
-class KucoinResolutionException(Exception):
+class MarketOrderException(Exception):
     def __init__(self, message):
         self.message = message
 
     def __str__(self):
-        return 'KucoinResolutionException: {}'.format(self.message)
+        return 'MarketOrderException: {}'.format(self.message)
+
+
+class LimitOrderException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return 'MarketOrderException: {}'.format(self.message)
