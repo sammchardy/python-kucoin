@@ -1315,7 +1315,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('fills', False, data=data)
+        return self._get('fills', True, data=data)
 
     # Market Endpoints
 
