@@ -1661,7 +1661,6 @@ class Client(object):
 
     # Websocket Endpoints
 
-
     def get_ws_endpoint(self, private=False):
         """Get websocket channel details
 

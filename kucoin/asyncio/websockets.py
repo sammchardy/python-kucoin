@@ -66,8 +66,7 @@ class ReconnectingWebsocket:
                             pass
                         else:
                             await self._coro(evt_obj)
-
-            except ws.ConnectionClosed as e:
+            except ws.ConnectionClosed:
                 keep_waiting = False
                 await self._reconnect()
             except Exception as e:
@@ -160,7 +159,7 @@ class KucoinSocketManager:
         self._log = logging.getLogger(__name__)
 
     @classmethod
-    async def create(cls, loop, client: Client, callback: Callable[[int], Awaitable[str]], private : bool = False):
+    async def create(cls, loop, client: Client, callback: Callable[[int], Awaitable[str]], private: bool = False):
         self = KucoinSocketManager()
         self._loop = loop
         self._client = client
