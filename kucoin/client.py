@@ -88,7 +88,7 @@ class Client(object):
         return session
 
     @staticmethod
-    def _order_params_for_sig(data):
+    def _get_params_for_sig(data):
         """Convert params to ordered string for signature
 
         :param data:
@@ -96,7 +96,7 @@ class Client(object):
 
         """
         strs = []
-        for key in sorted(data):
+        for key in data:
             strs.append("{}={}".format(key, data[key]))
         return '&'.join(strs)
 
@@ -115,7 +115,7 @@ class Client(object):
         endpoint = path
         if method == "get":
             if data:
-                query_string = self._order_params_for_sig(data)
+                query_string = self._get_params_for_sig(data)
                 endpoint = "{}?{}".format(path, query_string)
         elif data:
             data_json = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
