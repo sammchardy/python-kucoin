@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v2.0.2 - 2010-02-23
+^^^^^^^^^^^^^^^^^^^^
+
+**Fixed**
+
+- signature generation for get requests
+
+
 v2.0.1 - 2010-01-23
 ^^^^^^^^^^^^^^^^^^^^
 
