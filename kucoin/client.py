@@ -1395,7 +1395,7 @@ class Client(object):
 
             return self._get('market/orderbook/level1', False, data=data)
         else:
-            return self._get('/api/v1/market/allTickers', False)
+            return self._get('market/allTickers', False)
 
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
