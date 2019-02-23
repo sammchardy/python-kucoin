@@ -1388,12 +1388,14 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
+        if symbol:
+            data = {
+                'symbol': symbol
+            }
 
-        data = {
-            'symbol': symbol
-        }
-
-        return self._get('market/orderbook/level1', False, data=data)
+            return self._get('market/orderbook/level1', False, data=data)
+        else:
+            return self._get('/api/v1/market/allTickers', False)
 
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
