@@ -1357,7 +1357,7 @@ class Client(object):
 
         return self._get('symbols', False)
 
-    def get_ticker(self, symbol):
+    def get_ticker(self, symbol=None):
         """Get symbol tick
 
         https://docs.kucoin.com/#get-ticker
