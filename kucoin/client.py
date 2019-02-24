@@ -1005,13 +1005,13 @@ class Client(object):
             'side': side,
             'type': self.ORDER_LIMIT,
             'price': price,
-            'amount': amount
+            'size': amount
         }
 
         if order_id:
-            data['orderOid'] = order_id
+            data['clientOid'] = order_id
         else:
-            data['orderOid'] = str(uuid.uuid4())
+            data['clientOid'] = str(uuid.uuid4())
         if remark:
             data['remark'] = remark
         if stp:
@@ -1026,7 +1026,7 @@ class Client(object):
             data['stop'] = stop
             data['stop_price'] = stop_price
 
-        return self._post('order', True, data=data)
+        return self._post('orders', True, data=data)
 
     def cancel_order(self, order_id):
         """Cancel an order
