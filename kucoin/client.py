@@ -1321,18 +1321,16 @@ class Client(object):
 
     # Market Endpoints
 
-    def get_ticks(self):
-        """Get all ticks
+    def get_symbols(self):
+        """Get a list of available currency pairs for trading.
 
         https://docs.kucoin.com/#symbols-amp-ticker
 
         .. code:: python
 
-            ticks = client.get_tick()
+            symbols = client.get_symbols()
 
         :returns: ApiResponse
-
-        Without a symbol param
 
         .. code:: python
 
@@ -1359,7 +1357,7 @@ class Client(object):
 
         return self._get('symbols', False)
 
-    def get_ticker(self, symbol):
+    def get_ticker(self, symbol=None):
         """Get symbol tick
 
         https://docs.kucoin.com/#get-ticker
@@ -1369,11 +1367,11 @@ class Client(object):
 
         .. code:: python
 
-            ticker = client.get_tick('ETH-BTC')
+            all_ticks = client.get_ticker()
+            
+            ticker = client.get_ticker('ETH-BTC')
 
         :returns: ApiResponse
-
-        Without a symbol param
 
         .. code:: python
 
@@ -1390,12 +1388,13 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-
-        data = {
-            'symbol': symbol
-        }
-
-        return self._get('market/orderbook/level1', False, data=data)
+        data = {}
+        tick_path = 'market/allTickers'
+        if symbol is not None:
+            data = {
+                'symbol': symbol
+            }
+        return self._get(tick_path, False, data=data)
 
     def get_fiat_prices(self, base=None, symbol=None):
         """Get fiat price for currency
