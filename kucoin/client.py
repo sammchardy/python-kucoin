@@ -1319,18 +1319,16 @@ class Client(object):
 
     # Market Endpoints
 
-    def get_ticks(self):
-        """Get all ticks
+    def get_symbols(self):
+        """Get a list of available currency pairs for trading.
 
         https://docs.kucoin.com/#symbols-amp-ticker
 
         .. code:: python
 
-            ticks = client.get_tick()
+            symbols = client.get_symbols()
 
         :returns: ApiResponse
-
-        Without a symbol param
 
         .. code:: python
 
@@ -1367,11 +1365,11 @@ class Client(object):
 
         .. code:: python
 
-            ticker = client.get_tick('ETH-BTC')
+            all_ticks = client.get_ticker()
+            
+            ticker = client.get_ticker('ETH-BTC')
 
         :returns: ApiResponse
-
-        Without a symbol param
 
         .. code:: python
 
@@ -1388,14 +1386,13 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-        if symbol:
+        data = {}
+        tick_path = 'market/allTickers'
+        if symbol is not None:
             data = {
                 'symbol': symbol
             }
-
-            return self._get('market/orderbook/level1', False, data=data)
-        else:
-            return self._get('market/allTickers', False)
+        return self._get(tick_path, False, data=data)
 
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
