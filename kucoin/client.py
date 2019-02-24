@@ -1080,14 +1080,10 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-
-        if symbol:
-            data = {
-                'symbol': symbol
-            }
-            return self._delete('orders', True, data=data)
-        else:
-            return self._delete('orders', True)
+        data = {}
+        if symbol is not None:
+            data['symbol'] = symbol
+        return self._delete('orders', True, data=data)
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None):
