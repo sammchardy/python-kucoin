@@ -1058,7 +1058,7 @@ class Client(object):
 
         return self._delete('orders/{}'.format(order_id), True)
 
-    def cancel_all_orders(self):
+    def cancel_all_orders(self, symbol=None):
         """Cancel all orders
 
         https://docs.kucoin.com/#cancel-all-orders
@@ -1080,8 +1080,10 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-
-        return self._delete('orders', True)
+        data = {}
+        if symbol is not None:
+            data['symbol'] = symbol
+        return self._delete('orders', True, data=data)
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None):
