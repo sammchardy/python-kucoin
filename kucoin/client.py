@@ -152,11 +152,13 @@ class Client(object):
             kwargs['headers']['KC-API-PASSPHRASE'] = self.API_PASSPHRASE
             kwargs['headers']['KC-API-SIGN'] = self._generate_signature(nonce, method, full_path, kwargs['data'])
             kwargs['headers']["Content-Type"] = "application/json"
-            kwargs['data'] = json.dumps(kwargs['data'], separators=(',', ':'), ensure_ascii=False)
 
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
             del(kwargs['data'])
+
+        if signed and kwargs['data']:
+            kwargs['data'] = json.dumps(kwargs['data'], separators=(',', ':'), ensure_ascii=False)
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
