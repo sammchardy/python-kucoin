@@ -157,7 +157,7 @@ class Client(object):
             kwargs['params'] = kwargs['data']
             del(kwargs['data'])
 
-        if method == 'post' and kwargs['data']:
+        if signed and method != 'get' and kwargs['data']:
             kwargs['data'] = json.dumps(kwargs['data'], separators=(',', ':'), ensure_ascii=False)
 
         response = getattr(self.session, method)(uri, **kwargs)
