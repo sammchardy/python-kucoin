@@ -148,7 +148,11 @@ class Client(object):
             # generate signature
             nonce = int(time.time() * 1000)
             kwargs['headers']['KC-API-TIMESTAMP'] = str(nonce)
+            kwargs['headers']['KC-API-KEY'] = self.API_KEY
+            kwargs['headers']['KC-API-PASSPHRASE'] = self.API_PASSPHRASE
             kwargs['headers']['KC-API-SIGN'] = self._generate_signature(nonce, method, full_path, kwargs['data'])
+            kwargs['headers']["Content-Type"] = "application/json"
+            kwargs['data'] = json.dumps(kwargs['data'], separators=(',', ':'), ensure_ascii=False)
 
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
