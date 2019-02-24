@@ -1397,6 +1397,44 @@ class Client(object):
 
         return self._get('market/orderbook/level1', False, data=data)
 
+    def get_fiat_prices(self, base=None, symbol=None):
+        """Get fiat price for currency
+
+        https://docs.kucoin.com/#get-fiat-price
+
+        :param base: (optional) Fiat,eg.USD,EUR, default is USD.
+        :type base: string
+        :param symbol: (optional) Cryptocurrencies.For multiple cyrptocurrencies, please separate them with comma one by one. default is all
+        :type symbol: string
+
+        .. code:: python
+
+            prices = client.get_fiat_prices()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "BTC": "3911.28000000",
+                "ETH": "144.55492453",
+                "LTC": "48.45888179",
+                "KCS": "0.45546856"
+            }
+        
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        
+        data = {}
+        
+        if base is not None:
+            data['base'] = base
+        if symbol is not None:
+            data['currencies'] = symbol
+        
+        return self._get('prices', False, data=data)
+    
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
 
