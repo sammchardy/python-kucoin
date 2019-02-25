@@ -35,8 +35,13 @@ Sample Code
 
         # callback function that receives messages from the socket
         async def handle_evt(msg):
-            print(f"socket msg:{msg}")
-            # do something with the message
+            print(f"msg sequence:{msg['data']['sequence']}")
+            if msg['topic'] == '/market/ticker:ETH-USDT':
+                # do something about the ticker
+                print(f'got ETH-USDT tick:{msg["data"]}')
+            elif msg['topic'] == '/market/snapshot:KCS-BTC':
+                # do something about the ticker
+                print(f'got KCS-BTC snapshot:{msg["data"]}')
 
         client = Client(api_key, api_secret, api_passphrase)
 
