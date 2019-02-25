@@ -1,6 +1,6 @@
-================================
-Welcome to python-kucoin v2.0.2
-================================
+===============================
+Welcome to python-kucoin v2.1.0
+===============================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
@@ -20,7 +20,8 @@ Welcome to python-kucoin v2.0.2
 .. image:: https://img.shields.io/pypi/pyversions/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
 
-This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_. I am in no way affiliated with Kucoin, use at your own risk.
+This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_.
+I am in no way affiliated with Kucoin, use at your own risk.
 
 
 PyPi
@@ -66,6 +67,10 @@ or `Generate an API Key in Sandbox <https://sandbox.kucoin.com/account/api>`_ an
 .. code:: python
 
     from kucoin.client import Client
+
+    api_key = '<api_key>'
+    api_secret = '<api_secret>'
+    api_passphrase = '<api_passphrase>'
 
     client = Client(api_key, api_secret, api_passphrase)
 

@@ -16,7 +16,7 @@ def find_packages():
         if '__init__.py' not in files:
             # not a package
             continue
-        if sys.version_info < (3, 3) and 'asyncio' in package and 'sdist' not in sys.argv:
+        if sys.version_info < (3, 4) and 'asyncio' in package and 'sdist' not in sys.argv:
             # Don't install asyncio packages on old Python
             # avoids issues with tools like compileall, pytest, etc.
             # that get confused by presence of Python 3-only sources,
@@ -43,8 +43,8 @@ def find_version(*file_paths):
 def install_requires():
 
     requires = ['requests']
-    if sys.version_info > (3, 3):
-        requires.extend(['websockets>=4.0.0'])
+    if sys.version_info > (3, 4):
+        requires.extend(['websockets'])
     return requires
 
 

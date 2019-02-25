@@ -1,6 +1,29 @@
 Changelog
 =========
 
+v2.1.0 - 2010-02-25
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- websocket support
+- `get_fiat_prices` function to get fiat price for currency
+- `get_markets` function to get supported market list
+- iceberg order support
+- util functions to generate uuid and convert dict to compact json string
+
+**Updated**
+
+- `get_ticker` to have optional symbol param
+
+**Fixed**
+
+- market and limit order create functions
+- `get_kline_data` function
+- `get_account_holds` function endpoint
+- LimitOrderException message
+
+
 v2.0.2 - 2010-02-23
 ^^^^^^^^^^^^^^^^^^^^
 
