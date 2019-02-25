@@ -961,7 +961,7 @@ class Client(object):
         :type client_oid: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
-        :param stp: (optional) self trade protection CN, CO, CB or DC default is None)
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
         :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
         :type time_in_force: string
@@ -1539,7 +1539,7 @@ class Client(object):
             {
                 "sequence": "3262786978",
                 "bids": [
-                    ["6500.12", "0.45054140"],  # [price，size]
+                    ["6500.12", "0.45054140"],  # [price, size]
                     ["6500.11", "0.45054140"]
                 ],
                 "asks": [

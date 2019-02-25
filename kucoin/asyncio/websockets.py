@@ -33,7 +33,6 @@ class ReconnectingWebsocket:
         self._connect()
 
     def _connect(self):
-        self._log.debug("connecting to websocket")
         self._conn = asyncio.ensure_future(self._run())
 
     async def _run(self):
@@ -43,7 +42,6 @@ class ReconnectingWebsocket:
         # get the websocket details
         self._ws_details = None
         self._ws_details = self._client.get_ws_endpoint(self._private)
-        print(self._ws_details)
 
         async with ws.connect(self._get_ws_endpoint(), ssl=self._get_ws_encryption()) as socket:
             self._socket = socket
@@ -72,7 +70,7 @@ class ReconnectingWebsocket:
             except Exception as e:
                 self._log.debug('ws exception:{}'.format(e))
                 keep_waiting = False
-            #    await self._reconnect()
+                await self._reconnect()
 
     def _get_ws_endpoint(self) -> str:
         if not self._ws_details:
@@ -106,9 +104,7 @@ class ReconnectingWebsocket:
 
             self._log.debug(f"websocket reconnecting {self.MAX_RECONNECTS - self._reconnect_attempts} attempts left")
             reconnect_wait = self._get_reconnect_wait(self._reconnect_attempts)
-            self._log.debug(f"waiting for {reconnect_wait}s")
-            # await asyncio.sleep(reconnect_wait)
-            self._log.debug(f"do reconnect now?")
+            await asyncio.sleep(reconnect_wait)
             self._connect()
         else:
             # maybe raise an exception
@@ -128,14 +124,12 @@ class ReconnectingWebsocket:
 
     async def send_message(self, msg, retry_count=0):
         if not self._socket:
-            self._log.debug("waiting for socket to init and handshake")
             if retry_count < 5:
                 await asyncio.sleep(1)
                 await self.send_message(msg, retry_count + 1)
         else:
             msg['id'] = str(int(time.time() * 1000))
             msg['privateChannel'] = self._private
-            self._log.debug(f"sending socket msg: {msg}")
             await self._socket.send(json.dumps(msg))
 
     async def cancel(self):
