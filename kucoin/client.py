@@ -896,7 +896,7 @@ class Client(object):
         :type client_oid: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
-        :param stp: (optional) self trade protection CN, CO, CB or DC（default is None)
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
 
         .. code:: python
@@ -1386,7 +1386,7 @@ class Client(object):
         .. code:: python
 
             all_ticks = client.get_ticker()
-            
+
             ticker = client.get_ticker('ETH-BTC')
 
         :returns: ApiResponse
@@ -1439,20 +1439,20 @@ class Client(object):
                 "LTC": "48.45888179",
                 "KCS": "0.45546856"
             }
-        
+
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-        
+
         data = {}
-        
+
         if base is not None:
             data['base'] = base
         if symbol is not None:
             data['currencies'] = symbol
-        
+
         return self._get('prices', False, data=data)
-    
+
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
 
