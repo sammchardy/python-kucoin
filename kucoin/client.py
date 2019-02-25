@@ -1539,7 +1539,7 @@ class Client(object):
             {
                 "sequence": "3262786978",
                 "bids": [
-                    ["6500.12", "0.45054140"],  # [price，size]
+                    ["6500.12", "0.45054140"],  # [price, size]
                     ["6500.11", "0.45054140"]
                 ],
                 "asks": [
@@ -1766,3 +1766,48 @@ class Client(object):
             data['endAt'] = int(time.time())
 
         return self._get('market/candles', False, data=data)
+
+    # Websocket Endpoints
+
+    def get_ws_endpoint(self, private=False):
+        """Get websocket channel details
+
+        :param private: Name of symbol e.g. KCS-BTC
+        :type private: bool
+
+        https://docs.kucoin.com/#websocket-feed
+
+        .. code:: python
+
+            ws_details = client.get_ws_endpoint(private=True)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "instanceServers": [
+                        {
+                            "pingInterval": 50000,
+                            "endpoint": "wss://push1-v2.kucoin.net/endpoint",
+                            "protocol": "websocket",
+                            "encrypt": true,
+                            "pingTimeout": 10000
+                        }
+                    ],
+                    "token": "vYNlCtbz4XNJ1QncwWilJnBtmmfe4geLQDUA62kKJsDChc6I4bRDQc73JfIrlFaVYIAE0Gv2--MROnLAgjVsWkcDq_MuG7qV7EktfCEIphiqnlfpQn4Ybg==.IoORVxR2LmKV7_maOR9xOg=="
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        path = 'bullet-public'
+        signed = private
+        if private:
+            path = 'bullet-private'
+
+        return self._post(path, signed)
