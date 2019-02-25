@@ -1,6 +1,21 @@
 Changelog
 =========
 
+v2.0.2 - 2010-02-23
+^^^^^^^^^^^^^^^^^^^^
+
+**Fixed**
+
+- signature generation for get requests
+
+
+v2.0.1 - 2010-01-23
+^^^^^^^^^^^^^^^^^^^^
+
+**Fixed**
+
+- added auth for get_fills()
+
 v2.0.0 - 2019-01-22
 ^^^^^^^^^^^^^^^^^^^^
 

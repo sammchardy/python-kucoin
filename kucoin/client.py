@@ -1058,7 +1058,7 @@ class Client(object):
 
         return self._delete('orders/{}'.format(order_id), True)
 
-    def cancel_all_orders(self):
+    def cancel_all_orders(self, symbol=None):
         """Cancel all orders
 
         https://docs.kucoin.com/#cancel-all-orders
@@ -1080,8 +1080,10 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-
-        return self._delete('orders', True)
+        data = {}
+        if symbol is not None:
+            data['symbol'] = symbol
+        return self._delete('orders', True, data=data)
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None):
@@ -1319,18 +1321,16 @@ class Client(object):
 
     # Market Endpoints
 
-    def get_ticks(self):
-        """Get all ticks
+    def get_symbols(self):
+        """Get a list of available currency pairs for trading.
 
         https://docs.kucoin.com/#symbols-amp-ticker
 
         .. code:: python
 
-            ticks = client.get_tick()
+            symbols = client.get_symbols()
 
         :returns: ApiResponse
-
-        Without a symbol param
 
         .. code:: python
 
@@ -1357,7 +1357,7 @@ class Client(object):
 
         return self._get('symbols', False)
 
-    def get_ticker(self, symbol):
+    def get_ticker(self, symbol=None):
         """Get symbol tick
 
         https://docs.kucoin.com/#get-ticker
@@ -1367,11 +1367,11 @@ class Client(object):
 
         .. code:: python
 
-            ticker = client.get_tick('ETH-BTC')
+            all_ticks = client.get_ticker()
+            
+            ticker = client.get_ticker('ETH-BTC')
 
         :returns: ApiResponse
-
-        Without a symbol param
 
         .. code:: python
 
@@ -1388,13 +1388,52 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
+        data = {}
+        tick_path = 'market/allTickers'
+        if symbol is not None:
+            data = {
+                'symbol': symbol
+            }
+        return self._get(tick_path, False, data=data)
 
-        data = {
-            'symbol': symbol
-        }
+    def get_fiat_prices(self, base=None, symbol=None):
+        """Get fiat price for currency
 
-        return self._get('market/orderbook/level1', False, data=data)
+        https://docs.kucoin.com/#get-fiat-price
 
+        :param base: (optional) Fiat,eg.USD,EUR, default is USD.
+        :type base: string
+        :param symbol: (optional) Cryptocurrencies.For multiple cyrptocurrencies, please separate them with comma one by one. default is all
+        :type symbol: string
+
+        .. code:: python
+
+            prices = client.get_fiat_prices()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "BTC": "3911.28000000",
+                "ETH": "144.55492453",
+                "LTC": "48.45888179",
+                "KCS": "0.45546856"
+            }
+        
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        
+        data = {}
+        
+        if base is not None:
+            data['base'] = base
+        if symbol is not None:
+            data['currencies'] = symbol
+        
+        return self._get('prices', False, data=data)
+    
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
 
