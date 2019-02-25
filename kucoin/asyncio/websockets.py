@@ -169,7 +169,8 @@ class KucoinSocketManager:
         return self
 
     async def _recv(self, msg: Dict):
-        await self._callback(msg)
+        if 'data' in msg:
+            await self._callback(msg)
 
     async def subscribe(self, topic: str):
         """Subscribe to a channel
