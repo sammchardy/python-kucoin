@@ -4,7 +4,13 @@ import json
 
 # System error codes
 # Code	Meaning
-# 403000	No Auth -- The requested is forbidden for current API key.
+# 400001	Any of KC-API-KEY, KC-API-SIGN, KC-API-TIMESTAMP, KC-API-PASSPHRASE is missing in your request header
+# 400002	KC-API-TIMESTAMP Invalid -- Time differs from server time by more than 5 seconds
+# 400003	KC-API-KEY not exists
+# 400004	KC-API-PASSPHRASE error
+# 400005	Signature error -- Please check your signature
+# 400006	The requested ip address is not in the api whitelist
+# 400007	Access Denied -- Your api key does not have sufficient permissions to access the uri
 # 404000	Url Not Found -- The request resource could not be found
 # 400100	Parameter Error -- You tried to access the resource with invalid parameters
 # 411100	User are frozen -- User are frozen, please contact us via support center.
@@ -70,4 +76,4 @@ class LimitOrderException(Exception):
         self.message = message
 
     def __str__(self):
-        return 'MarketOrderException: {}'.format(self.message)
+        return 'LimitOrderException: {}'.format(self.message)

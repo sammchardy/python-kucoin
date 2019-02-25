@@ -1,17 +1,16 @@
-# coding=utf-8
-
 import base64
+import calendar
 import hashlib
 import hmac
-import json
 import time
-import uuid
+from datetime import datetime
 
 import requests
 
 from .exceptions import (
     KucoinAPIException, KucoinRequestException, MarketOrderException, LimitOrderException
 )
+from .utils import compact_json_dict, flat_uuid
 
 
 class Client(object):
@@ -82,6 +81,7 @@ class Client(object):
         session = requests.session()
         headers = {'Accept': 'application/json',
                    'User-Agent': 'python-kucoin',
+                   'Content-Type': 'application/json',
                    'KC-API-KEY': self.API_KEY,
                    'KC-API-PASSPHRASE': self.API_PASSPHRASE}
         session.headers.update(headers)
@@ -95,10 +95,7 @@ class Client(object):
         :return: ordered parameters like amount=10&price=1.1&type=BUY
 
         """
-        strs = []
-        for key in data:
-            strs.append("{}={}".format(key, data[key]))
-        return '&'.join(strs)
+        return '&'.join(["{}={}".format(key, data[key]) for key in data])
 
     def _generate_signature(self, nonce, method, path, data):
         """Generate the call signature
@@ -118,7 +115,7 @@ class Client(object):
                 query_string = self._get_params_for_sig(data)
                 endpoint = "{}?{}".format(path, query_string)
         elif data:
-            data_json = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+            data_json = compact_json_dict(data)
         sig_str = ("{}{}{}{}".format(nonce, method.upper(), endpoint, data_json)).encode('utf-8')
         m = hmac.new(self.API_SECRET.encode('utf-8'), sig_str, hashlib.sha256)
         return base64.b64encode(m.digest())
@@ -153,6 +150,9 @@ class Client(object):
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
             del(kwargs['data'])
+
+        if signed and method != 'get' and kwargs['data']:
+            kwargs['data'] = compact_json_dict(kwargs['data'])
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
@@ -374,14 +374,14 @@ class Client(object):
 
         return self._post('accounts', True, data=data)
 
-    def get_account_history(self, account_id, start=None, end=None, page=None, limit=None):
-        """Get an individual account
+    def get_account_activity(self, account_id, start=None, end=None, page=None, limit=None):
+        """Get list of account activity
 
         https://docs.kucoin.com/#get-account-history
 
         :param account_id: ID for account - from list_accounts()
         :type account_id: string
-        :param start:  (optional) Start time as unix timestamp
+        :param start: (optional) Start time as unix timestamp
         :type start: string
         :param end: (optional) End time as unix timestamp
         :type end: string
@@ -392,11 +392,11 @@ class Client(object):
 
         .. code:: python
 
-            history = client.get_account_history('5bd6e9216d99522a52e458d6')
+            history = client.get_account_activity('5bd6e9216d99522a52e458d6')
 
-            history = client.get_account_history('5bd6e9216d99522a52e458d6', start='1540296039000')
+            history = client.get_account_activity('5bd6e9216d99522a52e458d6', start='1540296039000')
 
-            history = client.get_account_history('5bd6e9216d99522a52e458d6', page=2, page_size=10)
+            history = client.get_account_activity('5bd6e9216d99522a52e458d6', page=2, page_size=10)
 
         :returns: API Response
 
@@ -452,7 +452,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('accounts/{}/ledgers'.format(account_id), True)
+        return self._get('accounts/{}/ledgers'.format(account_id), True, data=data)
 
     def get_account_holds(self, account_id, page=None, page_size=None):
         """Get account holds placed for any active orders or pending withdraw requests
@@ -511,7 +511,7 @@ class Client(object):
         if page_size:
             data['pageSize'] = page_size
 
-        return self._get('accounts/{}/ledgers'.format(account_id), True)
+        return self._get('accounts/{}/holds'.format(account_id), True, data=data)
 
     def create_inner_transfer(self, from_account_id, to_account_id, amount, order_id=None):
         """Get account holds placed for any active orders or pending withdraw requests
@@ -524,7 +524,7 @@ class Client(object):
         :type to_account_id: str
         :param amount: Amount to transfer
         :type amount: int
-        :param order_id: (optional) Request ID (default str(uuid.uuid4())
+        :param order_id: (optional) Request ID (default flat_uuid())
         :type order_id: string
 
         .. code:: python
@@ -552,9 +552,9 @@ class Client(object):
         if order_id:
             data['clientOid'] = order_id
         else:
-            data['clientOid'] = str(uuid.uuid4())
+            data['clientOid'] = flat_uuid()
 
-        return self._post('accounts/inner-transfer', True)
+        return self._post('accounts/inner-transfer', True, data=data)
 
     # Deposit Endpoints
 
@@ -692,7 +692,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if limit:
-            data['limit'] = limit
+            data['pageSize'] = limit
         if page:
             data['page'] = page
 
@@ -762,7 +762,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if limit:
-            data['limit'] = limit
+            data['pageSize'] = limit
         if page:
             data['page'] = page
 
@@ -877,7 +877,7 @@ class Client(object):
 
     # Order Endpoints
 
-    def create_market_order(self, symbol, side, size=None, funds=None, order_id=None, remark=None, stp=None):
+    def create_market_order(self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None):
         """Create a market order
 
         One of size or funds must be set
@@ -892,8 +892,8 @@ class Client(object):
         :type size: string
         :param funds: (optional) Desired amount of quote currency to use
         :type funds: string
-        :param order_id: (optional) Unique order_id (default str(uuid.uuid4()))
-        :type order_id: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC（default is None)
@@ -931,10 +931,10 @@ class Client(object):
             data['size'] = size
         if funds:
             data['funds'] = funds
-        if order_id:
-            data['orderOid'] = order_id
+        if client_oid:
+            data['clientOid'] = client_oid
         else:
-            data['orderOid'] = str(uuid.uuid4())
+            data['clientOid'] = flat_uuid()
         if remark:
             data['remark'] = remark
         if stp:
@@ -942,8 +942,9 @@ class Client(object):
 
         return self._post('orders', True, data=data)
 
-    def create_limit_order(self, symbol, side, price, amount, order_id=None, remark=None,
-                           time_in_force=None, stop=None, stop_price=None, stp=None, cancel_after=None, post_only=None):
+    def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
+                           time_in_force=None, stop=None, stop_price=None, stp=None, cancel_after=None, post_only=None,
+                           hidden=None, iceberg=None, visible_size=None):
         """Create an order
 
         https://docs.kucoin.com/#place-a-new-order
@@ -954,10 +955,10 @@ class Client(object):
         :type side: string
         :param price: Name of coin
         :type price: string
-        :param amount: Amount
-        :type amount: string
-        :param order_id: (optional) Unique order_id  default str(uuid.uuid4())
-        :type order_id: string
+        :param size: Amount of base currency to buy or sell
+        :type size: string
+        :param client_oid: (optional) Unique order_id  default flat_uuid()
+        :type client_oid: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC（default is None)
@@ -974,6 +975,12 @@ class Client(object):
         :param post_only: (optional) indicates that the order should only make liquidity. If any part of
             the order results in taking liquidity, the order will be rejected and no part of it will execute.
         :type post_only: bool
+        :param hidden: (optional) Orders not displayed in order book
+        :type hidden: bool
+        :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: bool
 
         .. code:: python
 
@@ -1000,18 +1007,24 @@ class Client(object):
         if cancel_after and time_in_force != self.TIMEINFORCE_GOOD_TILL_TIME:
             raise LimitOrderException('Cancel after only works with time_in_force = "GTT"')
 
+        if hidden and iceberg:
+            raise LimitOrderException('Order can be either "hidden" or "iceberg"')
+
+        if iceberg and not visible_size:
+            raise LimitOrderException('Iceberg order requires visible_size')
+
         data = {
             'symbol': symbol,
             'side': side,
             'type': self.ORDER_LIMIT,
             'price': price,
-            'amount': amount
+            'size': size
         }
 
-        if order_id:
-            data['orderOid'] = order_id
+        if client_oid:
+            data['clientOid'] = client_oid
         else:
-            data['orderOid'] = str(uuid.uuid4())
+            data['clientOid'] = flat_uuid()
         if remark:
             data['remark'] = remark
         if stp:
@@ -1024,9 +1037,14 @@ class Client(object):
             data['postOnly'] = post_only
         if stop:
             data['stop'] = stop
-            data['stop_price'] = stop_price
+            data['stopPrice'] = stop_price
+        if hidden:
+            data['hidden'] = hidden
+        if iceberg:
+            data['iceberg'] = iceberg
+            data['visible_size'] = visible_size
 
-        return self._post('order', True, data=data)
+        return self._post('orders', True, data=data)
 
     def cancel_order(self, order_id):
         """Cancel an order
@@ -1243,7 +1261,7 @@ class Client(object):
 
         https://docs.kucoin.com/#list-fills
 
-        :param order_id: (optional) Name of symbol e.g. KCS-BTC
+        :param order_id: (optional) generated order id
         :type order_id: string
         :param symbol: (optional) Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -1403,7 +1421,8 @@ class Client(object):
 
         :param base: (optional) Fiat,eg.USD,EUR, default is USD.
         :type base: string
-        :param symbol: (optional) Cryptocurrencies.For multiple cyrptocurrencies, please separate them with comma one by one. default is all
+        :param symbol: (optional) Cryptocurrencies.For multiple cyrptocurrencies, please separate them with
+                       comma one by one. default is all
         :type symbol: string
 
         .. code:: python
@@ -1467,7 +1486,37 @@ class Client(object):
 
         """
 
-        return self._get('market/stats/{}'.format(symbol), False)
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('market/stats', False, data=data)
+
+    def get_markets(self):
+        """Get supported market list
+
+        https://docs.kucoin.com/#get-market-list
+
+        .. code:: python
+
+            markets = client.get_markets()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "data": [
+                    "BTC",
+                    "ETH",
+                    "USDT"
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        return self._get('markets', False)
 
     def get_order_book(self, symbol):
         """Get a list of bids and asks aggregated by price for a symbol.
@@ -1607,8 +1656,8 @@ class Client(object):
 
         return self._get('market/orderbook/level3', False, data=data)
 
-    def get_recent_orders(self, symbol):
-        """Get recent orders
+    def get_trade_histories(self, symbol):
+        """List the latest trades for a symbol
 
         https://docs.kucoin.com/#get-trade-histories
 
@@ -1617,8 +1666,7 @@ class Client(object):
 
         .. code:: python
 
-            orders = client.get_recent_orders('KCS-BTC')
-
+            orders = client.get_trade_histories('KCS-BTC')
 
         :returns: ApiResponse
 
@@ -1651,17 +1699,27 @@ class Client(object):
 
         return self._get('market/histories', False, data=data)
 
-    def get_kline_data(self, symbol):
+    def get_kline_data(self, symbol, kline_type='5min', start=None, end=None):
         """Get kline data
+
+        For each query, the system would return at most 1500 pieces of data.
+        To obtain more data, please page the data by time.
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
+        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
+                           4hour, 6hour, 8hour, 12hour, 1day, 1week
+        :type kline_type: string
+        :param start: Start time as unix timestamp (optional) default start of day in UTC
+        :type start: int
+        :param end: End time as unix timestamp (optional) default now in UTC
+        :type end: int
 
         https://docs.kucoin.com/#get-historic-rates
 
         .. code:: python
 
-            klines = client.get_kline_data('KCS-BTC', Client.RESOLUTION_1MINUTE, 1507479171, 1510278278)
+            klines = client.get_kline_data('KCS-BTC', '5min', 1507479171, 1510278278)
 
         :returns: ApiResponse
 
@@ -1695,6 +1753,17 @@ class Client(object):
         data = {
             'symbol': symbol
         }
+
+        if kline_type is not None:
+            data['type'] = kline_type
+        if start is not None:
+            data['startAt'] = start
+        else:
+            data['startAt'] = calendar.timegm(datetime.utcnow().date().timetuple())
+        if end is not None:
+            data['endAt'] = end
+        else:
+            data['endAt'] = int(time.time())
 
         return self._get('market/candles', False, data=data)
 
