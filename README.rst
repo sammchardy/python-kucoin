@@ -53,7 +53,7 @@ TODO
 Quick Start
 -----------
 
-Register an account with `Kucoin <https://www.kucoin.com/#/?r=E42cWB>`_.
+Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_.
 
 To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
 
