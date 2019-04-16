@@ -33,7 +33,7 @@ class ReconnectingWebsocket:
         self._connect()
 
     def _connect(self):
-        self._conn = asyncio.ensure_future(self._run(),loop=self._loop)
+        self._conn = asyncio.ensure_future(self._run(), loop=self._loop)
 
     async def _run(self):
 
