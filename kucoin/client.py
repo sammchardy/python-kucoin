@@ -1409,6 +1409,7 @@ class Client(object):
         data = {}
         tick_path = 'market/allTickers'
         if symbol is not None:
+            tick_path = 'market/orderbook/level1'
             data = {
                 'symbol': symbol
             }
