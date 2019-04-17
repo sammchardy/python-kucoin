@@ -1199,6 +1199,72 @@ class Client(object):
 
         return self._get('orders', True, data=data)
 
+    def get_historical_orders(self, symbol=None, side=None,
+                              start=None, end=None, page=None, limit=None):
+        """List of KuCoin V1 historical orders.
+
+        https://docs.kucoin.com/#get-v1-historical-orders-list
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            orders = client.get_historical_orders(symbol='KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 50,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": [
+                    {
+                        "symbol": "SNOV-ETH",
+                        "dealPrice": "0.0000246",
+                        "dealValue": "0.018942",
+                        "amount": "770",
+                        "fee": "0.00001137",
+                        "side": "sell",
+                        "createdAt": 1540080199
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+        if side:
+            data['side'] = side
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if page:
+            data['page'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('hist-orders', True, data=data)
+
     def get_order(self, order_id):
         """Get order details
 
@@ -1409,6 +1475,7 @@ class Client(object):
         data = {}
         tick_path = 'market/allTickers'
         if symbol is not None:
+            tick_path = 'market/orderbook/level1'
             data = {
                 'symbol': symbol
             }
