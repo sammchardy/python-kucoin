@@ -28,6 +28,7 @@ class ReconnectingWebsocket:
         self._connect_id: int = None
         self._client = client
         self._private = private
+        self._last_ping = None
         self._socket: Optional[ws.client.WebSocketClientProtocol] = None
 
         self._connect()
@@ -38,7 +39,7 @@ class ReconnectingWebsocket:
     async def _run(self):
 
         keep_waiting: bool = True
-        self.lastPing = time.time()
+        self._last_ping = time.time()  # record last ping
         # get the websocket details
         self._ws_details = None
         self._ws_details = self._client.get_ws_endpoint(self._private)
@@ -49,13 +50,13 @@ class ReconnectingWebsocket:
 
             try:
                 while keep_waiting:
-                    if time.time() - self.lastPing > self._get_ws_pingtimeout():
+                    if time.time() - self._last_ping > self._get_ws_pingtimeout():
                         await self.send_ping()
                     try:
                         evt = await asyncio.wait_for(self._socket.recv(), timeout=self._get_ws_pingtimeout())
                     except asyncio.TimeoutError:
                         self._log.debug("no message in {} seconds".format(self._get_ws_pingtimeout()))
-                        pass
+                        await self.send_ping()
                     except asyncio.CancelledError:
                         self._log.debug("cancelled error")
                         await self._socket.ping()
@@ -96,7 +97,7 @@ class ReconnectingWebsocket:
         if not self._ws_details:
             raise Exception("Unknown Websocket details")
 
-        ping_timeout = int(self._ws_details['instanceServers'][0]['pingTimeout'] / 1000) - 1
+        ping_timeout = int(self._ws_details['instanceServers'][0]['pingTimeout'] / 1000 / 2) - 1
         return ping_timeout
 
     async def _reconnect(self):
@@ -123,7 +124,7 @@ class ReconnectingWebsocket:
             'type': 'ping'
         }
         await self._socket.send(json.dumps(msg))
-        self.lastPing = time.time()
+        self._last_ping = time.time()
 
     async def send_message(self, msg, retry_count=0):
         if not self._socket:
