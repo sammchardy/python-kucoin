@@ -1,6 +1,20 @@
 Changelog
 =========
 
+v2.1.1 - 2010-04-17
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- websocket support for private messages
+- `get_historical_orders` function to get V1 historical orders
+
+**Fixed**
+
+- fixed `get_ticker` to work for all tickers
+- websocket reconnect ability
+
+
 v2.1.0 - 2010-02-25
 ^^^^^^^^^^^^^^^^^^^^
 
