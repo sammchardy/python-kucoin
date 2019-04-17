@@ -205,6 +205,8 @@ Other Exchanges
 
 If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
 
+If you use `Binance Chain <https://testnet.binance.org/>`_ check out my `python-binance-chain <https://github.com/sammchardy/python-binance-chain>`_ library.
+
 If you use `Allcoin <https://www.allcoin.com/GXHKu1>`_ check out my `python-allcoin <https://github.com/sammchardy/python-allcoin>`_ library.
 
 If you use `IDEX <https://idex.market>`_ check out my `python-idex <https://github.com/sammchardy/python-idex>`_ library.
