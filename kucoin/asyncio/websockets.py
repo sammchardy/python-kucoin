@@ -84,6 +84,8 @@ class ReconnectingWebsocket:
         endpoint = self._ws_details['instanceServers'][0]['endpoint']
 
         ws_endpoint = f"{endpoint}?token={token}&connectId={self._ws_connect_id}"
+        if self._private:
+            ws_endpoint += '&acceptUserMessage=true'
         return ws_endpoint
 
     def _get_ws_encryption(self) -> bool:
