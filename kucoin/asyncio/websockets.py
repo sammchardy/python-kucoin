@@ -19,7 +19,7 @@ class ReconnectingWebsocket:
     TIMEOUT = 10
     PROTOCOL_VERSION = '1.0.0'
 
-    def __init__(self, loop, client, coro, private = False):
+    def __init__(self, loop, client, coro, private=False):
         self._loop = loop
         self._log = logging.getLogger(__name__)
         self._coro = coro
@@ -164,7 +164,7 @@ class KucoinSocketManager:
         self._log = logging.getLogger(__name__)
 
     @classmethod
-    async def create(cls, loop, client, callback, private = False):
+    async def create(cls, loop, client, callback, private=False):
         self = KucoinSocketManager()
         self._loop = loop
         self._client = client
