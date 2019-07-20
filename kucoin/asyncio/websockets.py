@@ -10,26 +10,30 @@ import websockets as ws
 from kucoin.client import Client
 
 
+class KucoinSocketManagerPrivateException(Exception):
+    pass
+
+
 class ReconnectingWebsocket:
 
-    MAX_RECONNECTS: int = 5
-    MAX_RECONNECT_SECONDS: int = 60
+    MAX_RECONNECTS = 5
+    MAX_RECONNECT_SECONDS = 60
     MIN_RECONNECT_WAIT = 0.1
-    TIMEOUT: int = 10
-    PROTOCOL_VERSION: str = '1.0.0'
+    TIMEOUT = 10
+    PROTOCOL_VERSION = '1.0.0'
 
-    def __init__(self, loop, client: Client, coro, private: bool = False):
+    def __init__(self, loop, client, coro, private = False):
         self._loop = loop
         self._log = logging.getLogger(__name__)
         self._coro = coro
-        self._reconnect_attempts: int = 0
+        self._reconnect_attempts = 0
         self._conn = None
         self._ws_details = None
-        self._connect_id: int = None
+        self._connect_id = None
         self._client = client
         self._private = private
         self._last_ping = None
-        self._socket: Optional[ws.client.WebSocketClientProtocol] = None
+        self._socket = None
 
         self._connect()
 
@@ -38,7 +42,7 @@ class ReconnectingWebsocket:
 
     async def _run(self):
 
-        keep_waiting: bool = True
+        keep_waiting = True
         self._last_ping = time.time()  # record last ping
         # get the websocket details
         self._ws_details = None
@@ -75,7 +79,7 @@ class ReconnectingWebsocket:
                 keep_waiting = False
                 await self._reconnect()
 
-    def _get_ws_endpoint(self) -> str:
+    def _get_ws_endpoint(self):
         if not self._ws_details:
             raise Exception("Unknown Websocket details")
 
@@ -88,13 +92,13 @@ class ReconnectingWebsocket:
             ws_endpoint += '&acceptUserMessage=true'
         return ws_endpoint
 
-    def _get_ws_encryption(self) -> bool:
+    def _get_ws_encryption(self):
         if not self._ws_details:
             raise Exception("Unknown Websocket details")
 
         return self._ws_details['instanceServers'][0]['encrypt']
 
-    def _get_ws_pingtimeout(self) -> int:
+    def _get_ws_pingtimeout(self):
 
         if not self._ws_details:
             raise Exception("Unknown Websocket details")
@@ -116,7 +120,7 @@ class ReconnectingWebsocket:
             self._log.error(f"websocket could not reconnect after {self._reconnect_attempts} attempts")
             pass
 
-    def _get_reconnect_wait(self, attempts: int) -> int:
+    def _get_reconnect_wait(self, attempts):
         expo = 2 ** attempts
         return round(random() * min(self.MAX_RECONNECT_SECONDS, expo - 1) + 1)
 
@@ -147,19 +151,23 @@ class ReconnectingWebsocket:
 
 class KucoinSocketManager:
 
+    PRIVATE_TOPICS = [
+        '/account/balance'
+    ]
+
     def __init__(self):
         """Initialise the IdexSocketManager
 
         """
-        self._callback: Callable[[int], Awaitable[str]]
+        self._callback = None
         self._conn = None
         self._loop = None
-        self._client: Client = None
-        self._private: bool = False
+        self._client = None
+        self._private = False
         self._log = logging.getLogger(__name__)
 
     @classmethod
-    async def create(cls, loop, client: Client, callback: Callable[[int], Awaitable[str]], private: bool = False):
+    async def create(cls, loop, client, callback, private = False):
         self = KucoinSocketManager()
         self._loop = loop
         self._client = client
@@ -168,14 +176,15 @@ class KucoinSocketManager:
         self._conn = ReconnectingWebsocket(loop, client, self._recv, private)
         return self
 
-    async def _recv(self, msg: Dict):
+    async def _recv(self, msg):
         if 'data' in msg:
             await self._callback(msg)
 
-    async def subscribe(self, topic: str):
+    async def subscribe(self, topic):
         """Subscribe to a channel
 
         :param topic: required
+        :type topic: str
         :returns: None
 
         Sample ws response
@@ -216,12 +225,18 @@ class KucoinSocketManager:
             'response': True
         }
 
+        if topic in self.PRIVATE_TOPICS and not self._private:
+            raise KucoinSocketManagerPrivateException(
+                "Initialise KucoinSocketManager with private=true for {} topic".format(topic)
+            )
+
         await self._conn.send_message(req_msg)
 
-    async def unsubscribe(self, topic: str):
+    async def unsubscribe(self, topic):
         """Unsubscribe from a topic
 
         :param topic: required
+        :type topic: str
 
         :returns: None
 
