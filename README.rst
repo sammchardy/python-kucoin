@@ -1,5 +1,5 @@
 ===============================
-Welcome to python-kucoin v2.1.1
+Welcome to python-kucoin v2.1.2
 ===============================
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
@@ -53,7 +53,7 @@ TODO
 Quick Start
 -----------
 
-Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_.
+Register an account with `Kucoin <https://www.kucoin.com/?rcode=E42cWB>`_.
 
 To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
 
@@ -158,6 +158,9 @@ Note only for python3.5+
 
         ksm = await KucoinSocketManager.create(loop, client, handle_evt)
 
+        # for private topics such as '/account/balance' pass private=True
+        ksm_private = await KucoinSocketManager.create(loop, client, handle_evt, private=True)
+
         # Note: try these one at a time, if all are on you will see a lot of output
 
         # ETH-USDT Market Ticker
@@ -175,7 +178,7 @@ Note only for python3.5+
         # Level 3 market data
         await ksm.subscribe('/market/level3:BTC-USDT')
         # Account balance - must be authenticated
-        await ksm.subscribe('/account/balance')
+        await ksm_private.subscribe('/account/balance')
 
         while True:
             print("sleeping to keep loop open")
