@@ -3,11 +3,8 @@ import json
 import logging
 import time
 from random import random
-from typing import Dict, Callable, Awaitable, Optional
 
 import websockets as ws
-
-from kucoin.client import Client
 
 
 class KucoinSocketManagerPrivateException(Exception):
