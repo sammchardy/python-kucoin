@@ -1397,7 +1397,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
 
