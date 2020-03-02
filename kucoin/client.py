@@ -17,7 +17,6 @@ class Client(object):
 
     REST_API_URL = 'https://openapi-v2.kucoin.com'
     SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com'
-    API_VERSION = 'v1'
 
     SIDE_BUY = 'buy'
     SIDE_SELL = 'sell'
@@ -121,7 +120,7 @@ class Client(object):
         return base64.b64encode(m.digest())
 
     def _create_path(self, path):
-        return '/api/{}/{}'.format(self.API_VERSION, path)
+        return '/api/{}'.format(path)
 
     def _create_uri(self, path):
         return '{}{}'.format(self.API_URL, path)
@@ -239,7 +238,7 @@ class Client(object):
 
         """
 
-        return self._get('currencies', False)
+        return self._get('v1/currencies', False)
 
     def get_currency(self, currency):
         """Get single currency detail
@@ -270,7 +269,7 @@ class Client(object):
 
         """
 
-        return self._get('currencies/{}'.format(currency), False)
+        return self._get('v1/currencies/{}'.format(currency), False)
 
     # User Account Endpoints
 
@@ -310,7 +309,7 @@ class Client(object):
 
         """
 
-        return self._get('accounts', True)
+        return self._get('v1/accounts', True)
 
     def get_account(self, account_id):
         """Get an individual account
@@ -339,7 +338,7 @@ class Client(object):
 
         """
 
-        return self._get('accounts/{}'.format(account_id), True)
+        return self._get('v1/accounts/{}'.format(account_id), True)
 
     def create_account(self, account_type, currency):
         """Create an account
@@ -372,7 +371,7 @@ class Client(object):
             'currency': currency
         }
 
-        return self._post('accounts', True, data=data)
+        return self._post('v1/accounts', True, data=data)
 
     def get_account_activity(self, account_id, start=None, end=None, page=None, limit=None):
         """Get list of account activity
@@ -452,7 +451,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('accounts/{}/ledgers'.format(account_id), True, data=data)
+        return self._get('v1/accounts/{}/ledgers'.format(account_id), True, data=data)
 
     def get_account_holds(self, account_id, page=None, page_size=None):
         """Get account holds placed for any active orders or pending withdraw requests
@@ -511,17 +510,19 @@ class Client(object):
         if page_size:
             data['pageSize'] = page_size
 
-        return self._get('accounts/{}/holds'.format(account_id), True, data=data)
+        return self._get('v1/accounts/{}/holds'.format(account_id), True, data=data)
 
-    def create_inner_transfer(self, from_account_id, to_account_id, amount, order_id=None):
+    def create_inner_transfer(self, currency, from_type, to_type, amount, client_oid=None):
         """Get account holds placed for any active orders or pending withdraw requests
 
         https://docs.kucoin.com/#get-holds
 
-        :param from_account_id: ID of account to transfer funds from - from list_accounts()
-        :type from_account_id: str
-        :param to_account_id: ID of account to transfer funds to - from list_accounts()
-        :type to_account_id: str
+        :param currency: Name of currency
+        :type currency: str
+        :param from_type: Account type ['main', 'trade', 'margin']
+        :type from_type: str
+        :param to_type: Account type ['main', 'trade', 'margin']
+        :type to_type: str
         :param amount: Amount to transfer
         :type amount: int
         :param order_id: (optional) Request ID (default flat_uuid())
@@ -529,7 +530,7 @@ class Client(object):
 
         .. code:: python
 
-            transfer = client.create_inner_transfer('5bd6e9216d99522a52e458d6', 5bc7f080b39c5c03286eef8e', 20)
+            transfer = client.create_inner_transfer('BTC', 'main', 'trade', 1)
 
         :returns: API Response
 
@@ -544,17 +545,14 @@ class Client(object):
         """
 
         data = {
-            'payAccountId': from_account_id,
-            'recAccountId': to_account_id,
-            'amount': amount
+            'clientOid': client_oid if not client_oid is None else flat_uuid(),
+            'currency' : currency,
+            'from'     : from_type,
+            'to'       : to_type,
+            'amount'   : amount
         }
 
-        if order_id:
-            data['clientOid'] = order_id
-        else:
-            data['clientOid'] = flat_uuid()
-
-        return self._post('accounts/inner-transfer', True, data=data)
+        return self._post('v2/accounts/inner-transfer', True, data=data)
 
     # Deposit Endpoints
 
@@ -587,7 +585,7 @@ class Client(object):
             'currency': currency
         }
 
-        return self._post('deposit-addresses', True, data=data)
+        return self._post('v1/deposit-addresses', True, data=data)
 
     def get_deposit_address(self, currency):
         """Get deposit address for a currency
@@ -618,7 +616,7 @@ class Client(object):
             'currency': currency
         }
 
-        return self._get('deposit-addresses', True, data=data)
+        return self._get('v1/deposit-addresses', True, data=data)
 
     def get_deposits(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
         """Get deposit records for a currency
@@ -696,7 +694,7 @@ class Client(object):
         if page:
             data['page'] = page
 
-        return self._get('deposits', True, data=data)
+        return self._get('v1/deposits', True, data=data)
 
     # Withdraw Endpoints
 
@@ -766,7 +764,7 @@ class Client(object):
         if page:
             data['page'] = page
 
-        return self._get('withdrawals', True, data=data)
+        return self._get('v1/withdrawals', True, data=data)
 
     def get_withdrawal_quotas(self, currency):
         """Get withdrawal quotas for a currency
@@ -804,7 +802,7 @@ class Client(object):
             'currency': currency
         }
 
-        return self._get('withdrawals/quotas', True, data=data)
+        return self._get('v1/withdrawals/quotas', True, data=data)
 
     def create_withdrawal(self, currency, amount, address, memo=None, is_inner=False, remark=None):
         """Process a withdrawal
@@ -853,7 +851,7 @@ class Client(object):
         if remark:
             data['remark'] = remark
 
-        return self._post('withdrawals', True, data=data)
+        return self._post('v1/withdrawals', True, data=data)
 
     def cancel_withdrawal(self, withdrawal_id):
         """Cancel a withdrawal
@@ -940,7 +938,7 @@ class Client(object):
         if stp:
             data['stp'] = stp
 
-        return self._post('orders', True, data=data)
+        return self._post('v1/orders', True, data=data)
 
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
                            time_in_force=None, stop=None, stop_price=None, stp=None, cancel_after=None, post_only=None,
@@ -1044,7 +1042,7 @@ class Client(object):
             data['iceberg'] = iceberg
             data['visible_size'] = visible_size
 
-        return self._post('orders', True, data=data)
+        return self._post('v1/orders', True, data=data)
 
     def cancel_order(self, order_id):
         """Cancel an order
@@ -1197,7 +1195,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('orders', True, data=data)
+        return self._get('v1/orders', True, data=data)
 
     def get_historical_orders(self, symbol=None, side=None,
                               start=None, end=None, page=None, limit=None):
@@ -1263,7 +1261,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('hist-orders', True, data=data)
+        return self._get('v1/hist-orders', True, data=data)
 
     def get_order(self, order_id):
         """Get order details
@@ -1317,7 +1315,7 @@ class Client(object):
 
         """
 
-        return self._get('orders/{}'.format(order_id), True)
+        return self._get('v1/orders/{}'.format(order_id), True)
 
     # Fill Endpoints
 
@@ -1401,7 +1399,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('fills', True, data=data)
+        return self._get('v1/fills', True, data=data)
 
     # Market Endpoints
 
@@ -1439,7 +1437,7 @@ class Client(object):
 
         """
 
-        return self._get('symbols', False)
+        return self._get('v1/symbols', False)
 
     def get_ticker(self, symbol=None):
         """Get symbol tick
@@ -1518,7 +1516,7 @@ class Client(object):
         if symbol is not None:
             data['currencies'] = symbol
 
-        return self._get('prices', False, data=data)
+        return self._get('v1/prices', False, data=data)
 
     def get_24hr_stats(self, symbol):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
@@ -1557,7 +1555,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/stats', False, data=data)
+        return self._get('v1/market/stats', False, data=data)
 
     def get_markets(self):
         """Get supported market list
@@ -1583,7 +1581,7 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-        return self._get('markets', False)
+        return self._get('v1/markets', False)
 
     def get_order_book(self, symbol):
         """Get a list of bids and asks aggregated by price for a symbol.
@@ -1623,7 +1621,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/orderbook/level2_100', False, data=data)
+        return self._get('v1/market/orderbook/level2_100', False, data=data)
 
     def get_full_order_book(self, symbol):
         """Get a list of all bids and asks aggregated by price for a symbol.
@@ -1664,7 +1662,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/orderbook/level2', False, data=data)
+        return self._get('v1/market/orderbook/level2', False, data=data)
 
     def get_full_order_book_level3(self, symbol):
         """Get a list of all bids and asks non-aggregated for a symbol.
@@ -1721,7 +1719,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/orderbook/level3', False, data=data)
+        return self._get('v1/market/orderbook/level3', False, data=data)
 
     def get_trade_histories(self, symbol):
         """List the latest trades for a symbol
@@ -1764,7 +1762,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/histories', False, data=data)
+        return self._get('v1/market/histories', False, data=data)
 
     def get_kline_data(self, symbol, kline_type='5min', start=None, end=None):
         """Get kline data
@@ -1832,7 +1830,7 @@ class Client(object):
         else:
             data['endAt'] = int(time.time())
 
-        return self._get('market/candles', False, data=data)
+        return self._get('v1/market/candles', False, data=data)
 
     # Websocket Endpoints
 
