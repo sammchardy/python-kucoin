@@ -15,6 +15,7 @@ Contents
    account
    trading
    market
+   sub_accounts
    websockets
    exceptions
    changelog

@@ -21,7 +21,7 @@ Welcome to python-kucoin v2.1.2
     :target: https://pypi.python.org/pypi/python-kucoin
 
 This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_.
-I am in no way affiliated with Kucoin, use at your own risk.
+I am in no way affiliated with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_, use at your own risk.
 
 
 PyPi
@@ -53,7 +53,7 @@ TODO
 Quick Start
 -----------
 
-Register an account with `Kucoin <https://www.kucoin.com/?rcode=E42cWB>`_.
+Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_.
 
 To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
 
