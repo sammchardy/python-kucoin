@@ -1104,7 +1104,7 @@ class Client(object):
         return self._delete('orders', True, data=data)
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
-                   start=None, end=None, page=None, limit=None):
+                   start=None, end=None, page=None, limit=None, trade_type='TRADE'):
         """Get list of orders
 
         https://docs.kucoin.com/#list-orders
@@ -1196,6 +1196,8 @@ class Client(object):
             data['page'] = page
         if limit:
             data['pageSize'] = limit
+        if trade_type:
+            data['tradeType'] = tradeType
 
         return self._get('orders', True, data=data)
 
