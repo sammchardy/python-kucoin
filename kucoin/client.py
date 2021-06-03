@@ -1322,7 +1322,7 @@ class Client(object):
     # Fill Endpoints
 
     def get_fills(self, order_id=None, symbol=None, side=None, order_type=None,
-                  start=None, end=None, page=None, limit=None):
+                  start=None, end=None, page=None, limit=None, trade_type=None):
         """Get a list of recent fills.
 
         https://docs.kucoin.com/#list-fills
@@ -1339,6 +1339,8 @@ class Client(object):
         :type start: string
         :param end: End time as unix timestamp (optional)
         :type end: string
+        :param tradeType: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :type tradeType: string
         :param page: optional - Page to fetch
         :type page: int
         :param limit: optional - Number of orders
@@ -1400,6 +1402,8 @@ class Client(object):
             data['page'] = page
         if limit:
             data['pageSize'] = limit
+        if trade_type:
+            data['tradeType'} = trade_type
 
         return self._get('fills', True, data=data)
 
