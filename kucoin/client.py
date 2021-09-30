@@ -699,7 +699,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
         if page:
-            data['page'] = page
+            data['currentPage'] = page
 
         return self._get('deposits', True, data=data)
 
@@ -769,7 +769,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
         if page:
-            data['page'] = page
+            data['currentPage'] = page
 
         return self._get('withdrawals', True, data=data)
 
@@ -1198,7 +1198,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
         if trade_type:
@@ -1266,7 +1266,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
 
@@ -1406,7 +1406,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
         if trade_type:
