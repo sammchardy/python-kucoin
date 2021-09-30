@@ -558,13 +558,15 @@ class Client(object):
 
     # Deposit Endpoints
 
-    def create_deposit_address(self, currency):
+    def create_deposit_address(self, currency, chain=None):
         """Create deposit address of currency for deposit. You can just create one deposit address.
 
         https://docs.kucoin.com/#create-deposit-address
 
         :param currency: Name of currency
+        :param chain: The chain name of currency
         :type currency: string
+        :type chain: string
 
         .. code:: python
 
@@ -586,6 +588,9 @@ class Client(object):
         data = {
             'currency': currency
         }
+        
+        if chain is not None:
+            data['chain'] = chain
 
         return self._post('deposit-addresses', True, data=data)
 
