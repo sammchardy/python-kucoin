@@ -159,7 +159,7 @@ class Client(object):
 
     @staticmethod
     def _handle_response(response):
-        """Internal helper for handling API responses from the Quoine server.
+        """Internal helper for handling API responses from the Kucoin server.
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
@@ -1122,6 +1122,8 @@ class Client(object):
         :type side: string
         :param order_type: (optional) limit, market, limit_stop or market_stop
         :type order_type: string
+        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :type trade_type: string
         :param start: (optional) Start time as unix timestamp
         :type start: string
         :param end: (optional) End time as unix timestamp
@@ -1202,7 +1204,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
         if trade_type:
-            data['tradeType'] = tradeType
+            data['tradeType'] = trade_type
 
         return self._get('orders', True, data=data)
 
@@ -1346,8 +1348,8 @@ class Client(object):
         :type start: string
         :param end: End time as unix timestamp (optional)
         :type end: string
-        :param tradeType: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-        :type tradeType: string
+        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :type trade_type: string
         :param page: optional - Page to fetch
         :type page: int
         :param limit: optional - Number of orders
@@ -1410,7 +1412,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
         if trade_type:
-            data['tradeType'} = trade_type
+            data['tradeType'] = trade_type
 
         return self._get('fills', True, data=data)
 
@@ -1875,7 +1877,7 @@ class Client(object):
                             "pingTimeout": 10000
                         }
                     ],
-                    "token": "vYNlCtbz4XNJ1QncwWilJnBtmmfe4geLQDUA62kKJsDChc6I4bRDQc73JfIrlFaVYIAE0Gv2--MROnLAgjVsWkcDq_MuG7qV7EktfCEIphiqnlfpQn4Ybg==.IoORVxR2LmKV7_maOR9xOg=="
+                    "token": "vYNlCtbz4XNJ1QncwWilJnBtmmfe4geLQDUA62kKJsDChc6I4bRDQc73JfIrlFaVYIAE"
                 }
             }
 
