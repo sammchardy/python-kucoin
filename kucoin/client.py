@@ -276,14 +276,21 @@ class Client(object):
 
     # User Account Endpoints
 
-    def get_accounts(self):
+    def get_accounts(self, currency=None, account_type=None):
         """Get a list of accounts
 
         https://docs.kucoin.com/#accounts
 
+        :param currency: optional Currency code
+        :type currency: string
+        :param account_type: optional Account type - main, trade, margin or pool
+        :type account_type: string
+
         .. code:: python
 
             accounts = client.get_accounts()
+            accounts = client.get_accounts('BTC')
+            accounts = client.get_accounts('BTC', 'trade)
 
         :returns: API Response
 
@@ -312,7 +319,13 @@ class Client(object):
 
         """
 
-        return self._get('accounts', True)
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if account_type:
+            data['type'] = account_type
+
+        return self._get('accounts', True, data=data)
 
     def get_account(self, account_id):
         """Get an individual account
@@ -348,7 +361,7 @@ class Client(object):
 
         https://docs.kucoin.com/#create-an-account
 
-        :param account_type: Account type - main or trade
+        :param account_type: Account type - main, trade, margin
         :type account_type: string
         :param currency: Currency code
         :type currency: string
@@ -376,13 +389,17 @@ class Client(object):
 
         return self._post('accounts', True, data=data)
 
-    def get_account_activity(self, account_id, start=None, end=None, page=None, limit=None):
+    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None):
         """Get list of account activity
 
         https://docs.kucoin.com/#get-account-history
 
-        :param account_id: ID for account - from list_accounts()
-        :type account_id: string
+        :param currency: (optional) currency name
+        :type currency: string
+        :param direction: (optional) Side: in - Receive, out - Send
+        :type direction: string
+        :param biz_type: (optional) Business type: DEPOSIT, WITHDRAW, TRANSFER, SUB_TRANSFER,TRADE_EXCHANGE, MARGIN_EXCHANGE, KUCOIN_BONUS.
+        :type biz_type: string
         :param start: (optional) Start time as unix timestamp
         :type start: string
         :param end: (optional) End time as unix timestamp
@@ -445,6 +462,14 @@ class Client(object):
         """
 
         data = {}
+        if currency:
+            data['currency'] = currency
+        if direction:
+            data['direction'] = direction
+        if biz_type:
+            data['bizType'] = biz_type
+        if start:
+            data['startAt'] = start
         if start:
             data['startAt'] = start
         if end:
@@ -454,7 +479,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('accounts/{}/ledgers'.format(account_id), True, data=data)
+        return self._get('accounts/ledgers', True, data=data)
 
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
