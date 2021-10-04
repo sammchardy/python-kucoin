@@ -14,7 +14,6 @@ from .utils import compact_json_dict, flat_uuid
 
 
 class Client(object):
-
     REST_API_URL = 'https://openapi-v2.kucoin.com'
     SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com'
     API_VERSION = 'v1'
@@ -149,7 +148,7 @@ class Client(object):
 
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
-            del(kwargs['data'])
+            del (kwargs['data'])
 
         if signed and method != 'get' and kwargs['data']:
             kwargs['data'] = compact_json_dict(kwargs['data'])
@@ -588,23 +587,26 @@ class Client(object):
         data = {
             'currency': currency
         }
-        
+
         if chain is not None:
             data['chain'] = chain
 
         return self._post('deposit-addresses', True, data=data)
 
-    def get_deposit_address(self, currency):
+    def get_deposit_address(self, currency, chain=None):
         """Get deposit address for a currency
 
         https://docs.kucoin.com/#get-deposit-address
 
         :param currency: Name of currency
+        :param chain: The chain name of currency
         :type currency: string
+        :type chain: string
 
         .. code:: python
 
             address = client.get_deposit_address('NEO')
+            address = client.get_deposit_address('USDT', 'TRC20')
 
         :returns: ApiResponse
 
@@ -612,7 +614,8 @@ class Client(object):
 
             {
                 "address": "0x78d3ad1c0aa1bf068e19c94a2d7b16c9c0fcd8b1",
-                "memo": "5c247c8a03aa677cea2a251d"
+                "memo": "5c247c8a03aa677cea2a251d",
+                "chain": "OMNI"
             }
 
         :raises: KucoinResponseException, KucoinAPIException
@@ -622,6 +625,8 @@ class Client(object):
         data = {
             'currency': currency
         }
+        if chain:
+            data["chain"] = chain
 
         return self._get('deposit-addresses', True, data=data)
 
