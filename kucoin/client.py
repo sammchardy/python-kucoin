@@ -456,65 +456,6 @@ class Client(object):
 
         return self._get('accounts/{}/ledgers'.format(account_id), True, data=data)
 
-    def get_account_holds(self, account_id, page=None, page_size=None):
-        """Get account holds placed for any active orders or pending withdraw requests
-
-        https://docs.kucoin.com/#get-holds
-
-        :param account_id: ID for account - from list_accounts()
-        :type account_id: string
-        :param page: (optional) Current page - default 1
-        :type page: int
-        :param page_size: (optional) Number of results to return - default 50
-        :type page_size: int
-
-        .. code:: python
-
-            holds = client.get_account_holds('5bd6e9216d99522a52e458d6')
-
-            holds = client.get_account_holds('5bd6e9216d99522a52e458d6', page=2, page_size=10)
-
-        :returns: API Response
-
-        .. code-block:: python
-
-            {
-                "currentPage": 1,
-                "pageSize": 10,
-                "totalNum": 2,
-                "totalPage": 1,
-                "items": [
-                    {
-                        "currency": "ETH",
-                        "holdAmount": "5083",
-                        "bizType": "Withdraw",
-                        "orderId": "5bc7f080b39c5c03286eef8e",
-                        "createdAt": 1545898567000,
-                        "updatedAt": 1545898567000
-                    },
-                    {
-                        "currency": "ETH",
-                        "holdAmount": "1452",
-                        "bizType": "Withdraw",
-                        "orderId": "5bc7f518b39c5c033818d62d",
-                        "createdAt": 1545898567000,
-                        "updatedAt": 1545898567000
-                    }
-                ]
-            }
-
-        :raises:  KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {}
-        if page:
-            data['currentPage'] = page
-        if page_size:
-            data['pageSize'] = page_size
-
-        return self._get('accounts/{}/holds'.format(account_id), True, data=data)
-
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
 
