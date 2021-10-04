@@ -1345,6 +1345,61 @@ class Client(object):
 
         return self._get('orders/{}'.format(order_id), True)
 
+    def get_order_by_client_oid(self, client_oid):
+        """Get order details by clientOid
+
+        https://docs.kucoin.com/#get-an-order
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+
+        .. code:: python
+
+            order = client.get_order_by_client_oid('6d539dc614db312')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "id": "5f3113a1c9b6d539dc614dc6",
+                "symbol": "KCS-BTC",
+                "opType": "DEAL",
+                "type": "limit",
+                "side": "buy",
+                "price": "0.00001",
+                "size": "1",
+                "funds": "0",
+                "dealFunds": "0",
+                "dealSize": "0",
+                "fee": "0",
+                "feeCurrency": "BTC",
+                "stp": "",
+                "stop": "",
+                "stopTriggered": false,
+                "stopPrice": "0",
+                "timeInForce": "GTC",
+                "postOnly": false,
+                "hidden": false,
+                "iceberg": false,
+                "visibleSize": "0",
+                "cancelAfter": 0,
+                "channel": "API",
+                "clientOid": "6d539dc614db312",
+                "remark": "",
+                "tags": "",
+                "isActive": true,
+                "cancelExist": false,
+                "createdAt": 1597051810000,
+                "tradeType": "TRADE"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('order/client-order/{}'.format(client_oid), True)
+
     # Fill Endpoints
 
     def get_fills(self, order_id=None, symbol=None, side=None, order_type=None,
