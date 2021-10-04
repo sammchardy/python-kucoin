@@ -1069,6 +1069,35 @@ class Client(object):
 
         return self._delete('orders/{}'.format(order_id), True)
 
+    def cancel_order_by_client_oid(self, client_oid):
+        """Cancel an order by the clientOid
+
+        https://docs.kucoin.com/#cancel-single-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+
+        .. code:: python
+
+            res = client.cancel_order_by_client_oid('6d539dc614db3)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderId": "5f311183c9b6d539dc614db3",
+                "clientOid": "6d539dc614db3"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        return self._delete('order/client-order/{}'.format(client_oid), True)
+
     def cancel_all_orders(self, symbol=None):
         """Cancel all orders
 
