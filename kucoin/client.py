@@ -515,15 +515,17 @@ class Client(object):
 
         return self._get('accounts/{}/holds'.format(account_id), True, data=data)
 
-    def create_inner_transfer(self, from_account_id, to_account_id, amount, order_id=None):
-        """Get account holds placed for any active orders or pending withdraw requests
+    def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
+        """Transfer fund among accounts on the platform
 
-        https://docs.kucoin.com/#get-holds
+        https://docs.kucoin.com/#inner-transfer
 
-        :param from_account_id: ID of account to transfer funds from - from list_accounts()
-        :type from_account_id: str
-        :param to_account_id: ID of account to transfer funds to - from list_accounts()
-        :type to_account_id: str
+        :param currency: currency name
+        :type currency: str
+        :param from_type: Account type of payer: main, trade, margin or pool
+        :type from_type: str
+        :param to_type: Account type of payee: main, trade, margin , contract or pool
+        :type to_type: str
         :param amount: Amount to transfer
         :type amount: int
         :param order_id: (optional) Request ID (default flat_uuid())
@@ -531,7 +533,7 @@ class Client(object):
 
         .. code:: python
 
-            transfer = client.create_inner_transfer('5bd6e9216d99522a52e458d6', 5bc7f080b39c5c03286eef8e', 20)
+            transfer = client.create_inner_transfer('BTC', 'main', 'trade', 1)
 
         :returns: API Response
 
@@ -546,17 +548,14 @@ class Client(object):
         """
 
         data = {
-            'payAccountId': from_account_id,
-            'recAccountId': to_account_id,
-            'amount': amount
+            'from': from_type,
+            'to': to_type,
+            'amount': amount,
+            'currency': currency,
+            'clientOid': order_id or flat_uuid(),
         }
 
-        if order_id:
-            data['clientOid'] = order_id
-        else:
-            data['clientOid'] = flat_uuid()
-
-        return self._post('accounts/inner-transfer', True, data=data)
+        return self._post('accounts/inner-transfer', True, api_version=self.API_VERSION2, data=data)
 
     # Deposit Endpoints
 
@@ -596,20 +595,17 @@ class Client(object):
 
         return self._post('deposit-addresses', True, data=data)
 
-    def get_deposit_address(self, currency, chain=None):
+    def get_deposit_address(self, currency):
         """Get deposit address for a currency
 
         https://docs.kucoin.com/#get-deposit-address
 
         :param currency: Name of currency
-        :param chain: The chain name of currency
         :type currency: string
-        :type chain: string
 
         .. code:: python
 
-            address = client.get_deposit_address('NEO')
-            address = client.get_deposit_address('USDT', 'TRC20')
+            address = client.get_deposit_address('USDT')
 
         :returns: ApiResponse
 
@@ -628,10 +624,8 @@ class Client(object):
         data = {
             'currency': currency
         }
-        if chain:
-            data["chain"] = chain
 
-        return self._get('deposit-addresses', True, data=data)
+        return self._get('deposit-addresses', True, api_version=self.API_VERSION2, data=data)
 
     def get_deposits(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
         """Get deposit records for a currency
