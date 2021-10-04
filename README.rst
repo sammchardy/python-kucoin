@@ -1,6 +1,8 @@
 ===============================
-Welcome to python-kucoin v2.1.2
+Welcome to python-kucoin v2.1.3
 ===============================
+
+Last Updated 4th Oct 2021
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
