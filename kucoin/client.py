@@ -17,6 +17,8 @@ class Client(object):
     REST_API_URL = 'https://openapi-v2.kucoin.com'
     SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com'
     API_VERSION = 'v1'
+    API_VERSION2 = 'v2'
+    API_VERSION3 = 'v3'
 
     SIDE_BUY = 'buy'
     SIDE_SELL = 'sell'
@@ -119,13 +121,14 @@ class Client(object):
         m = hmac.new(self.API_SECRET.encode('utf-8'), sig_str, hashlib.sha256)
         return base64.b64encode(m.digest())
 
-    def _create_path(self, path):
-        return '/api/{}/{}'.format(self.API_VERSION, path)
+    def _create_path(self, path, api_version=None):
+        api_version = api_version or self.API_VERSION
+        return '/api/{}/{}'.format(api_version, path)
 
     def _create_uri(self, path):
         return '{}{}'.format(self.API_URL, path)
 
-    def _request(self, method, path, signed, **kwargs):
+    def _request(self, method, path, signed, api_version=None, **kwargs):
 
         # set default requests timeout
         kwargs['timeout'] = 10
@@ -137,7 +140,7 @@ class Client(object):
         kwargs['data'] = kwargs.get('data', {})
         kwargs['headers'] = kwargs.get('headers', {})
 
-        full_path = self._create_path(path)
+        full_path = self._create_path(path, api_version)
         uri = self._create_uri(full_path)
 
         if signed:
@@ -148,7 +151,7 @@ class Client(object):
 
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
-            del (kwargs['data'])
+            del kwargs['data']
 
         if signed and method != 'get' and kwargs['data']:
             kwargs['data'] = compact_json_dict(kwargs['data'])
@@ -182,17 +185,17 @@ class Client(object):
         except ValueError:
             raise KucoinRequestException('Invalid Response: %s' % response.text)
 
-    def _get(self, path, signed=False, **kwargs):
-        return self._request('get', path, signed, **kwargs)
+    def _get(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('get', path, signed, api_version, **kwargs)
 
-    def _post(self, path, signed=False, **kwargs):
-        return self._request('post', path, signed, **kwargs)
+    def _post(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('post', path, signed, api_version, **kwargs)
 
-    def _put(self, path, signed=False, **kwargs):
-        return self._request('put', path, signed, **kwargs)
+    def _put(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('put', path, signed, api_version, **kwargs)
 
-    def _delete(self, path, signed=False, **kwargs):
-        return self._request('delete', path, signed, **kwargs)
+    def _delete(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('delete', path, signed, api_version, **kwargs)
 
     def get_timestamp(self):
         """Get the server timestamp
@@ -1603,15 +1606,17 @@ class Client(object):
         """
         return self._get('markets', False)
 
-    def get_order_book(self, symbol):
+    def get_order_book(self, symbol, depth_20=False):
         """Get a list of bids and asks aggregated by price for a symbol.
 
-        Returns up to 100 depth each side. Fastest Order book API
+        Returns up to 20 or 100 depth each side. Fastest Order book API
 
         https://docs.kucoin.com/#get-part-order-book-aggregated
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
+        :param depth_20: If to return only 20 depth
+        :type depth_20: bool
 
         .. code:: python
 
@@ -1640,8 +1645,13 @@ class Client(object):
         data = {
             'symbol': symbol
         }
+        path = 'market/orderbook/level2_'
+        if depth_20:
+            path += '20'
+        else:
+            path += '100'
 
-        return self._get('market/orderbook/level2_100', False, data=data)
+        return self._get(path, False, data=data)
 
     def get_full_order_book(self, symbol):
         """Get a list of all bids and asks aggregated by price for a symbol.
@@ -1682,7 +1692,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/orderbook/level2', False, data=data)
+        return self._get('market/orderbook/level2', True, api_version=self.API_VERSION3, data=data)
 
     def get_full_order_book_level3(self, symbol):
         """Get a list of all bids and asks non-aggregated for a symbol.
