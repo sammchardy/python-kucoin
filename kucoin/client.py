@@ -207,6 +207,26 @@ class Client(object):
         """
         return self._get("timestamp")
 
+    def get_status(self):
+        """Get the service status
+
+        https://docs.kucoin.com/#service-status
+
+        .. code:: python
+
+            currencies = client.get_status()
+
+        :returns: API Response
+
+        .. code-block:: python
+            {
+                "status": "open",                //open, close, cancelonly
+                "msg":  "upgrade match engine"   //remark for operation
+            }
+
+        """
+        return self._get("status")
+
     # Currency Endpoints
 
     def get_currencies(self):
