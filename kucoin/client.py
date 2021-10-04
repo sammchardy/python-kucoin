@@ -14,10 +14,11 @@ from .utils import compact_json_dict, flat_uuid
 
 
 class Client(object):
-
     REST_API_URL = 'https://openapi-v2.kucoin.com'
     SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com'
     API_VERSION = 'v1'
+    API_VERSION2 = 'v2'
+    API_VERSION3 = 'v3'
 
     SIDE_BUY = 'buy'
     SIDE_SELL = 'sell'
@@ -120,13 +121,14 @@ class Client(object):
         m = hmac.new(self.API_SECRET.encode('utf-8'), sig_str, hashlib.sha256)
         return base64.b64encode(m.digest())
 
-    def _create_path(self, path):
-        return '/api/{}/{}'.format(self.API_VERSION, path)
+    def _create_path(self, path, api_version=None):
+        api_version = api_version or self.API_VERSION
+        return '/api/{}/{}'.format(api_version, path)
 
     def _create_uri(self, path):
         return '{}{}'.format(self.API_URL, path)
 
-    def _request(self, method, path, signed, **kwargs):
+    def _request(self, method, path, signed, api_version=None, **kwargs):
 
         # set default requests timeout
         kwargs['timeout'] = 10
@@ -138,7 +140,7 @@ class Client(object):
         kwargs['data'] = kwargs.get('data', {})
         kwargs['headers'] = kwargs.get('headers', {})
 
-        full_path = self._create_path(path)
+        full_path = self._create_path(path, api_version)
         uri = self._create_uri(full_path)
 
         if signed:
@@ -149,7 +151,7 @@ class Client(object):
 
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
-            del(kwargs['data'])
+            del kwargs['data']
 
         if signed and method != 'get' and kwargs['data']:
             kwargs['data'] = compact_json_dict(kwargs['data'])
@@ -159,7 +161,7 @@ class Client(object):
 
     @staticmethod
     def _handle_response(response):
-        """Internal helper for handling API responses from the Quoine server.
+        """Internal helper for handling API responses from the Kucoin server.
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
@@ -183,17 +185,17 @@ class Client(object):
         except ValueError:
             raise KucoinRequestException('Invalid Response: %s' % response.text)
 
-    def _get(self, path, signed=False, **kwargs):
-        return self._request('get', path, signed, **kwargs)
+    def _get(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('get', path, signed, api_version, **kwargs)
 
-    def _post(self, path, signed=False, **kwargs):
-        return self._request('post', path, signed, **kwargs)
+    def _post(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('post', path, signed, api_version, **kwargs)
 
-    def _put(self, path, signed=False, **kwargs):
-        return self._request('put', path, signed, **kwargs)
+    def _put(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('put', path, signed, api_version, **kwargs)
 
-    def _delete(self, path, signed=False, **kwargs):
-        return self._request('delete', path, signed, **kwargs)
+    def _delete(self, path, signed=False, api_version=None, **kwargs):
+        return self._request('delete', path, signed, api_version, **kwargs)
 
     def get_timestamp(self):
         """Get the server timestamp
@@ -204,6 +206,26 @@ class Client(object):
 
         """
         return self._get("timestamp")
+
+    def get_status(self):
+        """Get the service status
+
+        https://docs.kucoin.com/#service-status
+
+        .. code:: python
+
+            currencies = client.get_status()
+
+        :returns: API Response
+
+        .. code-block:: python
+            {
+                "status": "open",                //open, close, cancelonly
+                "msg":  "upgrade match engine"   //remark for operation
+            }
+
+        """
+        return self._get("status")
 
     # Currency Endpoints
 
@@ -274,14 +296,21 @@ class Client(object):
 
     # User Account Endpoints
 
-    def get_accounts(self):
+    def get_accounts(self, currency=None, account_type=None):
         """Get a list of accounts
 
         https://docs.kucoin.com/#accounts
 
+        :param currency: optional Currency code
+        :type currency: string
+        :param account_type: optional Account type - main, trade, margin or pool
+        :type account_type: string
+
         .. code:: python
 
             accounts = client.get_accounts()
+            accounts = client.get_accounts('BTC')
+            accounts = client.get_accounts('BTC', 'trade)
 
         :returns: API Response
 
@@ -310,7 +339,13 @@ class Client(object):
 
         """
 
-        return self._get('accounts', True)
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if account_type:
+            data['type'] = account_type
+
+        return self._get('accounts', True, data=data)
 
     def get_account(self, account_id):
         """Get an individual account
@@ -346,7 +381,7 @@ class Client(object):
 
         https://docs.kucoin.com/#create-an-account
 
-        :param account_type: Account type - main or trade
+        :param account_type: Account type - main, trade, margin
         :type account_type: string
         :param currency: Currency code
         :type currency: string
@@ -374,13 +409,17 @@ class Client(object):
 
         return self._post('accounts', True, data=data)
 
-    def get_account_activity(self, account_id, start=None, end=None, page=None, limit=None):
+    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None):
         """Get list of account activity
 
         https://docs.kucoin.com/#get-account-history
 
-        :param account_id: ID for account - from list_accounts()
-        :type account_id: string
+        :param currency: (optional) currency name
+        :type currency: string
+        :param direction: (optional) Side: in - Receive, out - Send
+        :type direction: string
+        :param biz_type: (optional) Business type: DEPOSIT, WITHDRAW, TRANSFER, SUB_TRANSFER,TRADE_EXCHANGE, MARGIN_EXCHANGE, KUCOIN_BONUS.
+        :type biz_type: string
         :param start: (optional) Start time as unix timestamp
         :type start: string
         :param end: (optional) End time as unix timestamp
@@ -443,6 +482,14 @@ class Client(object):
         """
 
         data = {}
+        if currency:
+            data['currency'] = currency
+        if direction:
+            data['direction'] = direction
+        if biz_type:
+            data['bizType'] = biz_type
+        if start:
+            data['startAt'] = start
         if start:
             data['startAt'] = start
         if end:
@@ -452,76 +499,19 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('accounts/{}/ledgers'.format(account_id), True, data=data)
+        return self._get('accounts/ledgers', True, data=data)
 
-    def get_account_holds(self, account_id, page=None, page_size=None):
-        """Get account holds placed for any active orders or pending withdraw requests
+    def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
+        """Transfer fund among accounts on the platform
 
-        https://docs.kucoin.com/#get-holds
+        https://docs.kucoin.com/#inner-transfer
 
-        :param account_id: ID for account - from list_accounts()
-        :type account_id: string
-        :param page: (optional) Current page - default 1
-        :type page: int
-        :param page_size: (optional) Number of results to return - default 50
-        :type page_size: int
-
-        .. code:: python
-
-            holds = client.get_account_holds('5bd6e9216d99522a52e458d6')
-
-            holds = client.get_account_holds('5bd6e9216d99522a52e458d6', page=2, page_size=10)
-
-        :returns: API Response
-
-        .. code-block:: python
-
-            {
-                "currentPage": 1,
-                "pageSize": 10,
-                "totalNum": 2,
-                "totalPage": 1,
-                "items": [
-                    {
-                        "currency": "ETH",
-                        "holdAmount": "5083",
-                        "bizType": "Withdraw",
-                        "orderId": "5bc7f080b39c5c03286eef8e",
-                        "createdAt": 1545898567000,
-                        "updatedAt": 1545898567000
-                    },
-                    {
-                        "currency": "ETH",
-                        "holdAmount": "1452",
-                        "bizType": "Withdraw",
-                        "orderId": "5bc7f518b39c5c033818d62d",
-                        "createdAt": 1545898567000,
-                        "updatedAt": 1545898567000
-                    }
-                ]
-            }
-
-        :raises:  KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {}
-        if page:
-            data['currentPage'] = page
-        if page_size:
-            data['pageSize'] = page_size
-
-        return self._get('accounts/{}/holds'.format(account_id), True, data=data)
-
-    def create_inner_transfer(self, from_account_id, to_account_id, amount, order_id=None):
-        """Get account holds placed for any active orders or pending withdraw requests
-
-        https://docs.kucoin.com/#get-holds
-
-        :param from_account_id: ID of account to transfer funds from - from list_accounts()
-        :type from_account_id: str
-        :param to_account_id: ID of account to transfer funds to - from list_accounts()
-        :type to_account_id: str
+        :param currency: currency name
+        :type currency: str
+        :param from_type: Account type of payer: main, trade, margin or pool
+        :type from_type: str
+        :param to_type: Account type of payee: main, trade, margin , contract or pool
+        :type to_type: str
         :param amount: Amount to transfer
         :type amount: int
         :param order_id: (optional) Request ID (default flat_uuid())
@@ -529,7 +519,7 @@ class Client(object):
 
         .. code:: python
 
-            transfer = client.create_inner_transfer('5bd6e9216d99522a52e458d6', 5bc7f080b39c5c03286eef8e', 20)
+            transfer = client.create_inner_transfer('BTC', 'main', 'trade', 1)
 
         :returns: API Response
 
@@ -544,27 +534,26 @@ class Client(object):
         """
 
         data = {
-            'payAccountId': from_account_id,
-            'recAccountId': to_account_id,
-            'amount': amount
+            'from': from_type,
+            'to': to_type,
+            'amount': amount,
+            'currency': currency,
+            'clientOid': order_id or flat_uuid(),
         }
 
-        if order_id:
-            data['clientOid'] = order_id
-        else:
-            data['clientOid'] = flat_uuid()
-
-        return self._post('accounts/inner-transfer', True, data=data)
+        return self._post('accounts/inner-transfer', True, api_version=self.API_VERSION2, data=data)
 
     # Deposit Endpoints
 
-    def create_deposit_address(self, currency):
+    def create_deposit_address(self, currency, chain=None):
         """Create deposit address of currency for deposit. You can just create one deposit address.
 
         https://docs.kucoin.com/#create-deposit-address
 
         :param currency: Name of currency
+        :param chain: The chain name of currency
         :type currency: string
+        :type chain: string
 
         .. code:: python
 
@@ -587,6 +576,9 @@ class Client(object):
             'currency': currency
         }
 
+        if chain is not None:
+            data['chain'] = chain
+
         return self._post('deposit-addresses', True, data=data)
 
     def get_deposit_address(self, currency):
@@ -599,7 +591,7 @@ class Client(object):
 
         .. code:: python
 
-            address = client.get_deposit_address('NEO')
+            address = client.get_deposit_address('USDT')
 
         :returns: ApiResponse
 
@@ -607,7 +599,8 @@ class Client(object):
 
             {
                 "address": "0x78d3ad1c0aa1bf068e19c94a2d7b16c9c0fcd8b1",
-                "memo": "5c247c8a03aa677cea2a251d"
+                "memo": "5c247c8a03aa677cea2a251d",
+                "chain": "OMNI"
             }
 
         :raises: KucoinResponseException, KucoinAPIException
@@ -618,7 +611,7 @@ class Client(object):
             'currency': currency
         }
 
-        return self._get('deposit-addresses', True, data=data)
+        return self._get('deposit-addresses', True, api_version=self.API_VERSION2, data=data)
 
     def get_deposits(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
         """Get deposit records for a currency
@@ -694,7 +687,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
         if page:
-            data['page'] = page
+            data['currentPage'] = page
 
         return self._get('deposits', True, data=data)
 
@@ -764,7 +757,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
         if page:
-            data['page'] = page
+            data['currentPage'] = page
 
         return self._get('withdrawals', True, data=data)
 
@@ -877,7 +870,9 @@ class Client(object):
 
     # Order Endpoints
 
-    def create_market_order(self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None):
+    def create_market_order(
+        self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
+    ):
         """Create a market order
 
         One of size or funds must be set
@@ -898,6 +893,8 @@ class Client(object):
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
+        :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
+        :type trade_type: string
 
         .. code:: python
 
@@ -939,11 +936,14 @@ class Client(object):
             data['remark'] = remark
         if stp:
             data['stp'] = stp
+        if trade_type:
+            data['tradeType'] = trade_type
 
         return self._post('orders', True, data=data)
 
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
-                           time_in_force=None, stop=None, stop_price=None, stp=None, cancel_after=None, post_only=None,
+                           time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
+                           cancel_after=None, post_only=None,
                            hidden=None, iceberg=None, visible_size=None):
         """Create an order
 
@@ -963,6 +963,8 @@ class Client(object):
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
+        :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
+        :type trade_type: string
         :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
         :type time_in_force: string
         :param stop: (optional) stop type loss or entry - requires stop_price
@@ -1029,6 +1031,8 @@ class Client(object):
             data['remark'] = remark
         if stp:
             data['stp'] = stp
+        if trade_type:
+            data['tradeType'] = trade_type
         if time_in_force:
             data['timeInForce'] = time_in_force
         if cancel_after:
@@ -1076,6 +1080,35 @@ class Client(object):
 
         return self._delete('orders/{}'.format(order_id), True)
 
+    def cancel_order_by_client_oid(self, client_oid):
+        """Cancel an order by the clientOid
+
+        https://docs.kucoin.com/#cancel-single-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+
+        .. code:: python
+
+            res = client.cancel_order_by_client_oid('6d539dc614db3)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderId": "5f311183c9b6d539dc614db3",
+                "clientOid": "6d539dc614db3"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        return self._delete('order/client-order/{}'.format(client_oid), True)
+
     def cancel_all_orders(self, symbol=None):
         """Cancel all orders
 
@@ -1104,7 +1137,7 @@ class Client(object):
         return self._delete('orders', True, data=data)
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
-                   start=None, end=None, page=None, limit=None):
+                   start=None, end=None, page=None, limit=None, trade_type='TRADE'):
         """Get list of orders
 
         https://docs.kucoin.com/#list-orders
@@ -1117,6 +1150,8 @@ class Client(object):
         :type side: string
         :param order_type: (optional) limit, market, limit_stop or market_stop
         :type order_type: string
+        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :type trade_type: string
         :param start: (optional) Start time as unix timestamp
         :type start: string
         :param end: (optional) End time as unix timestamp
@@ -1193,9 +1228,11 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
+        if trade_type:
+            data['tradeType'] = trade_type
 
         return self._get('orders', True, data=data)
 
@@ -1259,7 +1296,7 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
 
@@ -1319,10 +1356,65 @@ class Client(object):
 
         return self._get('orders/{}'.format(order_id), True)
 
+    def get_order_by_client_oid(self, client_oid):
+        """Get order details by clientOid
+
+        https://docs.kucoin.com/#get-an-order
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+
+        .. code:: python
+
+            order = client.get_order_by_client_oid('6d539dc614db312')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "id": "5f3113a1c9b6d539dc614dc6",
+                "symbol": "KCS-BTC",
+                "opType": "DEAL",
+                "type": "limit",
+                "side": "buy",
+                "price": "0.00001",
+                "size": "1",
+                "funds": "0",
+                "dealFunds": "0",
+                "dealSize": "0",
+                "fee": "0",
+                "feeCurrency": "BTC",
+                "stp": "",
+                "stop": "",
+                "stopTriggered": false,
+                "stopPrice": "0",
+                "timeInForce": "GTC",
+                "postOnly": false,
+                "hidden": false,
+                "iceberg": false,
+                "visibleSize": "0",
+                "cancelAfter": 0,
+                "channel": "API",
+                "clientOid": "6d539dc614db312",
+                "remark": "",
+                "tags": "",
+                "isActive": true,
+                "cancelExist": false,
+                "createdAt": 1597051810000,
+                "tradeType": "TRADE"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('order/client-order/{}'.format(client_oid), True)
+
     # Fill Endpoints
 
     def get_fills(self, order_id=None, symbol=None, side=None, order_type=None,
-                  start=None, end=None, page=None, limit=None):
+                  start=None, end=None, page=None, limit=None, trade_type=None):
         """Get a list of recent fills.
 
         https://docs.kucoin.com/#list-fills
@@ -1339,6 +1431,8 @@ class Client(object):
         :type start: string
         :param end: End time as unix timestamp (optional)
         :type end: string
+        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :type trade_type: string
         :param page: optional - Page to fetch
         :type page: int
         :param limit: optional - Number of orders
@@ -1397,9 +1491,11 @@ class Client(object):
         if end:
             data['endAt'] = end
         if page:
-            data['page'] = page
+            data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
+        if trade_type:
+            data['tradeType'] = trade_type
 
         return self._get('fills', True, data=data)
 
@@ -1585,15 +1681,17 @@ class Client(object):
         """
         return self._get('markets', False)
 
-    def get_order_book(self, symbol):
+    def get_order_book(self, symbol, depth_20=False):
         """Get a list of bids and asks aggregated by price for a symbol.
 
-        Returns up to 100 depth each side. Fastest Order book API
+        Returns up to 20 or 100 depth each side. Fastest Order book API
 
         https://docs.kucoin.com/#get-part-order-book-aggregated
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
+        :param depth_20: If to return only 20 depth
+        :type depth_20: bool
 
         .. code:: python
 
@@ -1622,8 +1720,13 @@ class Client(object):
         data = {
             'symbol': symbol
         }
+        path = 'market/orderbook/level2_'
+        if depth_20:
+            path += '20'
+        else:
+            path += '100'
 
-        return self._get('market/orderbook/level2_100', False, data=data)
+        return self._get(path, False, data=data)
 
     def get_full_order_book(self, symbol):
         """Get a list of all bids and asks aggregated by price for a symbol.
@@ -1664,7 +1767,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('market/orderbook/level2', False, data=data)
+        return self._get('market/orderbook/level2', True, api_version=self.API_VERSION3, data=data)
 
     def get_full_order_book_level3(self, symbol):
         """Get a list of all bids and asks non-aggregated for a symbol.
@@ -1864,7 +1967,7 @@ class Client(object):
                             "pingTimeout": 10000
                         }
                     ],
-                    "token": "vYNlCtbz4XNJ1QncwWilJnBtmmfe4geLQDUA62kKJsDChc6I4bRDQc73JfIrlFaVYIAE0Gv2--MROnLAgjVsWkcDq_MuG7qV7EktfCEIphiqnlfpQn4Ybg==.IoORVxR2LmKV7_maOR9xOg=="
+                    "token": "vYNlCtbz4XNJ1QncwWilJnBtmmfe4geLQDUA62kKJsDChc6I4bRDQc73JfIrlFaVYIAE"
                 }
             }
 
