@@ -870,7 +870,9 @@ class Client(object):
 
     # Order Endpoints
 
-    def create_market_order(self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None):
+    def create_market_order(
+        self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
+    ):
         """Create a market order
 
         One of size or funds must be set
@@ -891,6 +893,8 @@ class Client(object):
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
+        :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
+        :type trade_type: string
 
         .. code:: python
 
@@ -932,11 +936,14 @@ class Client(object):
             data['remark'] = remark
         if stp:
             data['stp'] = stp
+        if trade_type:
+            data['tradeType'] = trade_type
 
         return self._post('orders', True, data=data)
 
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
-                           time_in_force=None, stop=None, stop_price=None, stp=None, cancel_after=None, post_only=None,
+                           time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
+                           cancel_after=None, post_only=None,
                            hidden=None, iceberg=None, visible_size=None):
         """Create an order
 
@@ -956,6 +963,8 @@ class Client(object):
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
+        :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
+        :type trade_type: string
         :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
         :type time_in_force: string
         :param stop: (optional) stop type loss or entry - requires stop_price
@@ -1022,6 +1031,8 @@ class Client(object):
             data['remark'] = remark
         if stp:
             data['stp'] = stp
+        if trade_type:
+            data['tradeType'] = trade_type
         if time_in_force:
             data['timeInForce'] = time_in_force
         if cancel_after:
