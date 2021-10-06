@@ -501,6 +501,42 @@ class Client(object):
 
         return self._get('accounts/ledgers', True, data=data)
 
+    def get_transferable(self, currency, account_type):
+        """Get the transferable balance of a specified account
+
+        https://docs.kucoin.com/#get-the-transferable
+
+        :param currency: Currency code
+        :type currency: string
+        :param account_type: Account type - main, trade, margin or pool
+        :type account_type: string
+
+        .. code:: python
+
+            accounts = client.get_transferable('BTC', 'trade')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+             {
+                "currency": "BTC",
+                "balance": "0",
+                "available": "0",
+                "holds": "0",
+                "transferable": "0"
+             }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'type': account_type,
+        }
+        return self._get('transferable', True, data=data)
+
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
 
@@ -871,7 +907,7 @@ class Client(object):
     # Order Endpoints
 
     def create_market_order(
-        self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
+            self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
     ):
         """Create a market order
 
