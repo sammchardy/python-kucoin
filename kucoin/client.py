@@ -119,8 +119,8 @@ class Client(object):
         m = hmac.new(self.API_SECRET.encode('utf-8'), sig_str, hashlib.sha256)
         return base64.b64encode(m.digest())
 
-    def _create_path(self, path):
-        return '/api/{}/{}'.format(self.API_VERSION, path)
+    def _create_path(self, path, api_version):
+        return '/api/{}/{}'.format(api_version, path)
 
     def _create_uri(self, path):
         return '{}{}'.format(self.API_URL, path)
@@ -136,8 +136,8 @@ class Client(object):
 
         kwargs['data'] = kwargs.get('data', {})
         kwargs['headers'] = kwargs.get('headers', {})
-
-        full_path = self._create_path(path)
+        api_version = kwargs.get('api_version', 'v1')
+        full_path = self._create_path(path, api_version)
         uri = self._create_uri(full_path)
 
         if signed:
@@ -512,23 +512,25 @@ class Client(object):
 
         return self._get('accounts/{}/holds'.format(account_id), True, data=data)
 
-    def create_inner_transfer(self, from_account_id, to_account_id, amount, order_id=None):
+    def create_inner_transfer(self, currency, from_account_type, to_account_type, amount, order_id=None):
         """Get account holds placed for any active orders or pending withdraw requests
 
         https://docs.kucoin.com/#get-holds
 
-        :param from_account_id: ID of account to transfer funds from - from list_accounts()
-        :type from_account_id: str
-        :param to_account_id: ID of account to transfer funds to - from list_accounts()
-        :type to_account_id: str
+        :param currency: currency
+        :type currency: str
+        :param from_account_type: Account type of payer: main, trade, margin or pool
+        :type from_account_type: str
+        :param to_account_type: Account type of payee: main, trade, margin , contract or pool
+        :type to_account_type: str
         :param amount: Amount to transfer
-        :type amount: int
+        :type amount: number
         :param order_id: (optional) Request ID (default flat_uuid())
         :type order_id: string
 
         .. code:: python
 
-            transfer = client.create_inner_transfer('5bd6e9216d99522a52e458d6', 5bc7f080b39c5c03286eef8e', 20)
+            transfer = client.create_inner_transfer('BTC', 'main','trade', 0.8)
 
         :returns: API Response
 
@@ -543,8 +545,9 @@ class Client(object):
         """
 
         data = {
-            'payAccountId': from_account_id,
-            'recAccountId': to_account_id,
+            'currency': currency,
+            'from': from_account_type,
+            'to': to_account_type,
             'amount': amount
         }
 
@@ -553,7 +556,7 @@ class Client(object):
         else:
             data['clientOid'] = flat_uuid()
 
-        return self._post('accounts/inner-transfer', True, data=data)
+        return self._post('accounts/inner-transfer', True, data=data, api_version="v2")
 
     # Deposit Endpoints
 
@@ -1351,8 +1354,8 @@ class Client(object):
         :type start: string
         :param end: End time as unix timestamp (optional)
         :type end: string
-        :param tradeType: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-        :type tradeType: string
+        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :type trade_type: string
         :param page: optional - Page to fetch
         :type page: int
         :param limit: optional - Number of orders
