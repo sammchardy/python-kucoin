@@ -533,7 +533,7 @@ class Client(object):
 
         data = {
             'currency': currency,
-            'type': account_type,
+            'type': account_type.upper(),
         }
         return self._get('accounts/transferable', True, data=data)
 
