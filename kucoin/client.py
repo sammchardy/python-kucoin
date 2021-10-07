@@ -1981,3 +1981,44 @@ class Client(object):
             path = 'bullet-private'
 
         return self._post(path, signed)
+
+    # Margin Endpoints
+
+    def get_account_lend_record(self, currency=None):
+        """Get the lending history of the main account
+
+        https://docs.kucoin.com/#get-account-lend-record
+
+        :param currency: optional Currency code
+        :type currency: string
+
+        .. code:: python
+
+            lend_record = client.get_account_lend_record()
+            lend_record = client.get_account_lend_record('USDT')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+        [
+            {
+                'currency': 'USDT',
+                'outstanding': '0',
+                'filledSize': '300',
+                'accruedInterest': '2.002',
+                'realizedProfit': '1.001',
+                'isAutoLend': True
+            }
+        ]
+
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if currency:
+            data['currency'] = currency
+
+        return self._get('margin/lend/assets', True, data=data)
