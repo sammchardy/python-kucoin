@@ -535,7 +535,7 @@ class Client(object):
             'currency': currency,
             'type': account_type,
         }
-        return self._get('transferable', True, data=data)
+        return self._get('accounts/transferable', True, data=data)
 
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
