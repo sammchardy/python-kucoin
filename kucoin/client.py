@@ -296,6 +296,95 @@ class Client(object):
 
     # User Account Endpoints
 
+    def get_all_sub_accounts(self):
+        """Get the account info of all sub-users.
+
+        https://docs.kucoin.com/#get-the-aggregated-balance-of-all-sub-accounts
+
+        .. code:: python
+
+            sub_accounts = client.get_all_sub_accounts()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            [
+                {
+                    "subUserId":"5caefba7d9575a0688f83c45",
+                    "subName":"kucoin1",
+                    "mainAccounts":[
+                        {
+                            "currency":"BTC",
+                            "balance":"6",
+                            "available":"6",
+                            "holds":"0",
+                            "baseCurrency":"BTC",
+                            "baseCurrencyPrice":"1",
+                            "baseAmount":"1.1"
+                        }
+                    ],
+                    "tradeAccounts":[
+                        {
+                            "currency":"BTC",
+                            "balance":"1000",
+                            "available":"1000",
+                            "holds":"0",
+                            "baseCurrency":"BTC",
+                            "baseCurrencyPrice":"1",
+                            "baseAmount":"1.1"
+                        }
+                    ],
+                    "marginAccounts":[
+                        {
+                            "currency":"BTC",
+                            "balance":"1.1",
+                            "available":"1.1",
+                            "holds":"0",
+                            "baseCurrency":"BTC",
+                            "baseCurrencyPrice":"1",
+                            "baseAmount":"1.1"
+                        }
+                    ]
+                }
+            ]
+
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('sub-accounts', True, data={})
+
+    def get_account(self, account_id):
+        """Get an individual account
+
+        https://docs.kucoin.com/#get-an-account
+
+        :param account_id: ID for account - from list_accounts()
+        :type account_id: string
+
+        .. code:: python
+
+            account = client.get_account('5bd6e9216d99522a52e458d6')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "currency": "KCS",
+                "balance": "1000000060.6299",
+                "available": "1000000060.6299",
+                "holds": "0"
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('accounts/{}'.format(account_id), True)
+
     def get_accounts(self, currency=None, account_type=None):
         """Get a list of accounts
 
