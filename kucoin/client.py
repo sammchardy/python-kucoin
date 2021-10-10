@@ -409,7 +409,8 @@ class Client(object):
 
         return self._post('accounts', True, data=data)
 
-    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None):
+    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None,
+                             limit=None):
         """Get list of account activity
 
         https://docs.kucoin.com/#get-account-history
@@ -617,17 +618,19 @@ class Client(object):
 
         return self._post('deposit-addresses', True, data=data)
 
-    def get_deposit_address(self, currency):
+    def get_deposit_address(self, currency, chain=None):
         """Get deposit address for a currency
 
         https://docs.kucoin.com/#get-deposit-address
 
         :param currency: Name of currency
+        :param chain: chain name of currency
         :type currency: string
+        :type chain: string
 
         .. code:: python
 
-            address = client.get_deposit_address('USDT')
+            address = client.get_deposit_address('USDT','TRC20')
 
         :returns: ApiResponse
 
@@ -646,8 +649,10 @@ class Client(object):
         data = {
             'currency': currency
         }
+        if chain is not None:
+            data['chain'] = chain
 
-        return self._get('deposit-addresses', True, api_version=self.API_VERSION2, data=data)
+        return self._get('deposit-addresses', True, data=data)
 
     def get_deposits(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
         """Get deposit records for a currency
