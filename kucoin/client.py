@@ -802,14 +802,15 @@ class Client(object):
 
         return self._get('withdrawals', True, data=data)
 
-    def get_withdrawal_quotas(self, currency):
+    def get_withdrawal_quotas(self, currency, chain=None):
         """Get withdrawal quotas for a currency
 
         https://docs.kucoin.com/#get-withdrawal-quotas
 
         :param currency: Name of currency
         :type currency: string
-
+        :param chain: The chain name of currency, e.g. The available value for USDT are OMNI, ERC20, TRC20, default is ERC20. This only apply for multi-chain currency, and there is no need for single chain currency.
+        :type chain: string
         .. code:: python
 
             quotas = client.get_withdrawal_quotas('ETH')
@@ -837,6 +838,8 @@ class Client(object):
         data = {
             'currency': currency
         }
+        if chain:
+            data['chain'] = chain
 
         return self._get('withdrawals/quotas', True, data=data)
 
