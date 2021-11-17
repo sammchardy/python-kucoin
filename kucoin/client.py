@@ -840,7 +840,7 @@ class Client(object):
 
         return self._get('withdrawals/quotas', True, data=data)
 
-    def create_withdrawal(self, currency, amount, address, memo=None, is_inner=False, remark=None):
+    def create_withdrawal(self, currency, amount, address, memo=None, is_inner=False, remark=None, chain=None):
         """Process a withdrawal
 
         https://docs.kucoin.com/#apply-withdraw
@@ -853,10 +853,12 @@ class Client(object):
         :type address: string
         :param memo: (optional) Remark to the withdrawal address
         :type memo: string
-        :param is_inner: (optional) Remark to the withdrawal address
+        :param is_inner: (optional) Internal withdrawal or not
         :type is_inner: bool
         :param remark: (optional) Remark
         :type remark: string
+        :param chain: (optional)  The chain name of currency, e.g. The available value for USDT are OMNI, ERC20, TRC20, default is ERC20. This only apply for multi-chain currency, and there is no need for single chain currency.
+        :type chain: string
 
         .. code:: python
 
@@ -886,6 +888,8 @@ class Client(object):
             data['isInner'] = is_inner
         if remark:
             data['remark'] = remark
+        if chain:
+            data['chain'] = chain
 
         return self._post('withdrawals', True, data=data)
 
