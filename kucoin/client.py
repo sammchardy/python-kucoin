@@ -761,17 +761,20 @@ class Client(object):
 
         return self._get('withdrawals', True, data=data)
 
-    def get_withdrawal_quotas(self, currency):
+    def get_withdrawal_quotas(self, currency, chain=None):
         """Get withdrawal quotas for a currency
 
         https://docs.kucoin.com/#get-withdrawal-quotas
 
         :param currency: Name of currency
         :type currency: string
+        :param chain: Name of chain
+        :type chain: string
 
         .. code:: python
 
             quotas = client.get_withdrawal_quotas('ETH')
+            quotas = client.get_withdrawal_quotas('ETH', 'ERC20')
 
         :returns: ApiResponse
 
@@ -794,8 +797,10 @@ class Client(object):
         """
 
         data = {
-            'currency': currency
+            'currency': currency,
         }
+        if chain:
+            data['chain'] = chain
 
         return self._get('withdrawals/quotas', True, data=data)
 
