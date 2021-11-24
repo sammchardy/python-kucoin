@@ -768,10 +768,13 @@ class Client(object):
 
         :param currency: Name of currency
         :type currency: string
+        :param chain: Name of chain
+        :type chain: string
 
         .. code:: python
 
             quotas = client.get_withdrawal_quotas('ETH')
+            quotas = client.get_withdrawal_quotas('ETH', 'ERC20')
 
         :returns: ApiResponse
 
@@ -795,8 +798,9 @@ class Client(object):
 
         data = {
             'currency': currency,
-            'chain': chain,
         }
+        if chain:
+            data['chain'] = chain
 
         return self._get('withdrawals/quotas', True, data=data)
 
