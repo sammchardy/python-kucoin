@@ -761,7 +761,7 @@ class Client(object):
 
         return self._get('withdrawals', True, data=data)
 
-    def get_withdrawal_quotas(self, currency):
+    def get_withdrawal_quotas(self, currency, chain=None):
         """Get withdrawal quotas for a currency
 
         https://docs.kucoin.com/#get-withdrawal-quotas
@@ -794,7 +794,8 @@ class Client(object):
         """
 
         data = {
-            'currency': currency
+            'currency': currency,
+            'chain': chain,
         }
 
         return self._get('withdrawals/quotas', True, data=data)
