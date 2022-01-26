@@ -1,6 +1,34 @@
 Changelog
 =========
 
+v2.1.3 - 2021-10-04
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- chain to get_deposit_address
+- get_accounts to include currency and account_type params
+- get_account_activity to use new params
+- get_status to retrieve service status
+- get and cancel order by orderOid
+- trade_type to market and limit orders
+- v2 and v3 API version options
+
+**Deprecated**
+
+- get_account_holds
+
+v2.1.2 - 2019-04-17
+^^^^^^^^^^^^^^^^^^^^
+
+**Added**
+
+- exception if using a private websocket topic but not connected with private
+
+**Removed**
+
+- removed py3.6 type annotations for py3.5 support
+
 v2.1.1 - 2019-04-17
 ^^^^^^^^^^^^^^^^^^^^
 

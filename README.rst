@@ -1,6 +1,8 @@
 ===============================
-Welcome to python-kucoin v2.1.1
+Welcome to python-kucoin v2.1.3
 ===============================
+
+Last Updated 4th Oct 2021
 
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
@@ -21,7 +23,7 @@ Welcome to python-kucoin v2.1.1
     :target: https://pypi.python.org/pypi/python-kucoin
 
 This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_.
-I am in no way affiliated with Kucoin, use at your own risk.
+I am in no way affiliated with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_, use at your own risk.
 
 
 PyPi
@@ -158,6 +160,9 @@ Note only for python3.5+
 
         ksm = await KucoinSocketManager.create(loop, client, handle_evt)
 
+        # for private topics such as '/account/balance' pass private=True
+        ksm_private = await KucoinSocketManager.create(loop, client, handle_evt, private=True)
+
         # Note: try these one at a time, if all are on you will see a lot of output
 
         # ETH-USDT Market Ticker
@@ -175,7 +180,7 @@ Note only for python3.5+
         # Level 3 market data
         await ksm.subscribe('/market/level3:BTC-USDT')
         # Account balance - must be authenticated
-        await ksm.subscribe('/account/balance')
+        await ksm_private.subscribe('/account/balance')
 
         while True:
             print("sleeping to keep loop open")
