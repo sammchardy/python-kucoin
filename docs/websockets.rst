@@ -1,11 +1,12 @@
 Websockets
 ==========
 
-Note: The websocket client is only available for python3.6+
+Note: The websocket client is only available for python3.5+
 
 This feature is still in development so check the documentation around message topics here
 https://docs.kucoin.com/#websocket-feed
 
+For private topics such as '/account/balance' pass private=True to the  KucoinSocketManager, see example below
 
 TODO:
 -----
@@ -76,6 +77,9 @@ Sample Code
 
         ksm = await KucoinSocketManager.create(loop, client, handle_evt)
 
+        # for private topics such as '/account/balance' pass private=True
+        ksm_private = await KucoinSocketManager.create(loop, client, handle_evt, private=True)
+
         # Note: try these one at a time, if all are on you will see a lot of output
 
         # ETH-USDT Market Ticker
@@ -93,7 +97,7 @@ Sample Code
         # Level 3 market data
         await ksm.subscribe('/market/level3:BTC-USDT')
         # Account balance - must be authenticated
-        await ksm.subscribe('/account/balance')
+        await ksm_private.subscribe('/account/balance')
 
         while True:
             print("sleeping to keep loop open")

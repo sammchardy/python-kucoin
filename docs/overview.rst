@@ -22,7 +22,7 @@ For previous v1 API install with
 Register on Kucoin
 -------------------
 
-Firstly register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_.
+Firstly register an account with `Kucoin <https://www.kucoin.com/?rcode=E42cWB>`_.
 
 To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
 

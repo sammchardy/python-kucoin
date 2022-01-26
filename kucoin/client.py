@@ -409,7 +409,8 @@ class Client(object):
 
         return self._post('accounts', True, data=data)
 
-    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None):
+    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None,
+                             limit=None):
         """Get list of account activity
 
         https://docs.kucoin.com/#get-account-history
@@ -501,6 +502,42 @@ class Client(object):
 
         return self._get('accounts/ledgers', True, data=data)
 
+    def get_transferable(self, currency, account_type):
+        """Get the transferable balance of a specified account
+
+        https://docs.kucoin.com/#get-the-transferable
+
+        :param currency: Currency code
+        :type currency: string
+        :param account_type: Account type - main, trade, margin or pool
+        :type account_type: string
+
+        .. code:: python
+
+            accounts = client.get_transferable('BTC', 'trade')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+             {
+                "currency": "BTC",
+                "balance": "0",
+                "available": "0",
+                "holds": "0",
+                "transferable": "0"
+             }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'type': account_type.upper(),
+        }
+        return self._get('accounts/transferable', True, data=data)
+
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
 
@@ -581,17 +618,19 @@ class Client(object):
 
         return self._post('deposit-addresses', True, data=data)
 
-    def get_deposit_address(self, currency):
+    def get_deposit_address(self, currency, chain=None):
         """Get deposit address for a currency
 
         https://docs.kucoin.com/#get-deposit-address
 
         :param currency: Name of currency
+        :param chain: chain name of currency
         :type currency: string
+        :type chain: string
 
         .. code:: python
 
-            address = client.get_deposit_address('USDT')
+            address = client.get_deposit_address('USDT','TRC20')
 
         :returns: ApiResponse
 
@@ -610,8 +649,10 @@ class Client(object):
         data = {
             'currency': currency
         }
+        if chain is not None:
+            data['chain'] = chain
 
-        return self._get('deposit-addresses', True, api_version=self.API_VERSION2, data=data)
+        return self._get('deposit-addresses', True, data=data)
 
     def get_deposits(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
         """Get deposit records for a currency
@@ -761,14 +802,15 @@ class Client(object):
 
         return self._get('withdrawals', True, data=data)
 
-    def get_withdrawal_quotas(self, currency):
+    def get_withdrawal_quotas(self, currency, chain=None):
         """Get withdrawal quotas for a currency
 
         https://docs.kucoin.com/#get-withdrawal-quotas
 
         :param currency: Name of currency
         :type currency: string
-
+        :param chain: The chain name of currency, e.g. The available value for USDT are OMNI, ERC20, TRC20, default is ERC20. This only apply for multi-chain currency, and there is no need for single chain currency.
+        :type chain: string
         .. code:: python
 
             quotas = client.get_withdrawal_quotas('ETH')
@@ -796,10 +838,12 @@ class Client(object):
         data = {
             'currency': currency
         }
+        if chain:
+            data['chain'] = chain
 
         return self._get('withdrawals/quotas', True, data=data)
 
-    def create_withdrawal(self, currency, amount, address, memo=None, is_inner=False, remark=None):
+    def create_withdrawal(self, currency, amount, address, memo=None, is_inner=False, remark=None, chain=None):
         """Process a withdrawal
 
         https://docs.kucoin.com/#apply-withdraw
@@ -812,10 +856,12 @@ class Client(object):
         :type address: string
         :param memo: (optional) Remark to the withdrawal address
         :type memo: string
-        :param is_inner: (optional) Remark to the withdrawal address
+        :param is_inner: (optional) Internal withdrawal or not
         :type is_inner: bool
         :param remark: (optional) Remark
         :type remark: string
+        :param chain: (optional)  The chain name of currency, e.g. The available value for USDT are OMNI, ERC20, TRC20, default is ERC20. This only apply for multi-chain currency, and there is no need for single chain currency.
+        :type chain: string
 
         .. code:: python
 
@@ -845,6 +891,8 @@ class Client(object):
             data['isInner'] = is_inner
         if remark:
             data['remark'] = remark
+        if chain:
+            data['chain'] = chain
 
         return self._post('withdrawals', True, data=data)
 
@@ -871,8 +919,9 @@ class Client(object):
     # Order Endpoints
 
     def create_market_order(
-        self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
-    ):
+            self, symbol, side, size=None, funds=None,
+            client_oid=None, remark=None, stop=None, stop_price=None,
+            stp=None, trade_type=None):
         """Create a market order
 
         One of size or funds must be set
@@ -891,6 +940,10 @@ class Client(object):
         :type client_oid: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
+        :param stop: (optional) stop type loss or entry - requires stop_price
+        :type stop: string
+        :param stop_price: (optional) trigger price for stop order
+        :type stop_price: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
         :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
@@ -918,6 +971,12 @@ class Client(object):
         if size and funds:
             raise MarketOrderException('Need size or fund parameter not both')
 
+        if stop and not stop_price:
+            raise LimitOrderException('Stop order needs stop_price')
+
+        if stop_price and not stop:
+            raise LimitOrderException('Stop order type required with stop_price')
+
         data = {
             'side': side,
             'symbol': symbol,
@@ -934,6 +993,9 @@ class Client(object):
             data['clientOid'] = flat_uuid()
         if remark:
             data['remark'] = remark
+        if stop:
+            data['stop'] = stop
+            data['stopPrice'] = stop_price
         if stp:
             data['stp'] = stp
         if trade_type:
