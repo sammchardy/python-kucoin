@@ -919,8 +919,9 @@ class Client(object):
     # Order Endpoints
 
     def create_market_order(
-            self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
-    ):
+            self, symbol, side, size=None, funds=None,
+            client_oid=None, remark=None, stop=None, stop_price=None,
+            stp=None, trade_type=None):
         """Create a market order
 
         One of size or funds must be set
@@ -939,6 +940,10 @@ class Client(object):
         :type client_oid: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
+        :param stop: (optional) stop type loss or entry - requires stop_price
+        :type stop: string
+        :param stop_price: (optional) trigger price for stop order
+        :type stop_price: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
         :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
@@ -966,6 +971,12 @@ class Client(object):
         if size and funds:
             raise MarketOrderException('Need size or fund parameter not both')
 
+        if stop and not stop_price:
+            raise LimitOrderException('Stop order needs stop_price')
+
+        if stop_price and not stop:
+            raise LimitOrderException('Stop order type required with stop_price')
+
         data = {
             'side': side,
             'symbol': symbol,
@@ -982,6 +993,9 @@ class Client(object):
             data['clientOid'] = flat_uuid()
         if remark:
             data['remark'] = remark
+        if stop:
+            data['stop'] = stop
+            data['stopPrice'] = stop_price
         if stp:
             data['stp'] = stp
         if trade_type:
