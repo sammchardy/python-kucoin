@@ -1662,7 +1662,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('v2/market/orderbook/level2', False, data=data)
+        return self._get('v3/market/orderbook/level2', False, data=data)
 
     def get_full_order_book_level3(self, symbol):
         """Get a list of all bids and asks non-aggregated for a symbol.
