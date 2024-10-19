@@ -23,7 +23,7 @@ Last Updated 4th Oct 2021
     :target: https://pypi.python.org/pypi/python-kucoin
 
 This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_.
-I am in no way affiliated with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_, use at your own risk.
+I am in no way affiliated with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E5wkqe>`_, use at your own risk.
 
 
 PyPi
@@ -195,27 +195,9 @@ Note only for python3.5+
 
 For more `check out the documentation <https://python-kucoin.readthedocs.io/en/latest/>`_.
 
-Donate
-------
-
-If this library helped you out feel free to donate.
-
-- ETH: 0xD7a7fDdCfA687073d7cC93E9E51829a727f9fE70
-- NEO: AVJB4ZgN7VgSUtArCt94y7ZYT6d5NDfpBo
-- LTC: LPC5vw9ajR1YndE1hYVeo3kJ9LdHjcRCUZ
-- BTC: 1Dknp6L6oRZrHDECRedihPzx2sSfmvEBys
 
 Other Exchanges
 ---------------
 
 If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
 
-If you use `Binance Chain <https://testnet.binance.org/>`_ check out my `python-binance-chain <https://github.com/sammchardy/python-binance-chain>`_ library.
-
-If you use `Allcoin <https://www.allcoin.com/GXHKu1>`_ check out my `python-allcoin <https://github.com/sammchardy/python-allcoin>`_ library.
-
-If you use `IDEX <https://idex.market>`_ check out my `python-idex <https://github.com/sammchardy/python-idex>`_ library.
-
-If you use `BigONE <https://big.one>`_ check out my `python-bigone <https://github.com/sammchardy/python-bigone>`_ library.
-
-.. image:: https://analytics-pixel.appspot.com/UA-111417213-1/github/python-kucoin?pixel
