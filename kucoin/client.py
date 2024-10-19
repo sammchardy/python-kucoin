@@ -44,6 +44,9 @@ class Client(object):
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = 'IOC'
     TIMEINFORCE_FILL_OR_KILL = 'FOK'
 
+    SPOT_KC_PARTNER = 'python-kucoinspot'
+    SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
+
     def __init__(self, api_key, api_secret, passphrase, sandbox=False, requests_params=None):
         """Kucoin API Client constructor
 
@@ -87,6 +90,12 @@ class Client(object):
                    'KC-API-PASSPHRASE': self.API_PASSPHRASE}
         session.headers.update(headers)
         return session
+
+    def _sign_partner(self):
+        nonce = int(time.time() * 1000)
+        sig_str = "{}{}{}".format(nonce, self.SPOT_KC_PARTNER, self.API_KEY).encode('utf-8')
+        m = hmac.new(self.SPOT_KC_KEY.encode('utf-8'), sig_str, hashlib.sha256)
+        return base64.b64encode(m.digest())
 
     @staticmethod
     def _get_params_for_sig(data):
@@ -148,6 +157,9 @@ class Client(object):
             nonce = int(time.time() * 1000)
             kwargs['headers']['KC-API-TIMESTAMP'] = str(nonce)
             kwargs['headers']['KC-API-SIGN'] = self._generate_signature(nonce, method, full_path, kwargs['data'])
+            kwargs['headers']['KC-API-PARTNER'] = self.SPOT_KC_PARTNER
+            kwargs['headers']['KC-API-PARTNER-VERIFY'] = 'true'
+            kwargs['headers']['KC-API-PARTNER-SIGN'] = self._sign_partner()
 
         if kwargs['data'] and method == 'get':
             kwargs['params'] = kwargs['data']
