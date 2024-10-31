@@ -1395,7 +1395,7 @@ class Client(object):
         if symbol is not None:
             data['symbol'] = symbol
         return self._delete('orders', True, data=data)
-    
+
     def hf_cancel_all_orders(self):
         """Cancel all orders
 
@@ -1426,7 +1426,7 @@ class Client(object):
 
         """
         return self._delete('hf/orders/cancelAll', True)
-        
+
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None, trade_type='TRADE'):
@@ -1647,6 +1647,73 @@ class Client(object):
         """
 
         return self._get('orders/{}'.format(order_id), True)
+
+    def hf_get_order(self, order_id, symbol):
+        """Get hf order details by orderId
+
+        https://docs.kucoin.com/#get-hf-order-details-by-orderid
+
+        :param order_id: orderId value
+        :type order_id: str
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.hf_get_order('5c35c02703aa673ceec2a168', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "id": "5f3113a1c9b6d539dc614dc6",
+                    "symbol": "KCS-BTC",
+                    "opType": "DEAL",
+                    "type": "limit",
+                    "side": "buy",
+                    "price": "0.00001",
+                    "size": "1",
+                    "funds": "0",
+                    "dealFunds": "0",
+                    "dealSize": "0",
+                    "fee": "0",
+                    "feeCurrency": "BTC",
+                    "stp": "",
+                    "timeInForce": "GTC",
+                    "postOnly": false,
+                    "hidden": false,
+                    "iceberg": false,
+                    "visibleSize": "0",
+                    "cancelAfter": 0,
+                    "channel": "API",
+                    "clientOid": "6d539dc614db312",
+                    "remark": "",
+                    "tags": "",
+                    "active": true,
+                    "inOrderBook": false,
+                    "cancelExist": false,
+                    "createdAt": 1547026471000,
+                    "lastUpdatedAt": 1547026471001,
+                    "tradeType": "TRADE",
+                    "cancelledSize": "0",
+                    "cancelledFunds": "0",
+                    "remainSize": "0",
+                    "remainFunds": "0"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('hf/orders/{}'.format(order_id), True, data=data)
 
     def get_order_by_client_oid(self, client_oid):
         """Get order details by clientOid
