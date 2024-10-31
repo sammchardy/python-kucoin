@@ -1327,11 +1327,47 @@ class Client(object):
         """
 
         data = {
-            'orderId': order_id,
             'symbol': symbol
         }
 
-        return self._delete('hf/orders/{}'.format(order_id), True)
+        return self._delete('hf/orders/{}'.format(order_id), True, data=data)
+
+    def hf_cancel_order_by_client_oid(self, client_oid, symbol):
+        """Cancel a hf order by the clientOid
+
+        https://docs.kucoin.com/#cancel-hf-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_order_by_client_oid('6d539dc614db3', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "clientOid": "6d539dc614db3"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/client-order{}'.format(client_oid), True, data=data)
 
     def cancel_all_orders(self, symbol=None):
         """Cancel all orders
