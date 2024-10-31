@@ -1395,6 +1395,38 @@ class Client(object):
         if symbol is not None:
             data['symbol'] = symbol
         return self._delete('orders', True, data=data)
+    
+    def hf_cancel_all_orders(self):
+        """Cancel all orders
+
+        https://docs.kucoin.com/#cancel-all-hf-orders
+
+        .. code:: python
+
+            res = client.hf_cancel_all_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "succeedSymbols": [
+                    "BTC-USDT",
+                    "ETH-USDT"
+                ],
+                "failedSymbols": [
+                    {
+                        "symbol": "BTC-USDT",
+                        "error": "can't cancel, system timeout"
+                    }
+                ],
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        return self._delete('hf/orders/cancelAll', True)
+        
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None, trade_type='TRADE'):
