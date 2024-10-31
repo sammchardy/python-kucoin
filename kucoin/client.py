@@ -953,6 +953,81 @@ class Client(object):
 
         return self._post('orders', True, data=data)
 
+    def hf_create_market_order(
+        self, symbol, side, size=None, funds=None, client_oid=None, stp=None, tags=None, remark=None
+    ):
+        """Create a hf market order
+
+        One of size or funds must be set
+
+        https://docs.kucoin.com/#place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency
+        :type size: string
+        :param funds: (optional) Desired amount of quote currency to use
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+
+        .. code:: python
+
+            order = client.hf_create_market_order('NEO', Client.SIDE_BUY, size=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "5bd6e9286d99522a52e458de",
+                    "clientOid": "11223344"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException
+
+        """
+
+        if not size and not funds:
+            raise MarketOrderException('Need size or fund parameter')
+
+        if size and funds:
+            raise MarketOrderException('Need size or fund parameter not both')
+
+        data = {
+            'symbol': symbol,
+            'side': side,
+            'type': self.ORDER_MARKET
+        }
+
+        if size:
+            data['size'] = size
+        if funds:
+            data['funds'] = funds
+        if client_oid:
+            data['clientOid'] = client_oid
+        else:
+            data['clientOid'] = flat_uuid()
+        if stp:
+            data['stp'] = stp
+        if tags:
+            data['tags'] = tags
+        if remark:
+            data['remark'] = remark
+
+        return self._post('orders', True, data=data)
+
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
                            time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
                            cancel_after=None, post_only=None,
