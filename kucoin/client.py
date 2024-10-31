@@ -1026,7 +1026,7 @@ class Client(object):
         if remark:
             data['remark'] = remark
 
-        return self._post('orders', True, data=data)
+        return self._post('hf/orders', True, data=data)
 
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
                            time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
@@ -1140,7 +1140,7 @@ class Client(object):
     def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
                             tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
                             hidden=None, iceberg=None, visible_size=None):
-        """Create an hf order
+        """Create a hf order
 
         https://docs.kucoin.com/#place-hf-order
 
@@ -1234,7 +1234,7 @@ class Client(object):
             data['iceberg'] = iceberg
             data['visible_size'] = visible_size
 
-        return self._post('orders', True, data=data)
+        return self._post('hf/orders', True, data=data)
 
     def cancel_order(self, order_id):
         """Cancel an order
@@ -1293,7 +1293,45 @@ class Client(object):
 
         """
 
-        return self._delete('order/client-order/{}'.format(client_oid), True)
+        return self._delete('hf/orders/{}'.format(client_oid), True)
+
+    def hf_cancel_order(self, order_id, symbol):
+        """Cancel a hf order by the orderId
+
+        https://docs.kucoin.com/#cancel-hf-order-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_order_by_order_id('5bd6e9286d99522a52e458de', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "630625dbd9180300014c8d52"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'orderId': order_id,
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/{}'.format(order_id), True)
 
     def cancel_all_orders(self, symbol=None):
         """Cancel all orders
