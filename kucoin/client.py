@@ -178,6 +178,7 @@ class Client(object):
         response.
         """
 
+        print(response.text)
         if not str(response.status_code).startswith('2'):
             raise KucoinAPIException(response)
         try:
@@ -540,11 +541,31 @@ class Client(object):
 
         :returns: API Response
 
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "id": "981449530900577",
+                        "currency": "ETH",
+                        "amount": "0.00617410",
+                        "fee": "0.00000000",
+                        "tax": "0",
+                        "balance": "0.00617410",
+                        "accountType": "TRADE_HF",
+                        "bizType": "TRADE_EXCHANGE",
+                        "direction": "in",
+                        "createdAt": "1730545211517",
+                        "context": "{\"symbol\": \"ETH-USDT\",\"orderId\": \"6726063b4d742800076e0273\",\"tradeId\": \"10330457609226241\"}"
+                    }
+                ]
+            }
+
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
-        #todo test and write the return value
         data = {}
         if currency:
             data['currency'] = currency
@@ -561,7 +582,7 @@ class Client(object):
         if last_id:
             data['lastId'] = last_id
 
-        return self._get('accounts/ledgers', True, data=dict(data, **params))
+        return self._get('hf/accounts/ledgers', True, data=dict(data, **params))
 
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
