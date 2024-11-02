@@ -492,19 +492,23 @@ class Client(object):
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
-
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if direction:
+            data['direction'] = direction
         if biz_type:
-            params['bizType'] = biz_type
+            data['bizType'] = biz_type
         if start:
-            params['startAt'] = start
+            data['startAt'] = start
         if end:
-            params['endAt'] = end
+            data['endAt'] = end
         if page:
-            params['currentPage'] = page
+            data['currentPage'] = page
         if limit:
-            params['pageSize'] = limit
+            data['pageSize'] = limit
 
-        return self._get('accounts/ledgers', True, data=params)
+        return self._get('accounts/ledgers', True, dict(data, **params))
 
     def hf_get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, limit=None, last_id=None, **params):
         """Get list of hf account activity
@@ -536,26 +540,28 @@ class Client(object):
 
         :returns: API Response
 
-        .. code-block:: python
-
-
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
+        #todo test and write the return value
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if direction:
+            data['direction'] = direction
         if biz_type:
-            params['bizType'] = biz_type
+            data['bizType'] = biz_type
         if start:
-            params['startAt'] = start
+            data['startAt'] = start
         if end:
-            params['endAt'] = end
+            data['endAt'] = end
         if limit:
-            params['limit'] = limit
+            data['limit'] = limit
         if last_id:
-            params['lastId'] = last_id
-        #todo test it
+            data['lastId'] = last_id
 
-        return self._get('accounts/ledgers', True, data=params)
+        return self._get('accounts/ledgers', True, data=dict(data, **params))
 
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
