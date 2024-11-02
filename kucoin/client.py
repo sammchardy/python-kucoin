@@ -309,7 +309,7 @@ class Client(object):
 
     # User Account Endpoints
 
-    def get_accounts(self, currency=None, account_type=None):
+    def get_accounts(self, currency=None, account_type=None, **params):
         """Get a list of accounts
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-list-spot-margin-trade_hf
@@ -358,7 +358,45 @@ class Client(object):
         if account_type:
             data['type'] = account_type
 
-        return self._get('accounts', True, data=data)
+        return self._get('accounts', True, data=dict(data, **params))
+
+    def get_subaccounts(self, page=None, limit=None, **params):
+        """Get a list of subaccounts
+
+        https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-info-v1-
+
+        :param page: (optional) Current page - default 1
+        :type page: int
+        :param limit: (optional) Number of results to return - default 10
+        :type limit: int
+
+        .. code:: python
+
+            accounts = client.get_subaccounts()
+            accounts = client.get_subaccounts(page=2, limit=5)
+
+        :returns: API Response
+
+        .. code-block:: python
+
+
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+        # todo check and add the response
+        data = {}
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        api_version = self.API_VERSION
+        if 'api_version' in params:
+            api_version = params['api_version']
+            del params['api_version']
+
+        return self._get('sub/user', True, api_version, data=dict(data, **params))
 
     def get_account(self, account_id):
         """Get an individual account
@@ -419,8 +457,51 @@ class Client(object):
             'type': account_type,
             'currency': currency
         }
+        # todo check this endpoint
 
         return self._post('accounts', True, data=data)
+
+    def create_subaccount(self, password, sub_name, access, remarks=None, **params):
+        """Create a subaccount
+
+        https://www.kucoin.com/docs/rest/account/sub-account/create-sub-account
+
+        :param password: Password(7-24 characters, must contain letters and numbers, cannot only contain numbers or include special characters).
+        :type password: string
+        :param sub_name: Sub-account name(must contain 7-32 characters, at least one number and one letter. Cannot contain any spaces.)
+        :type sub_name: string
+        :param access: Permission (Spot, Futures, Margin permissions, which can be used alone or in combination).
+        :type access: string
+        :param remarks: optional Remarks(1~24 characters).
+        :type remarks: string
+
+        .. code:: python
+
+            account = client.create_subaccount('mypassword', 'mySubAccount', 'Spot')
+            account = client.create_subaccount('mypassword', 'mySubAccount', 'Spot, Margin', 'My Sub Account')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "id": "5bd6e9286d99522a52e458de"
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        # todo check and add the response (last time it was 100010: Network error. Please try again later)
+        data = {
+            'password': password,
+            'subName': sub_name,
+            'access': access
+        }
+        if remarks:
+            data['remarks'] = remarks
+
+        return self._post('sub/user/created', True, api_version=self.API_VERSION2, data=dict(data, **params))
 
     def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None, **params):
         """Get list of account activity
@@ -2502,5 +2583,3 @@ class Client(object):
         """
 
         return self._get('user-info', True, api_version=self.API_VERSION2)
-
-
