@@ -2340,3 +2340,35 @@ class Client(object):
             path = 'bullet-private'
 
         return self._post(path, signed)
+
+    def get_user_info (self):
+        """Get account summary info
+
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-summary-info
+
+        .. code:: python
+
+            user_info = client.get_user_info()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "level": 0,
+                "subQuantity": 5,
+                "maxDefaultSubQuantity": 5,
+                "maxSubQuantity": 5,
+                "spotSubQuantity": 5,
+                "marginSubQuantity": 5,
+                "futuresSubQuantity": 5,
+                "maxSpotSubQuantity": 0,
+                "maxMarginSubQuantity": 0,
+                "maxFuturesSubQuantity": 0
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('user-info', True, api_version=self.API_VERSION2)
