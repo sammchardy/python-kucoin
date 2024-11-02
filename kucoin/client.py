@@ -421,7 +421,7 @@ class Client(object):
 
         return self._post('accounts', True, data=data)
 
-    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None):
+    def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None, **params):
         """Get list of account activity
 
         https://docs.kucoin.com/#get-account-history
@@ -493,25 +493,22 @@ class Client(object):
 
         """
 
-        data = {}
         if currency:
-            data['currency'] = currency
+            params['currency'] = currency
         if direction:
-            data['direction'] = direction
+            params['direction'] = direction
         if biz_type:
-            data['bizType'] = biz_type
+            params['bizType'] = biz_type
         if start:
-            data['startAt'] = start
-        if start:
-            data['startAt'] = start
+            params['startAt'] = start
         if end:
-            data['endAt'] = end
+            params['endAt'] = end
         if page:
-            data['currentPage'] = page
+            params['currentPage'] = page
         if limit:
-            data['pageSize'] = limit
+            params['pageSize'] = limit
 
-        return self._get('accounts/ledgers', True, data=data)
+        return self._get('accounts/ledgers', True, data=params)
 
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
@@ -2372,3 +2369,5 @@ class Client(object):
         """
 
         return self._get('user-info', True, api_version=self.API_VERSION2)
+
+
