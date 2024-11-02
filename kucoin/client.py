@@ -953,6 +953,81 @@ class Client(object):
 
         return self._post('orders', True, data=data)
 
+    def hf_create_market_order(
+        self, symbol, side, size=None, funds=None, client_oid=None, stp=None, tags=None, remark=None
+    ):
+        """Create a hf market order
+
+        One of size or funds must be set
+
+        https://docs.kucoin.com/#place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency
+        :type size: string
+        :param funds: (optional) Desired amount of quote currency to use
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+
+        .. code:: python
+
+            order = client.hf_create_market_order('NEO', Client.SIDE_BUY, size=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "5bd6e9286d99522a52e458de",
+                    "clientOid": "11223344"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException
+
+        """
+
+        if not size and not funds:
+            raise MarketOrderException('Need size or fund parameter')
+
+        if size and funds:
+            raise MarketOrderException('Need size or fund parameter not both')
+
+        data = {
+            'symbol': symbol,
+            'side': side,
+            'type': self.ORDER_MARKET
+        }
+
+        if size:
+            data['size'] = size
+        if funds:
+            data['funds'] = funds
+        if client_oid:
+            data['clientOid'] = client_oid
+        else:
+            data['clientOid'] = flat_uuid()
+        if stp:
+            data['stp'] = stp
+        if tags:
+            data['tags'] = tags
+        if remark:
+            data['remark'] = remark
+
+        return self._post('hf/orders', True, data=data)
+
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
                            time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
                            cancel_after=None, post_only=None,
@@ -1062,6 +1137,105 @@ class Client(object):
 
         return self._post('orders', True, data=data)
 
+    def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
+                            tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                            hidden=None, iceberg=None, visible_size=None):
+        """Create a hf order
+
+        https://docs.kucoin.com/#place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param price: Name of coin
+        :type price: string
+        :param size: Amount of base currency to buy or sell
+        :type size: string
+        :param client_oid: (optional) Unique order_id  default flat_uuid()
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
+        :type time_in_force: string
+        :param cancel_after: (optional) number of seconds to cancel the order if not filled
+            required time_in_force to be GTT
+        :type cancel_after: string
+        :param post_only: (optional) indicates that the order should only make liquidity. If any part of
+            the order results in taking liquidity, the order will be rejected and no part of it will execute.
+        :type post_only: bool
+        :param hidden: (optional) Orders not displayed in order book
+        :type hidden: bool
+        :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: bool
+
+        .. code:: python
+
+            order = client.hf_create_limit_order('KCS-BTC', Client.SIDE_BUY, '0.01', '1000')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "5bd6e9286d99522a52e458de",
+                    "clientOid": "11223344"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, LimitOrderException
+
+        """
+
+        if cancel_after and time_in_force != self.TIMEINFORCE_GOOD_TILL_TIME:
+            raise LimitOrderException('Cancel after only works with time_in_force = "GTT"')
+
+        if hidden and iceberg:
+            raise LimitOrderException('Order can be either "hidden" or "iceberg"')
+
+        if iceberg and not visible_size:
+            raise LimitOrderException('Iceberg order requires visible_size')
+
+        data = {
+            'symbol': symbol,
+            'side': side,
+            'type': self.ORDER_LIMIT,
+            'price': price,
+            'size': size
+        }
+
+        if client_oid:
+            data['clientOid'] = client_oid
+        else:
+            data['clientOid'] = flat_uuid()
+        if stp:
+            data['stp'] = stp
+        if tags:
+            data['tags'] = tags
+        if remark:
+            data['remark'] = remark
+        if time_in_force:
+            data['timeInForce'] = time_in_force
+        if cancel_after:
+            data['cancelAfter'] = cancel_after
+        if post_only:
+            data['postOnly'] = post_only
+        if hidden:
+            data['hidden'] = hidden
+        if iceberg:
+            data['iceberg'] = iceberg
+            data['visible_size'] = visible_size
+
+        return self._post('hf/orders', True, data=data)
+
     def cancel_order(self, order_id):
         """Cancel an order
 
@@ -1119,7 +1293,81 @@ class Client(object):
 
         """
 
-        return self._delete('order/client-order/{}'.format(client_oid), True)
+        return self._delete('hf/orders/{}'.format(client_oid), True)
+
+    def hf_cancel_order(self, order_id, symbol):
+        """Cancel a hf order by the orderId
+
+        https://docs.kucoin.com/#cancel-hf-order-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_order_by_order_id('5bd6e9286d99522a52e458de', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "630625dbd9180300014c8d52"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/{}'.format(order_id), True, data=data)
+
+    def hf_cancel_order_by_client_oid(self, client_oid, symbol):
+        """Cancel a hf order by the clientOid
+
+        https://docs.kucoin.com/#cancel-hf-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_order_by_client_oid('6d539dc614db3', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "clientOid": "6d539dc614db3"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/client-order{}'.format(client_oid), True, data=data)
 
     def cancel_all_orders(self, symbol=None):
         """Cancel all orders
@@ -1147,6 +1395,38 @@ class Client(object):
         if symbol is not None:
             data['symbol'] = symbol
         return self._delete('orders', True, data=data)
+
+    def hf_cancel_all_orders(self):
+        """Cancel all orders
+
+        https://docs.kucoin.com/#cancel-all-hf-orders
+
+        .. code:: python
+
+            res = client.hf_cancel_all_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "succeedSymbols": [
+                    "BTC-USDT",
+                    "ETH-USDT"
+                ],
+                "failedSymbols": [
+                    {
+                        "symbol": "BTC-USDT",
+                        "error": "can't cancel, system timeout"
+                    }
+                ],
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        return self._delete('hf/orders/cancelAll', True)
+
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None, trade_type='TRADE'):
@@ -1367,6 +1647,73 @@ class Client(object):
         """
 
         return self._get('orders/{}'.format(order_id), True)
+
+    def hf_get_order(self, order_id, symbol):
+        """Get hf order details by orderId
+
+        https://docs.kucoin.com/#get-hf-order-details-by-orderid
+
+        :param order_id: orderId value
+        :type order_id: str
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.hf_get_order('5c35c02703aa673ceec2a168', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "id": "5f3113a1c9b6d539dc614dc6",
+                    "symbol": "KCS-BTC",
+                    "opType": "DEAL",
+                    "type": "limit",
+                    "side": "buy",
+                    "price": "0.00001",
+                    "size": "1",
+                    "funds": "0",
+                    "dealFunds": "0",
+                    "dealSize": "0",
+                    "fee": "0",
+                    "feeCurrency": "BTC",
+                    "stp": "",
+                    "timeInForce": "GTC",
+                    "postOnly": false,
+                    "hidden": false,
+                    "iceberg": false,
+                    "visibleSize": "0",
+                    "cancelAfter": 0,
+                    "channel": "API",
+                    "clientOid": "6d539dc614db312",
+                    "remark": "",
+                    "tags": "",
+                    "active": true,
+                    "inOrderBook": false,
+                    "cancelExist": false,
+                    "createdAt": 1547026471000,
+                    "lastUpdatedAt": 1547026471001,
+                    "tradeType": "TRADE",
+                    "cancelledSize": "0",
+                    "cancelledFunds": "0",
+                    "remainSize": "0",
+                    "remainFunds": "0"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('hf/orders/{}'.format(order_id), True, data=data)
 
     def get_order_by_client_oid(self, client_oid):
         """Get order details by clientOid
