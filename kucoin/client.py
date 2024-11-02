@@ -311,7 +311,7 @@ class Client(object):
     def get_accounts(self, currency=None, account_type=None):
         """Get a list of accounts
 
-        https://docs.kucoin.com/#accounts
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-list-spot-margin-trade_hf
 
         :param currency: optional Currency code
         :type currency: string
@@ -362,7 +362,7 @@ class Client(object):
     def get_account(self, account_id):
         """Get an individual account
 
-        https://docs.kucoin.com/#get-an-account
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-detail-spot-margin-trade_hf
 
         :param account_id: ID for account - from list_accounts()
         :type account_id: string
@@ -424,7 +424,7 @@ class Client(object):
     def get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, page=None, limit=None, **params):
         """Get list of account activity
 
-        https://docs.kucoin.com/#get-account-history
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-ledgers-spot-margin
 
         :param currency: (optional) currency name
         :type currency: string
@@ -493,10 +493,6 @@ class Client(object):
 
         """
 
-        if currency:
-            params['currency'] = currency
-        if direction:
-            params['direction'] = direction
         if biz_type:
             params['bizType'] = biz_type
         if start:
@@ -507,6 +503,57 @@ class Client(object):
             params['currentPage'] = page
         if limit:
             params['pageSize'] = limit
+
+        return self._get('accounts/ledgers', True, data=params)
+
+    def hf_get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, limit=None, last_id=None, **params):
+        """Get list of hf account activity
+
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-ledgers-trade_hf
+
+        :param currency: (optional) currency name
+        :type currency: string
+        :param direction: (optional) Side: in - Receive, out - Send
+        :type direction: string
+        :param biz_type: (optional) Business type: DEPOSIT, WITHDRAW, TRANSFER, SUB_TRANSFER,TRADE_EXCHANGE, MARGIN_EXCHANGE, KUCOIN_BONUS.
+        :type biz_type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param limit: (optional) Number of results to return - default 100
+        :type limit: int
+        :param last_id: (optional) The id of the last set of data from the previous batch of data. By default, the latest information is given.
+        :type last_id: int
+
+        .. code:: python
+
+            history = client.hf_get_account_activity('5bd6e9216d99522a52e458d6')
+
+            history = client.hf_get_account_activity('5bd6e9216d99522a52e458d6', start='1540296039000')
+
+            history = client.hf_get_account_activity('5bd6e9216d99522a52e458d6', limit=10)
+
+        :returns: API Response
+
+        .. code-block:: python
+
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        if biz_type:
+            params['bizType'] = biz_type
+        if start:
+            params['startAt'] = start
+        if end:
+            params['endAt'] = end
+        if limit:
+            params['limit'] = limit
+        if last_id:
+            params['lastId'] = last_id
+        #todo test it
 
         return self._get('accounts/ledgers', True, data=params)
 
