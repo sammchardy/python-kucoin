@@ -444,11 +444,11 @@ class Client(object):
 
         .. code:: python
 
-            history = client.get_account_activity('5bd6e9216d99522a52e458d6')
+            history = client.get_account_activity()
 
-            history = client.get_account_activity('5bd6e9216d99522a52e458d6', start='1540296039000')
+            history = client.get_account_activity('ETH', start='1540296039000')
 
-            history = client.get_account_activity('5bd6e9216d99522a52e458d6', page=2, page_size=10)
+            history = client.get_account_activity('ETH', page=2, page_size=10)
 
         :returns: API Response
 
@@ -493,6 +493,7 @@ class Client(object):
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
+
         data = {}
         if currency:
             data['currency'] = currency
@@ -511,10 +512,11 @@ class Client(object):
 
         return self._get('accounts/ledgers', True, dict(data, **params))
 
-    def hf_get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, limit=None, last_id=None, **params):
+    def hf_get_account_activity(self, currency=None, direction=None, biz_type=None, start=None, end=None, limit=None, last_id=None, margin=False, **params):
         """Get list of hf account activity
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-ledgers-trade_hf
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-ledgers-margin_hf
 
         :param currency: (optional) currency name
         :type currency: string
@@ -530,14 +532,16 @@ class Client(object):
         :type limit: int
         :param last_id: (optional) The id of the last set of data from the previous batch of data. By default, the latest information is given.
         :type last_id: int
+        :param margin: (optional) If True, get margin account activity - default False
+        :type margin: bool
 
         .. code:: python
 
-            history = client.hf_get_account_activity('5bd6e9216d99522a52e458d6')
+            history = client.hf_get_account_activity()
 
-            history = client.hf_get_account_activity('5bd6e9216d99522a52e458d6', start='1540296039000')
+            history = client.hf_get_account_activity('ETH', start='1540296039000')
 
-            history = client.hf_get_account_activity('5bd6e9216d99522a52e458d6', limit=10)
+            history = client.hf_get_account_activity('ETH', margin=True, limit=10)
 
         :returns: API Response
 
@@ -582,7 +586,62 @@ class Client(object):
         if last_id:
             data['lastId'] = last_id
 
-        return self._get('hf/accounts/ledgers', True, data=dict(data, **params))
+        path = 'hf/accounts/ledgers'
+        if margin:
+            path = 'hf/margin/account/ledgers'
+        return self._get(path, True, data=dict(data, **params))
+
+    def get_futures_account_activity(self, currency=None, type=None, start=None, end=None, limit=None, offset=None, forward=True, **params):
+        """Get list of futures account activity
+
+        https://www.kucoin.com/docs/rest/account/basic-info/get-account-ledgers-futures
+
+        :param currency: (optional) currency name
+        :type currency: string
+        :param type: (optional) Type: RealisedPNL, Deposit, Withdrawal, Transferin, TransferOut.
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param limit: (optional) Number of results to return - default 50
+        :type limit: int
+        :param offset: (optional) Start offset. Generally, the only attribute of the last returned result of the previous request is used, and the first page is returned by default
+        :type offset: int
+        :param forward: (optional) This parameter functions to judge whether the lookup is forward or not. True means “yes” and False means “no” - default True
+        :type forward: bool
+
+        .. code:: python
+
+            history = client.get_futures_account_activity()
+
+            history = client.get_account_activity('ETH', start='1540296039000')
+
+            history = client.get_account_activity('ETH', forward=TRUE, page_size=10)
+
+        :returns: API Response
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+        # todo check and add the response
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if type:
+            data['type'] = type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if limit:
+            data['maxCount'] = limit
+        if offset:
+            data['offset'] = offset
+        if not forward:
+            data['forward'] = False
+
+        return self._get('transaction-history', True, dict(data, **params))
 
     def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
         """Transfer fund among accounts on the platform
