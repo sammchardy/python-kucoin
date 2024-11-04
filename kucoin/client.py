@@ -245,7 +245,7 @@ class Client(object):
     def get_currencies(self):
         """List known currencies
 
-        https://docs.kucoin.com/#get-currencies
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-currency-list
 
         .. code:: python
 
@@ -255,57 +255,156 @@ class Client(object):
 
         .. code-block:: python
 
-            [
-                {
-                    "currency": "BTC",
-                    "name": "BTC",
-                    "fullName": "Bitcoin",
-                    "precision": 8
-                },
-                {
-                    "currency": "ETH",
-                    "name": "ETH",
-                    "fullName": "Ethereum",
-                    "precision": 7
-                }
-            ]
-
-        :raises:  KucoinResponseException, KucoinAPIException
-
-        """
-
-        return self._get('currencies', False)
-
-    def get_currency(self, currency):
-        """Get single currency detail
-
-        https://docs.kucoin.com/#get-currency-detail
-
-        .. code:: python
-
-            # call with no coins
-            currency = client.get_currency('BTC')
-
-        :returns: API Response
-
-        .. code-block:: python
-
             {
-                "currency": "BTC",
-                "name": "BTC",
-                "fullName": "Bitcoin",
-                "precision": 8,
-                "withdrawalMinSize": "0.002",
-                "withdrawalMinFee": "0.0005",
-                "isWithdrawEnabled": true,
-                "isDepositEnabled": true
+                "code": "200000",
+                "data": [
+                    {
+                        "currency": "BTC",
+                        "name": "BTC",
+                        "fullName": "Bitcoin",
+                        "precision": 8,
+                        "confirms": null,
+                        "contractAddress": null,
+                        "isMarginEnabled": true,
+                        "isDebitEnabled": true,
+                        "chains": [
+                            {
+                                "chainName" : "BTC",
+                                "withdrawalMinFee" : "0.001",
+                                "withdrawalMinSize" : "0.0012",
+                                "withdrawFeeRate" : "0",
+                                "depositMinSize" : "0.0002",
+                                "isWithdrawEnabled" : true,
+                                "isDepositEnabled" : true,
+                                "preConfirms" : 1,
+                                "contractAddress" : "",
+                                "chainId" : "btc",
+                                "confirms" : 3
+                            },
+                            {
+                                "chainName" : "KCC",
+                                "withdrawalMinFee" : "0.00002",
+                                "withdrawalMinSize" : "0.0008",
+                                "withdrawFeeRate" : "0",
+                                "depositMinSize" : null,
+                                "isWithdrawEnabled" : true,
+                                "isDepositEnabled" : true,
+                                "preConfirms" : 20,
+                                "contractAddress" : "0xfa93c12cd345c658bc4644d1d4e1b9615952258c",
+                                "chainId" : "kcc",
+                                "confirms" : 20
+                            },
+                            {
+                                "chainName" : "BTC-Segwit",
+                                "withdrawalMinFee" : "0.0005",
+                                "withdrawalMinSize" : "0.0008",
+                                "withdrawFeeRate" : "0",
+                                "depositMinSize" : "0.0002",
+                                "isWithdrawEnabled" : false,
+                                "isDepositEnabled" : true,
+                                "preConfirms" : 2,
+                                "contractAddress" : "",
+                                "chainId" : "bech32",
+                                "confirms" : 2
+                            }
+                        ]
+                    }
+                ]
             }
 
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
-        return self._get('currencies/{}'.format(currency), False)
+        return self._get('currencies', False, api_version=self.API_VERSION3)
+
+    def get_currency(self, currency, chain=None, **params):
+        """Get single currency detail
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-currency-detail
+
+        :param currency: Currency code
+        :type currency: string
+        :param chain: (optional) Chain name. The available value for USDT are OMNI, ERC20, TRC20.
+        :type chain: string
+
+        .. code:: python
+
+            # call with no coins
+            currency = client.get_currency('BTC')
+            currency = client.get_currency('BTC', 'ERC20')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "data" : {
+                    "isMarginEnabled" : true,
+                    "chains" : [
+                        {
+                            "chainName" : "BTC",
+                            "withdrawalMinFee" : "0.001",
+                            "withdrawalMinSize" : "0.0012",
+                            "withdrawFeeRate" : "0",
+                            "depositMinSize" : "0.0002",
+                            "isWithdrawEnabled" : true,
+                            "isDepositEnabled" : true,
+                            "preConfirms" : 1,
+                            "contractAddress" : "",
+                            "chainId" : "btc",
+                            "confirms" : 3
+                        },
+                        {
+                            "chainName" : "KCC",
+                            "withdrawalMinFee" : "0.00002",
+                            "withdrawalMinSize" : "0.0008",
+                            "withdrawFeeRate" : "0",
+                            "depositMinSize" : null,
+                            "isWithdrawEnabled" : true,
+                            "isDepositEnabled" : true,
+                            "preConfirms" : 20,
+                            "contractAddress" : "0xfa93c12cd345c658bc4644d1d4e1b9615952258c",
+                            "chainId" : "kcc",
+                            "confirms" : 20
+                        },
+                        {
+                            "chainName" : "BTC-Segwit",
+                            "withdrawalMinFee" : "0.0005",
+                            "withdrawalMinSize" : "0.0008",
+                            "withdrawFeeRate" : "0",
+                            "depositMinSize" : "0.0002",
+                            "isWithdrawEnabled" : false,
+                            "isDepositEnabled" : true,
+                            "preConfirms" : 2,
+                            "contractAddress" : "",
+                            "chainId" : "bech32",
+                            "confirms" : 2
+                        }
+                    ],
+                    "contractAddress" : null,
+                    "isDebitEnabled" : true,
+                    "fullName" : "Bitcoin",
+                    "precision" : 8,
+                    "currency" : "BTC",
+                    "name" : "BTC",
+                    "confirms" : null
+                },
+                "code" : "200000"
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        if chain:
+            data['chain'] = chain
+
+        return self._get('currencies/{}'.format(currency), False, api_version=self.API_VERSION3, data=dict({'chain': chain}, **params))
 
     # User Account Endpoints
 
@@ -2106,7 +2205,7 @@ class Client(object):
         }
 
         return self._delete('withdrawals/{}'.format(withdrawal_id), True, data=dict(data, **params))
-    
+
     # Trade Fee Endpoints
 
     def get_base_fee(self,currency_type=None, **params):
@@ -2143,7 +2242,7 @@ class Client(object):
             data['currencyType'] = currency_type
 
         return self._get('base-fee', True, data=dict(data, **params))
-    
+
     def get_trading_pair_fee(self, symbols, **params):
         """Trading pair actual fee - Spot/Margin/trade_hf
 
@@ -2186,7 +2285,7 @@ class Client(object):
             data['symbols'] = symbols
 
         return self._get('trade-fees', True, data=dict(data, **params))
-    
+
     def futures_get_trading_pair_fee(self, symbol, **params):
         """Trading pair actual fee - Futures
 
