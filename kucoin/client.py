@@ -1421,6 +1421,72 @@ class Client(object):
 
         return self._get('deposits', True, data=dict(data, **params))
 
+    def get_deposit_history(self, currency=None, status=None, start=None, end=None, page=None, limit=None, **params):
+        """Get deposit history
+
+        https://www.kucoin.com/docs/rest/funding/deposit/get-v1-historical-deposits-list
+
+        :param currency: Name of currency (optional)
+        :type currency: string
+        :param status: optional - Status of deposit (PROCESSING, SUCCESS, FAILURE)
+        :type status: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of transactions
+        :type limit: int
+
+        .. code:: python
+
+            deposits = client.get_deposit_history('NEO')
+            deposits = client.get_deposit_history('NEO', 'SUCCESS')
+            deposits = client.get_deposit_history('NEO', 'SUCCESS', 1540296039000, 1540296039000)
+            deposits = client.get_deposit_history('NEO', 'SUCCESS', 1540296039000, 1540296039000, 1, 5)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 1,
+                "totalNum": 9,
+                "totalPage": 9,
+                "items": [
+                    {
+                        "currency": "BTC",
+                        "createAt": 1528536998,
+                        "amount": "0.03266638",
+                        "walletTxId": "55c643bc2c68d6f17266383ac1be9e454038864b929ae7cee0bc408cc5c869e8",
+                        "isInner": false,
+                        "status": "SUCCESS"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if status:
+            data['status'] = status
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if limit:
+            data['pageSize'] = limit
+        if page:
+            data['currentPage'] = page
+
+        return self._get('hist-deposits', True, data=dict(data, **params))
+
     # Withdraw Endpoints
 
     def get_withdrawals(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
