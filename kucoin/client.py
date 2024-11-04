@@ -1319,17 +1319,20 @@ class Client(object):
 
         return self._post('deposit-address/create', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
-    def get_deposit_address(self, currency):
+    def get_deposit_address(self, currency, chain=None, **params):
         """Get deposit address for a currency
 
-        https://docs.kucoin.com/#get-deposit-address
+        https://www.kucoin.com/docs/rest/funding/deposit/get-deposit-address
 
         :param currency: Name of currency
         :type currency: string
+        :param chain: (optional) The chain name of currency
+        :type chain: string
 
         .. code:: python
 
             address = client.get_deposit_address('USDT')
+            address = client.get_deposit_address('USDT', 'ERC20')
 
         :returns: ApiResponse
 
@@ -1349,7 +1352,138 @@ class Client(object):
             'currency': currency
         }
 
-        return self._get('deposit-addresses', True, api_version=self.API_VERSION2, data=data)
+        if chain is not None:
+            data['chain'] = chain
+
+        return self._get('deposit-addresses', True, data=dict(data, **params))
+
+    def get_deposit_address_v2(self, currency, **params):
+        """Get deposit address for a currency
+
+        https://www.kucoin.com/docs/rest/funding/deposit/get-deposit-addresses-v2-
+
+        :param currency: Name of currency
+        :type currency: string
+
+        .. code:: python
+
+            address = client.get_deposit_address_v2('USDT')
+
+        :returns: ApiResponse
+
+            {
+                "data" : [
+                    {
+                        "address" : "bc1qwyuvmx53d*****gdg47kqxfwqy",
+                        "chain" : "BTC-Segwit",
+                        "memo" : "",
+                        "contractAddress" : "",
+                        "to" : "MAIN",
+                        "chainId" : "bech32",
+                        "currency" : "BTC"
+                    },
+                    {
+                        "address" : "3K7X9Vjnd*****TGaTAWoJ7H",
+                        "chain" : "BTC",
+                        "memo" : "",
+                        "contractAddress" : "",
+                        "to" : "MAIN",
+                        "chainId" : "btc",
+                        "currency" : "BTC"
+                    },
+                    {
+                        "address" : "0x637da22b860*****ac0c2433",
+                        "chain" : "KCC",
+                        "memo" : "",
+                        "contractAddress" : "0xfa93c12cd345c658bc4644d1d4e1b9615952258c",
+                        "to" : "MAIN",
+                        "chainId" : "kcc",
+                        "currency" : "BTC"
+                    }
+                ],
+                "code" : "200000"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        return self._get('deposit-addresses', True, api_version=self.API_VERSION2, data=dict(data, **params))
+
+    def get_deposit_address_v3(self, currency, amount=None, chain=None, **params):
+        """Get deposit address for a currency
+
+        https://www.kucoin.com/docs/rest/funding/deposit/get-deposit-addresses-v3-
+
+        :param currency: Name of currency
+        :type currency: string
+        :param amount: (optional) The amount of currency to be deposited
+        :type amount: string
+        :param chain: (optional) The chain name of currency
+        :type chain: string
+
+        .. code:: python
+
+            address = client.get_deposit_address_v3('USDT')
+            address = client.get_deposit_address_v3('USDT', '100')
+            address = client.get_deposit_address_v3('USDT', '100', 'ERC20')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "data" : [
+                    {
+                        "address" : "bc1qwyuvmx53d*****gdg47kqxfwqy",
+                        "chain" : "BTC-Segwit",
+                        "memo" : "",
+                        "contractAddress" : "",
+                        "to" : "MAIN",
+                        "chainId" : "bech32",
+                        "currency" : "BTC"
+                    },
+                    {
+                        "address" : "3K7X9Vjnd*****TGaTAWoJ7H",
+                        "chain" : "BTC",
+                        "memo" : "",
+                        "contractAddress" : "",
+                        "to" : "MAIN",
+                        "chainId" : "btc",
+                        "currency" : "BTC"
+                    },
+                    {
+                        "address" : "0x637da22b860*****ac0c2433",
+                        "chain" : "KCC",
+                        "memo" : "",
+                        "contractAddress" : "0xfa93c12cd345c658bc4644d1d4e1b9615952258c",
+                        "to" : "MAIN",
+                        "chainId" : "kcc",
+                        "currency" : "BTC"
+                    }
+                ],
+                "code" : "200000"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        if amount is not None:
+            data['amount'] = amount
+
+        if chain is not None:
+            data['chain'] = chain
+
+        return self._get('deposit-addresses', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     def get_deposits(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
         """Get deposit records for a currency
