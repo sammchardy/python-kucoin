@@ -360,7 +360,7 @@ class Client(object):
 
         return self._get('accounts', True, data=dict(data, **params))
 
-    def get_subaccounts(self):
+    def get_subaccounts(self, **params):
         """Get a list of subaccounts
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-info-v1-
@@ -452,7 +452,7 @@ class Client(object):
             data['pageSize'] = limit
 
         return self._get('sub/user', True, api_version=self.API_VERSION2, data=dict(data, **params))
-    
+
     def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
         """Get the account info of a sub-user specified by the subUserId
 
@@ -520,6 +520,125 @@ class Client(object):
         }
 
         return self._get('sub-accounts/{}'.format(sub_user_id), True, data=dict(data, **params))
+
+    def get_all_subaccounts_balance(self):
+        """Get the account info of all sub-users
+
+        https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-balance-v1-
+
+        .. code:: python
+
+            accounts = client.get_all_subaccounts_balance()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            [
+                {
+                    "subUserId": "5caefba7d9575a0688f83c45",
+                    "subName": "kucoin1",
+                    "mainAccounts": [
+                        {
+                            "currency": "BTC",
+                            "balance": "6",
+                            "available": "6",
+                            "holds": "0",
+                            "baseCurrency": "BTC",
+                            "baseCurrencyPrice": "1",
+                            "baseAmount": "1.1"
+                        }
+                    ],
+                    "tradeAccounts": [
+                        {
+                            "currency": "BTC",
+                            "balance": "1000",
+                            "available": "1000",
+                            "holds": "0",
+                            "baseCurrency": "BTC",
+                            "baseCurrencyPrice": "1",
+                            "baseAmount": "1.1"
+                        }
+                    ],
+                    "marginAccounts": [
+                        {
+                            "currency": "BTC",
+                            "balance": "1.1",
+                            "available": "1.1",
+                            "holds": "0",
+                            "baseCurrency": "BTC",
+                            "baseCurrencyPrice": "1",
+                            "baseAmount": "1.1"
+                        }
+                    ]
+                }
+            ]
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+        # todo check and add the response
+
+        return self._get('sub-accounts', True)
+
+    def get_all_subaccounts_balance_v2(self, page=None, limit=None, **params):
+        """Get the account info of all sub-users
+
+        https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-balance-v2-
+
+        :param page: (optional) Current page - default 1
+        :type page: int
+        :param limit: (optional) Number of results to return - default 10
+        :type limit: int
+
+        .. code:: python
+
+            accounts = client.get_all_subaccounts_balance_v2()
+            accounts = client.get_all_subaccounts_balance_v2(page=2, limit=5)
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "currentPage": 1,
+                    "pageSize": 10,
+                    "totalNum": 14,
+                    "totalPage": 2,
+                    "items": [
+                        {
+                            "subUserId": "635002438793b80001dcc8b3",
+                            "subName": "margin03",
+                            "mainAccounts": [
+                                {
+                                    "currency": "00",
+                                    "balance": "0",
+                                    "available": "0",
+                                    "holds": "0",
+                                    "baseCurrency": "BTC",
+                                    "baseCurrencyPrice": "125.63",
+                                    "baseAmount": "0"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+        # todo check and add the response
+
+        data = {}
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('sub-accounts', True, api_version=self.API_VERSION2, data=dict(data, **params))
 
     def get_account(self, account_id):
         """Get an individual account
