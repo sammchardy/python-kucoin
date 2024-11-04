@@ -1564,6 +1564,72 @@ class Client(object):
 
         return self._get('withdrawals', True, data=dict(data, **params))
 
+    def get_historical_withdrawals(self, currency=None, status=None, start=None, end=None, page=None, limit=None, **params):
+        """Get historical withdrawals
+
+        https://www.kucoin.com/docs/rest/funding/withdrawals/get-v1-historical-withdrawals-list
+
+        :param currency: Name of currency (optional)
+        :type currency: string
+        :param status: optional - Status of deposit (PROCESSING, SUCCESS, FAILURE)
+        :type status: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of transactions
+        :type limit: int
+
+        .. code:: python
+
+            withdrawals = client.get_historical_withdrawals('NEO')
+            withdrawals = client.get_historical_withdrawals('NEO', 'SUCCESS')
+            withdrawals = client.get_historical_withdrawals('NEO', 'SUCCESS', 1540296039000, 1540296039000)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 1,
+                "totalNum": 2,
+                "totalPage": 2,
+                "items": [
+                    {
+                        "currency": "BTC",
+                        "createAt": 1526723468,
+                        "amount": "0.534",
+                        "address": "33xW37ZSW4tQvg443Pc7NLCAs167Yc2XUV",
+                        "walletTxId": "aeacea864c020acf58e51606169240e96774838dcd4f7ce48acf38e3651323f4",
+                        "isInner": false,
+                        "status": "SUCCESS"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if currency:
+            data['currency'] = currency
+        if status:
+            data['status'] = status
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if limit:
+            data['pageSize'] = limit
+        if page:
+            data['currentPage'] = page
+
+        return self._get('hist-withdrawals', True, data=dict(data, **params))
+
     def get_withdrawal_quotas(self, currency):
         """Get withdrawal quotas for a currency
 
