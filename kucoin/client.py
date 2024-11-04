@@ -1175,25 +1175,190 @@ class Client(object):
 
         return self._get('transaction-history', True, dict(data, **params))
 
-    def create_inner_transfer(self, currency, from_type, to_type, amount, order_id=None):
-        """Transfer fund among accounts on the platform
+    # Transfer Endpoints
 
-        https://docs.kucoin.com/#inner-transfer
+    def get_transferable_balance(self, currency, type, tag=None, **params):
+        """Get transferable balance
+
+        https://www.kucoin.com/docs/rest/funding/transfer/get-the-transferable
 
         :param currency: currency name
-        :type currency: str
-        :param from_type: Account type of payer: main, trade, margin or pool
-        :type from_type: str
-        :param to_type: Account type of payee: main, trade, margin , contract or pool
-        :type to_type: str
-        :param amount: Amount to transfer
-        :type amount: int
-        :param order_id: (optional) Request ID (default flat_uuid())
-        :type order_id: string
+        :type currency: string
+        :param type: Account type: MAIN、TRADE、MARGIN、ISOLATED
+        :type type: string
+        :param tag: (optional) Trading pair, required when the account type is ISOLATED; other types are not passed, e.g.: BTC-USDT
+        :type tag: string
 
         .. code:: python
 
-            transfer = client.create_inner_transfer('BTC', 'main', 'trade', 1)
+            transfer = client.get_transferable_balance('BTC', 'MAIN')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "currency": "KCS",
+                "balance": "0",
+                "available": "0",
+                "holds": "0",
+                "transferable": "0"
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'type': type
+        }
+        if tag:
+            data['tag'] = tag
+
+        return self._get('accounts/transferable', True, data=dict(data, **params))
+
+    def create_universal_transfer(self, client_oid, amount, from_account_type, type, to_account_type,
+                                  currency=None, from_user_id=None, from_account_tag=None, to_user_id=None, to_account_tag=None, **params):
+        """Transfer fund among accounts on the platform
+
+        https://www.kucoin.com/docs/rest/funding/transfer/flextransfer
+
+        :param client_oid: Unique order id created by users to identify their orders, e.g. UUID, with a maximum length of 128 bits
+        :type client_oid: string
+        :param amount: Transfer amount, the amount is a positive integer multiple of the currency precision.
+        :type amount: string
+        :param from_account_type: Account type：MAIN、TRADE、CONTRACT、MARGIN、ISOLATED、MARGIN_V2、ISOLATED_V2
+        :type from_account_type: string
+        :param type: Transfer type: Transfer type：INTERNAL(Transfer within account)、PARENT_TO_SUB(Transfer from master-account to sub-account)，SUB_TO_PARENT(Transfer from sub-account to master-account)
+        :type type: string
+        :param to_account_type: Account type：MAIN、TRADE、CONTRACT、MARGIN、ISOLATED、MARGIN_V2、ISOLATED_V2
+        :type to_account_type: string
+        :param currency: (optional) currency name
+        :type currency: string
+        :param from_user_id: (optional) Transfer out UserId， This is required when transferring sub-account to master-account. It is optional for internal transfers.
+        :type from_user_id: string
+        :param from_account_tag: (optional) Symbol, required when the account type is ISOLATED or ISOLATED_V2, for example: BTC-USDT
+        :type from_account_tag: string
+        :param to_user_id: (optional) Transfer in UserId， This is required when transferring master-account to sub-account. It is optional for internal transfers.
+        :type to_user_id: string
+        :param to_account_tag: (optional) Symbol, required when the account type is ISOLATED or ISOLATED_V2, for example: BTC-USDT
+        :type to_account_tag: string
+
+        .. code:: python
+
+            transfer = client.create_universal_transfer('6d539dc614db3', 1, 'MAIN', 'INTERNAL', 'TRADE')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "clientOid": "64ccc0f164781800010d8c09",
+                "type": "INTERNAL",
+                "currency": "BTC",
+                "amount": 1,
+                "fromAccountType": "TRADE",
+                "toAccountType": "CONTRACT"
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'clientOid': client_oid,
+            'amount': amount,
+            'fromAccountType': from_account_type,
+            'type': type,
+            'toAccountType': to_account_type
+        }
+        if currency:
+            data['currency'] = currency
+        if from_user_id:
+            data['fromUserId'] = from_user_id
+        if from_account_tag:
+            data['fromAccountTag'] = from_account_tag
+        if to_user_id:
+            data['toUserId'] = to_user_id
+        if to_account_tag:
+            data['toAccountTag'] = to_account_tag
+
+        return self._post('accounts/universal-transfer', True, data=dict(data, **params))
+
+    def create_subaccount_transfer(self, client_oid, currency, amount, direction, sub_user_id, account_type=None, sub_account_type=None, **params):
+        """Transfer fund from master account to sub-account or from sub-account to master account
+
+        https://www.kucoin.com/docs/rest/funding/transfer/transfer-between-master-account-and-sub-account
+
+        :param client_oid: Unique order id created by users to identify their orders, e.g. UUID, with a maximum length of 128 bits
+        :type client_oid: string
+        :param currency: currency name
+        :type currency: string
+        :param amount: Transfer amount, the amount is a positive integer multiple of the currency precision.
+        :type amount: string
+        :param direction: Transfer direction. OUT — the master user to sub user. IN — the sub user to the master user.
+        :type direction: string
+        :param sub_user_id: Sub account user id
+        :type sub_user_id: string
+        :param account_type: (optional) The account type of the master user: MAIN, TRADE, MARGIN or CONTRACT, default is MAIN.
+        :type account_type: string
+        :param sub_account_type: (optional) The account type of the sub user: MAIN, TRADE, MARGIN or CONTRACT, default is MAIN.
+        :type sub_account_type: string
+
+        .. code:: python
+
+            transfer = client.create_subaccount_transfer('6d539dc614db3', 'BTC', 1, 'OUT', '5cbd31ab9c93e9280cd36a0a')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "orderId": "5cbd870fd9575a18e4438b9a"
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'clientOid': client_oid,
+            'currency': currency,
+            'amount': amount,
+            'direction': direction,
+            'subUserId': sub_user_id
+        }
+        if account_type:
+            data['accountType'] = account_type
+        if sub_account_type:
+            data['subAccountType'] = sub_account_type
+
+        return self._post('accounts/sub-transfer', True, api_version=self.API_VERSION2, data=dict(data, **params))
+
+    def create_inner_transfer(self, client_oid, currency, from_type, to_type, amount, from_tag=None, to_tag=None, **params):
+        """Transfer fund among accounts on the platform
+
+        https://www.kucoin.com/docs/rest/funding/transfer/inner-transfer
+
+        :param client_oid: Unique order id created by users to identify their orders, e.g. UUID, with a maximum length of 128 bits
+        :type client_oid: string
+        :param currency: currency name
+        :type currency: str
+        :param from_type: Payment Account Type: main, trade, margin, isolated, margin_v2, isolated_v2
+        :type from_type: str
+        :param to_type: Receiving Account Type: main, trade, margin, isolated, margin_v2, isolated_v2, contract
+        :type to_type: str
+        :param amount: Amount to transfer
+        :type amount: int
+        :param from_tag: (optional) Symbol, required when the account type is ISOLATED or ISOLATED_V2, for example: BTC-USDT
+        :type from_tag: str
+        :param to_tag: (optional) Symbol, required when the account type is ISOLATED or ISOLATED_V2, for example: BTC-USDT
+        :type to_tag: str
+
+        .. code:: python
+
+            transfer = client.create_inner_transfer('6d539dc614db3', 'BTC', 'main', 'trade', 1)
 
         :returns: API Response
 
@@ -1208,14 +1373,186 @@ class Client(object):
         """
 
         data = {
+            'clientOid': client_oid,
+            'currency': currency,
             'from': from_type,
             'to': to_type,
+            'amount': amount
+        }
+        if from_tag:
+            data['fromTag'] = from_tag
+        if to_tag:
+            data['toTag'] = to_tag
+
+        return self._post('accounts/inner-transfer', True, api_version=self.API_VERSION2, data=dict(data, **params))
+
+    def create_transfer_out(self, amount, currency, rec_account_type, **params):
+        """Transfer to Main or TRADE Account
+
+        https://www.kucoin.com/docs/rest/funding/transfer/transfer-to-main-or-trade-account
+
+        :param amount: Transfer amount
+        :type amount: string
+        :param currency: Currency
+        :type currency: string
+        :param rec_account_type: Receive account type, including MAIN,TRADE
+        :type rec_account_type: string
+
+        .. code:: python
+
+            transfer = client.create_transfer_out('1', 'BTC', 'TRADE')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "applyId": "620a0bbefeaa6a000110e833",
+                "bizNo": "620a0bbefeaa6a000110e832",
+                "payAccountType": "CONTRACT",
+                "payTag": "DEFAULT",
+                "remark": "",
+                "recAccountType": "MAIN",
+                "recTag": "DEFAULT",
+                "recRemark": "",
+                "recSystem": "KUCOIN",
+                "status": "PROCESSING",
+                "currency": "USDT",
+                "amount": "0.001",
+                "fee": "0",
+                "sn": 889048787670001,
+                "reason": "",
+                "createdAt": 1644825534000,
+                "updatedAt": 1644825534000
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
             'amount': amount,
             'currency': currency,
-            'clientOid': order_id or flat_uuid(),
+            'recAccountType': rec_account_type
         }
 
-        return self._post('accounts/inner-transfer', True, api_version=self.API_VERSION2, data=data)
+        return self._post('accounts/transfer-out', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def create_transfer_in(self, amount, currency, pay_account_type, **params):
+        """Transfer to Futures Account
+
+        https://www.kucoin.com/docs/rest/funding/transfer/transfer-to-futures-account
+
+        :param amount: Transfer amount
+        :type amount: string
+        :param currency: Currency
+        :type currency: string
+        :param pay_account_type: Pay account type, including MAIN,TRADE
+        :type pay_account_type: string
+
+        .. code:: python
+
+            transfer = client.create_transfer_in('1', 'BTC', 'TRADE')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200",
+                "msg": "",
+                "retry": true,
+                "success": true
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'amount': amount,
+            'currency': currency,
+            'payAccountType': pay_account_type
+        }
+
+        return self._post('accounts/transfer-in', True, data=dict(data, **params))
+
+    def get_transfer_list(self, start=None, end=None, status=None, query_status=None, currency=None, page=None, limit=None, **params):
+        """Get Futures Transfer-Out Request Records
+
+        https://www.kucoin.com/docs/rest/funding/transfer/get-futures-transfer-out-request-records
+
+        :param start: (optional) Start time (milisecond)
+        :type start: int
+        :param end: (optional) End time (milisecond)
+        :type end: int
+        :param status: (optional) Transfer status: PROCESSING, SUCCESS, FAILURE
+        :type status: string
+        :param query_status: (optional) Transfer status: PROCESSING, SUCCESS, FAILURE
+        :type query_status: string
+        :param currency: (optional) currency name
+        :type currency: string
+        :param page: (optional) Current page - default 1
+        :type page: int
+        :param limit: (optional) Number of results to return - default 50
+        :type limit: int
+
+        .. code:: python
+
+            transfer = client.get_transfer_list()
+            transfer = client.get_transfer_list('1540296039000')
+            transfer = client.get_transfer_list('1540296039000', '1540296039000')
+            transfer = client.get_transfer_list('1540296039000', '1540296039000', 'PROCESSING')
+            transfer = client.get_transfer_list('1540296039000', '1540296039000', 'PROCESSING', 'PROCESSING')
+            transfer = client.get_transfer_list('1540296039000', '1540296039000', 'PROCESSING', 'PROCESSING', 'BTC')
+            transfer = client.get_transfer_list('1540296039000', '1540296039000', 'PROCESSING', 'PROCESSING', 'BTC', 1, 10)
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 50,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": [
+                    {
+                    "applyId": "620a0bbefeaa6a000110e833", //Transfer-out request ID
+                    "currency": "USDT", //Currency
+                    "recRemark": "", //Receive account tx remark
+                    "recSystem": "KUCOIN", //Receive system
+                    "status": "SUCCESS", //Status  PROCESSING, SUCCESS, FAILURE
+                    "amount": "0.001", //Transaction amount
+                    "reason": "", //Reason caused the failure
+                    "offset": 889048787670001, //Offset
+                    "createdAt": 1644825534000, //Request application time
+                    "remark": "" //User remark
+                    }
+                ]
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if status:
+            data['status'] = status
+        if query_status:
+            data['queryStatus'] = query_status
+        if currency:
+            data['currency'] = currency
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('transfer-list', True, data=dict(data, **params))
 
     # Deposit Endpoints
 
