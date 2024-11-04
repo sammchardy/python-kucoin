@@ -1225,8 +1225,8 @@ class Client(object):
         https://www.kucoin.com/docs/rest/funding/deposit/create-deposit-address
 
         :param currency: Name of currency
-        :param chain: The chain name of currency
         :type currency: string
+        :param chain: (optional) The chain name of currency
         :type chain: string
 
         .. code:: python
@@ -1262,6 +1262,62 @@ class Client(object):
             data['chain'] = chain
 
         return self._post('deposit-addresses', True, data=dict(data, **params))
+
+    def create_deposit_address_v3(self, currency, chain=None, to=None, amount=None, **params):
+        """Create deposit address for a currency you intend to deposit
+
+        https://www.kucoin.com/docs/rest/funding/deposit/create-deposit-address-v3-
+
+        :param currency: Name of currency
+        :type currency: string
+        :param chain: (optional) The chain name of currency
+        :type chain: string
+        :param to: (optional) The address that the currency will be sent to
+        :type to: string
+        :param amount: (optional) The amount of currency to be deposited
+        :type amount: string
+
+        .. code:: python
+
+            address = client.create_deposit_address_v3('USDT')
+            address = client.create_deposit_address_v3('USDT', 'ERC20')
+            address = client.create_deposit_address_v3('USDT', 'ERC20', '0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5')
+            address = client.create_deposit_address_v3('USDT', 'ERC20', '0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5', 100)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "data" : {
+                    "memo" : null,
+                    "chain" : "ERC20",
+                    "chainId" : "eth",
+                    "to" : "MAIN",
+                    "currency" : "USDT",
+                    "address" : "0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5"
+                },
+                "code" : "200000"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        if chain is not None:
+            data['chain'] = chain
+
+        if to is not None:
+            data['to'] = to
+
+        if amount is not None:
+            data['amount'] = amount
+
+        return self._post('deposit-address/create', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     def get_deposit_address(self, currency):
         """Get deposit address for a currency
