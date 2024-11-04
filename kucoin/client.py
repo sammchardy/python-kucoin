@@ -1630,13 +1630,15 @@ class Client(object):
 
         return self._get('hist-withdrawals', True, data=dict(data, **params))
 
-    def get_withdrawal_quotas(self, currency):
+    def get_withdrawal_quotas(self, currency, chain=None, **params):
         """Get withdrawal quotas for a currency
 
-        https://docs.kucoin.com/#get-withdrawal-quotas
+        https://www.kucoin.com/docs/rest/funding/withdrawals/get-withdrawal-quotas
 
         :param currency: Name of currency
         :type currency: string
+        :param chain: (optional) The chain name of currency
+        :type chain: string
 
         .. code:: python
 
@@ -1647,15 +1649,24 @@ class Client(object):
         .. code:: python
 
             {
-                "currency": "ETH",
-                "availableAmount": 2.9719999,
-                "remainAmount": 2.9719999,
-                "withdrawMinSize": 0.1000000,
-                "limitBTCAmount": 2.0,
-                "innerWithdrawMinFee": 0.00001,
-                "isWithdrawEnabled": true,
-                "withdrawMinFee": 0.0100000,
-                "precision": 7
+                "data": {
+                    "limitBTCAmount": "37.83993375",
+                    "quotaCurrency": "USDT",
+                    "chain": "BTC",
+                    "remainAmount": "37.83993375",
+                    "innerWithdrawMinFee": "0",
+                    "usedBTCAmount": "0.00000000",
+                    "limitQuotaCurrencyAmount": "1000000.00000000",
+                    "withdrawMinSize": "0.0008",
+                    "withdrawMinFee": "0.0005",
+                    "precision": 8,
+                    "reason": null,
+                    "usedQuotaCurrencyAmount": "0",
+                    "currency": "BTC",
+                    "availableAmount": "0",
+                    "isWithdrawEnabled": true
+                },
+                "code": "200000"
             }
 
         :raises: KucoinResponseException, KucoinAPIException
@@ -1666,12 +1677,15 @@ class Client(object):
             'currency': currency
         }
 
-        return self._get('withdrawals/quotas', True, data=data)
+        if chain is not None:
+            data['chain'] = chain
 
-    def create_withdrawal(self, currency, amount, address, memo=None, is_inner=False, remark=None):
+        return self._get('withdrawals/quotas', True, data=dict(data, **params))
+
+    def create_withdrawal(self, currency, amount, address, withdraw_type, memo=None, is_inner=False, remark=None, chain=None, fee_deduct_type=None, **params):
         """Process a withdrawal
 
-        https://docs.kucoin.com/#apply-withdraw
+        https://www.kucoin.com/docs/rest/funding/withdrawals/apply-withdraw-v3-
 
         :param currency: Name of currency
         :type currency: string
@@ -1679,16 +1693,64 @@ class Client(object):
         :type amount: number
         :param address: Address to withdraw to
         :type address: string
+        :param withdraw_type: Withdrawal type (ADDRESS (withdrawal address), UID, MAIL (email), PHONE (mobile phone number))
+        :type withdraw_type: string
         :param memo: (optional) Remark to the withdrawal address
         :type memo: string
         :param is_inner: (optional) Remark to the withdrawal address
         :type is_inner: bool
         :param remark: (optional) Remark
         :type remark: string
+        :param chain: (optional) The chain name of currency
+        :type chain: string
+        :param fee_deduct_type: (optional) Fee deduct type (INTERNAL or EXTERNAL)
+        :type fee_deduct_type: string
 
         .. code:: python
 
-            withdrawal = client.create_withdrawal('NEO', 20, '598aeb627da3355fa3e851')
+            withdrawal = client.create_withdrawal('NEO', 20, '598aeb627da3355fa3e851', 'ADDRESS')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo add response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'amount': amount,
+            'address': address,
+            'withdraw_type': withdraw_type
+        }
+
+        if memo:
+            data['memo'] = memo
+        if is_inner:
+            data['isInner'] = is_inner
+        if remark:
+            data['remark'] = remark
+        if chain:
+            data['chain'] = chain
+        if fee_deduct_type:
+            data['feeDeductType'] = fee_deduct_type
+
+        return self._post('withdrawals', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def cancel_withdrawal(self, withdrawal_id, **params):
+        """Cancel a withdrawal
+
+        https://www.kucoin.com/docs/rest/funding/withdrawals/cancel-withdrawal
+
+        :param withdrawal_id: ID of withdrawal
+        :type withdrawal_id: string
+
+        .. code:: python
+
+            client.cancel_withdrawal('5bffb63303aa675e8bbe18f9')
 
         :returns: ApiResponse
 
@@ -1703,39 +1765,10 @@ class Client(object):
         """
 
         data = {
-            'currency': currency,
-            'amount': amount,
-            'address': address
+            'withdrawalId': withdrawal_id
         }
 
-        if memo:
-            data['memo'] = memo
-        if is_inner:
-            data['isInner'] = is_inner
-        if remark:
-            data['remark'] = remark
-
-        return self._post('withdrawals', True, data=data)
-
-    def cancel_withdrawal(self, withdrawal_id):
-        """Cancel a withdrawal
-
-        https://docs.kucoin.com/#cancel-withdrawal
-
-        :param withdrawal_id: ID of withdrawal
-        :type withdrawal_id: string
-
-        .. code:: python
-
-            client.cancel_withdrawal('5bffb63303aa675e8bbe18f9')
-
-        :returns: None
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        return self._delete('withdrawals/{}'.format(withdrawal_id), True)
+        return self._delete('withdrawals/{}'.format(withdrawal_id), True, data=dict(data, **params))
 
     # Order Endpoints
 
