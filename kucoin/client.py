@@ -2106,6 +2106,121 @@ class Client(object):
         }
 
         return self._delete('withdrawals/{}'.format(withdrawal_id), True, data=dict(data, **params))
+    
+    # Trade Fee Endpoints
+
+    def get_base_fee(self,currency_type=None, **params):
+        """Get base fee
+
+        https://www.kucoin.com/docs/rest/funding/trade-fee/basic-user-fee-spot-margin-trade_hf
+
+        :param currency_type: (optional) Currency type: 0-crypto currency, 1-fiat currency. default is 0-crypto currency
+        :type currency_type: string
+
+        .. code:: python
+
+            fee = client.get_base_fee()
+            fee = client.get_base_fee(1)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "takerFeeRate": "0.001",
+                    "makerFeeRate": "0.001"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if currency_type:
+            data['currencyType'] = currency_type
+
+        return self._get('base-fee', True, data=dict(data, **params))
+    
+    def get_trading_pair_fee(self, symbols, **params):
+        """Trading pair actual fee - Spot/Margin/trade_hf
+
+        https://www.kucoin.com/docs/rest/funding/trade-fee/trading-pair-actual-fee-spot-margin-trade_hf
+
+        :param symbols: Trading pair (optional, you can inquire fee rates of 10 trading pairs each time at most)
+        :type symbols: string
+
+        .. code:: python
+
+            fee = client.get_trading_pair_fee()
+            fee = client.get_trading_pair_fee('BTC-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "symbol": "BTC-USDT",
+                        "takerFeeRate": "0.001",
+                        "makerFeeRate": "0.001"
+                    },
+                    {
+                        "symbol": "KCS-USDT",
+                        "takerFeeRate": "0.002",
+                        "makerFeeRate": "0.0005"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if symbols:
+            data['symbols'] = symbols
+
+        return self._get('trade-fees', True, data=dict(data, **params))
+    
+    def futures_get_trading_pair_fee(self, symbol, **params):
+        """Trading pair actual fee - Futures
+
+        https://www.kucoin.com/docs/rest/funding/trade-fee/trading-pair-actual-fee-futures
+
+        :param symbol: Trading pair
+        :type symbol: string
+
+        .. code:: python
+
+            fee = client.futures_get_trading_pair_fee('ETHUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "XBTUSDTM",
+                    "takerFeeRate": "0.0006",
+                    "makerFeeRate": "0.0002"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('trade-fees', True, data=dict(data, **params))
 
     # Order Endpoints
 
