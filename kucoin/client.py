@@ -640,7 +640,7 @@ class Client(object):
 
         return self._get('sub-accounts', True, api_version=self.API_VERSION2, data=dict(data, **params))
 
-    def get_subaccount_api_list(self, , sub_name, api_key=None, **params):
+    def get_subaccount_api_list(self, sub_name, api_key=None, **params):
         """Get the API key list of a sub-user
 
         https://www.kucoin.com/docs/rest/account/sub-account-api/get-sub-account-api-list
