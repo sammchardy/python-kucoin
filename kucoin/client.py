@@ -1489,10 +1489,10 @@ class Client(object):
 
     # Withdraw Endpoints
 
-    def get_withdrawals(self, currency=None, status=None, start=None, end=None, page=None, limit=None):
+    def get_withdrawals(self, currency=None, status=None, start=None, end=None, page=None, limit=None, **params):
         """Get deposit records for a currency
 
-        https://docs.kucoin.com/#get-withdrawals-list
+        https://www.kucoin.com/docs/rest/funding/withdrawals/get-withdrawals-list
 
         :param currency: Name of currency (optional)
         :type currency: string
@@ -1510,31 +1510,38 @@ class Client(object):
         .. code:: python
 
             withdrawals = client.get_withdrawals('NEO')
+            withdrawals = client.get_withdrawals('NEO', 'SUCCESS')
+            withdrawals = client.get_withdrawals('NEO', 'SUCCESS', 1540296039000, 1540296039000)
 
         :returns: ApiResponse
 
         .. code:: python
 
             {
-                "currentPage": 1,
-                "pageSize": 10,
-                "totalNum": 1,
-                "totalPage": 1,
-                "items": [
-                    {
-                        "id": "5c2dc64e03aa675aa263f1ac",
-                        "address": "0x5bedb060b8eb8d823e2414d82acce78d38be7fe9",
-                        "memo": "",
-                        "currency": "ETH",
-                        "amount": 1.0000000,
-                        "fee": 0.0100000,
-                        "walletTxId": "3e2414d82acce78d38be7fe9",
-                        "isInner": false,
-                        "status": "FAILURE",
-                        "createdAt": 1546503758000,
-                        "updatedAt": 1546504603000
-                    }
-                ]
+                "code": "200000",
+                "data": {
+                    "currentPage": 1,
+                    "pageSize": 50,
+                    "totalNum": 1,
+                    "totalPage": 1,
+                    "items": [
+                        {
+                            "id": "63564dbbd17bef00019371fb",
+                            "currency": "XRP",
+                            "chain": "xrp",
+                            "status": "SUCCESS",
+                            "address": "rNFugeoj3ZN8Wv6xhuLegUBBPXKCyWLRkB",
+                            "memo": "1919537769",
+                            "isInner": false,
+                            "amount": "20.50000000",
+                            "fee": "0.50000000",
+                            "walletTxId": "2C24A6D5B3E7D5B6AA6534025B9B107AC910309A98825BF5581E25BEC94AD83B",
+                            "createdAt": 1666600379000,
+                            "updatedAt": 1666600511000,
+                            "remark": "test"
+                        }
+                    ]
+                }
             }
 
         :raises: KucoinResponseException, KucoinAPIException
@@ -1555,7 +1562,7 @@ class Client(object):
         if page:
             data['currentPage'] = page
 
-        return self._get('withdrawals', True, data=data)
+        return self._get('withdrawals', True, data=dict(data, **params))
 
     def get_withdrawal_quotas(self, currency):
         """Get withdrawal quotas for a currency
