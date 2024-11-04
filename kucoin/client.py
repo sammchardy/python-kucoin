@@ -640,6 +640,215 @@ class Client(object):
 
         return self._get('sub-accounts', True, api_version=self.API_VERSION2, data=dict(data, **params))
 
+    def get_subaccount_api_list(self, , sub_name, api_key=None, **params):
+        """Get the API key list of a sub-user
+
+        https://www.kucoin.com/docs/rest/account/sub-account-api/get-sub-account-api-list
+
+        :param api_key: (optional) API key
+        :type api_key: string
+        :param sub_name: Sub account name
+        :type sub_name: string
+
+        .. code:: python
+
+            accounts = client.get_subaccount_api_list('kucoin1')
+            accounts = client.get_subaccount_api_list('kucoin1', '5cbd31ab9c93e9280cd36a0a')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "subName": "AAAAAAAAAAAAA0022",
+                        "remark": "hytest01-01",
+                        "apiKey": "63032453e75087000182982b",
+                        "permission": "General",
+                        "ipWhitelist": "",
+                        "createdAt": 1661150291000,
+                        "apiVersion" : 3
+                    }
+                ]
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        # todo check and add the response
+
+        data = {
+            'subName': sub_name
+        }
+
+        if api_key:
+            data['apiKey'] = api_key
+
+        return self._get('sub/api-key', True, data=dict(data, **params))
+
+    def create_subaccount_api(self, sub_name, passphrase, remark, permission=None, ip_whitelist=None, expire=None, **params):
+        """Create Spot APIs for sub-accounts
+
+        https://www.kucoin.com/docs/rest/account/sub-account-api/create-sub-account-api
+
+        :param sub_name: Sub account name
+        :type sub_name: string
+        :param passphrase: Sub account passphrase
+        :type passphrase: string
+        :param remark: API key remark
+        :type remark: string
+        :param permission: (optional) API key permission - General, Tradable, Withdraw
+        :type permission: string
+        :param ip_whitelist: (optional) IP whitelist
+        :type ip_whitelist: string
+        :param expire: (optional) API key expiration time in seconds
+        :type expire: string
+
+        .. code:: python
+
+            accounts = client.create_subaccount_api('kucoin1', 'mypassword', 'myApiKey')
+
+        returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "subName": "AAAAAAAAAA0007",
+                    "remark": "remark",
+                    "apiKey": "630325e0e750870001829864",
+                    "apiSecret": "110f31fc-61c5-4baf-a29f-3f19a62bbf5d",
+                    "passphrase": "passphrase",
+                    "permission": "General",
+                    "ipWhitelist": "",
+                    "createdAt": 1661150688000
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        # todo check and add the response
+
+        data = {
+            'subName': sub_name,
+            'passphrase': passphrase,
+            'remark': remark
+        }
+
+        if permission:
+            data['permission'] = permission
+        if ip_whitelist:
+            data['ipWhitelist'] = ip_whitelist
+        if expire:
+            data['expire'] = expire
+
+        return self._post('sub/api-key', True, data=dict(data, **params))
+
+    def modify_subaccount_api(self, sub_name, api_key, passphrase, permission=None, ip_whitelist=None, expire=None, **params):
+        """Modify Spot APIs for sub-accounts
+
+        https://www.kucoin.com/docs/rest/account/sub-account-api/modify-sub-account-api
+
+        :param sub_name: Sub account name
+        :type sub_name: string
+        :param api_key: API key
+        :type api_key: string
+        :param passphrase: Sub account passphrase
+        :type passphrase: string
+        :param permission: (optional) API key permission - General, Tradable, Withdraw
+        :type permission: string
+        :param ip_whitelist: (optional) IP whitelist
+        :type ip_whitelist: string
+        :param expire: (optional) API key expiration time in seconds
+        :type expire: string
+
+        .. code:: python
+
+            accounts = client.modify_subaccount_api('kucoin1', 'myApiKey', 'mypassword')
+
+        returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "subName": "AAAAAAAAAA0007",
+                    "apiKey": "630329b4e7508700018298c5",
+                    "permission": "General",
+                    "ipWhitelist": "127.0.0.1"
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        # todo check and add the response
+
+        data = {
+            'subName': sub_name,
+            'apiKey': api_key,
+            'passphrase': passphrase
+        }
+
+        if permission:
+            data['permission'] = permission
+        if ip_whitelist:
+            data['ipWhitelist'] = ip_whitelist
+        if expire:
+            data['expire'] = expire
+
+        return self._put('sub/api-key/update', True, data=dict(data, **params))
+
+    def delete_subaccount_api(self, api_key, passphrase, sub_name, **params):
+        """Delete Spot APIs for sub-accounts
+
+        https://www.kucoin.com/docs/rest/account/sub-account-api/delete-sub-account-api
+
+        :param api_key: API key
+        :type api_key: string
+        :param passphrase: Sub account passphrase
+        :type passphrase: string
+        :param sub_name: Sub account name
+        :type sub_name: string
+
+        .. code:: python
+
+            accounts = client.delete_subaccount_api('myApiKey', 'mypassword', 'kucoin1')
+
+        returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "subName": "AAAAAAAAAA0007",
+                    "apiKey": "630325e0e750870001829864"
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        # todo check and add the response
+
+        data = {
+            'apiKey': api_key,
+            'passphrase': passphrase,
+            'subName': sub_name
+        }
+
+        return self._delete('sub/api-key', True, data=dict(data, **params))
+
     def get_account(self, account_id):
         """Get an individual account
 
