@@ -360,10 +360,49 @@ class Client(object):
 
         return self._get('accounts', True, data=dict(data, **params))
 
-    def get_subaccounts(self, page=None, limit=None, **params):
+    def get_subaccounts(self):
         """Get a list of subaccounts
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-info-v1-
+
+        .. code:: python
+
+            accounts = client.get_subaccounts()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            [
+                {
+                    "userId": "5cbd31ab9c93e9280cd36a0a", //subUserId
+                    "uid": "1789234",
+                    "subName": "kucoin1",
+                    "type": 0, //type:0-nomal
+                    "remarks": "kucoin1",
+                    "access": "All"
+                },
+                {
+                    "userId": "5cbd31b89c93e9280cd36a0d",
+                    "uid": "1789431",
+                    "subName": "kucoin2",
+                    "type": 1, //type:1-rebot
+                    "remarks": "kucoin2",
+                    "access": "All"
+                }
+            ]
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+        # todo check and add the response
+
+        return self._get('sub/user', True)
+
+    def get_subaccounts_v2(self, page=None, limit=None, **params):
+        """Get a list of subaccounts
+
+        https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-info-v2-
 
         :param page: (optional) Current page - default 1
         :type page: int
@@ -379,24 +418,40 @@ class Client(object):
 
         .. code-block:: python
 
-
+            {
+                "code": "200000",
+                "data": {
+                    "currentPage": 1,
+                    "pageSize": 100,
+                    "totalNum": 1,
+                    "totalPage": 1,
+                    "items": [
+                        {
+                            "userId": "635002438793b80001dcc8b3",
+                            "uid": 62356,
+                            "subName": "margin01",
+                            "status": 2,
+                            "type": 4,
+                            "access": "Margin",
+                            "createdAt": 1666187844000,
+                            "remarks": null
+                        }
+                    ]
+                }
+            }
 
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
         # todo check and add the response
+
         data = {}
         if page:
             data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
 
-        api_version = self.API_VERSION
-        if 'api_version' in params:
-            api_version = params['api_version']
-            del params['api_version']
-
-        return self._get('sub/user', True, api_version, data=dict(data, **params))
+        return self._get('sub/user', True, api_version=self.API_VERSION2, data=dict(data, **params))
 
     def get_account(self, account_id):
         """Get an individual account
