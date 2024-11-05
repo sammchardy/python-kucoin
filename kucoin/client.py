@@ -44,8 +44,8 @@ class Client(object):
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = 'IOC'
     TIMEINFORCE_FILL_OR_KILL = 'FOK'
 
-    SPOT_KC_PARTNER = 'python-kucoinspot'
-    SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
+    SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
+    SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
 
     def __init__(self, api_key, api_secret, passphrase, sandbox=False, requests_params=None):
         """Kucoin API Client constructor
@@ -1993,6 +1993,30 @@ class Client(object):
             data['currentPage'] = page
 
         return self._get('hist-deposits', True, data=dict(data, **params))
+
+    def get_user_type(self, **params):
+        """Get user type (the current user is a spot high-frequency user or a spot low-frequency user)
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-user-type
+
+        .. code:: python
+
+            deposits = client.get_user_type()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": true // true: high-frequency user, false: low-frequency user
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('hf/accounts/opened', True, data=params)
 
     # Withdraw Endpoints
 
