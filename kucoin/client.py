@@ -15,7 +15,7 @@ from .utils import compact_json_dict, flat_uuid
 
 class Client(object):
     REST_API_URL = 'https://openapi-v2.kucoin.com'
-    SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com'
+    # SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com' #does not supported anymore
     API_VERSION = 'v1'
     API_VERSION2 = 'v2'
     API_VERSION3 = 'v3'
@@ -76,7 +76,7 @@ class Client(object):
         self.API_SECRET = api_secret
         self.API_PASSPHRASE = passphrase
         if sandbox:
-            self.API_URL = self.SANDBOX_API_URL # todo handle with new sandbox url
+            raise KucoinAPIException('Sandbox mode is not supported anymore. See https://www.kucoin.com/docs/beginners/sandbox. To test orders, use test methods (e.g. create_test_order)')
         else:
             self.API_URL = self.REST_API_URL
 
@@ -2421,9 +2421,8 @@ class Client(object):
 
     # Order Endpoints
 
-    def create_market_order(
-        self, symbol, side, size=None, funds=None, client_oid=None, remark=None, stp=None, trade_type=None
-    ):
+    def create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
+                            remark=None, stp=None, **params):
         """Create a market order
 
         One of size or funds must be set
@@ -2487,10 +2486,8 @@ class Client(object):
             data['remark'] = remark
         if stp:
             data['stp'] = stp
-        if trade_type:
-            data['tradeType'] = trade_type
 
-        return self._post('orders', True, data=data)
+        return self._post('orders', True, data=dict(data, **params))
 
     def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                             tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
