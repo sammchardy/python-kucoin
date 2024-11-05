@@ -44,8 +44,11 @@ class Client(object):
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = 'IOC'
     TIMEINFORCE_FILL_OR_KILL = 'FOK'
 
-    SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
-    SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
+    # SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
+    # SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
+
+    SPOT_KC_PARTNER = 'python-kucoinspot'
+    SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
 
     def __init__(self, api_key, api_secret, passphrase, sandbox=False, requests_params=None):
         """Kucoin API Client constructor
@@ -73,7 +76,7 @@ class Client(object):
         self.API_SECRET = api_secret
         self.API_PASSPHRASE = passphrase
         if sandbox:
-            self.API_URL = self.SANDBOX_API_URL
+            self.API_URL = self.SANDBOX_API_URL # todo handle with new sandbox url
         else:
             self.API_URL = self.REST_API_URL
 
@@ -567,7 +570,7 @@ class Client(object):
         """
         # todo check and add the response
 
-        return self._get('sub/user', True)
+        return self._get('sub/user', True, data=params)
 
     def get_subaccounts_v2(self, page=None, limit=None, **params):
         """Get a list of subaccounts
@@ -2446,7 +2449,7 @@ class Client(object):
 
         .. code:: python
 
-            order = client.create_market_order('NEO', Client.SIDE_BUY, size=20)
+            order = client.create_market_order('ETH-USDT', Client.SIDE_BUY, size=20)
 
         :returns: ApiResponse
 
@@ -2489,9 +2492,96 @@ class Client(object):
 
         return self._post('orders', True, data=data)
 
-    def hf_create_market_order(
-        self, symbol, side, size=None, funds=None, client_oid=None, stp=None, tags=None, remark=None
-    ):
+    def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                            tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                            hidden=None, iceberg=None, visible_size=None, **params):
+        """Create a hf order
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+
+        .. code:: python
+
+            order = client.hf_create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.hf_create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "672a249054d62a0007ae04b8",
+                    "clientOid": "988a99edda5e496e95eb6e050c444994"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if type == self.ORDER_LIMIT:
+            if not price:
+                raise LimitOrderException('Need price parameter for limit order')
+            if funds:
+                raise LimitOrderException('Cannot use funds parameter with limit order')
+            return self.hf_create_limit_order(symbol, side, price, size, client_oid, stp,
+                            tags, remark, time_in_force, cancel_after, post_only,
+                            hidden, iceberg, visible_size, **params)
+        elif type == self.ORDER_MARKET:
+            if price:
+                raise MarketOrderException('Cannot use price parameter with market order')
+            if time_in_force:
+                raise MarketOrderException('Cannot use time_in_force parameter with market order')
+            if cancel_after:
+                raise MarketOrderException('Cannot use cancel_after parameter with market order')
+            if post_only:
+                raise MarketOrderException('Cannot use post_only parameter with market order')
+            if hidden:
+                raise MarketOrderException('Cannot use hidden parameter with market order')
+            if iceberg:
+                raise MarketOrderException('Cannot use iceberg parameter with market order')
+            if visible_size:
+                raise MarketOrderException('Cannot use visible_size parameter with market order')
+            return self.hf_create_market_order(symbol, side, size, funds, client_oid, stp, tags, remark)
+        else:
+            raise KucoinRequestException('Invalid order type {}'.format(type))
+
+    def hf_create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
+                               stp=None, tags=None, remark=None, **params):
         """Create a hf market order
 
         One of size or funds must be set
@@ -2517,7 +2607,7 @@ class Client(object):
 
         .. code:: python
 
-            order = client.hf_create_market_order('NEO', Client.SIDE_BUY, size=20)
+            order = client.hf_create_market_order('ETH-USDT', Client.SIDE_BUY, size=20)
 
         :returns: ApiResponse
 
@@ -2562,13 +2652,13 @@ class Client(object):
         if remark:
             data['remark'] = remark
 
-        return self._post('hf/orders', True, data=data)
+        return self._post('hf/orders', True, data=dict(data, **params))
 
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
                            time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
                            cancel_after=None, post_only=None,
                            hidden=None, iceberg=None, visible_size=None):
-        """Create an order
+        """Create a limit order
 
         https://docs.kucoin.com/#place-a-new-order
 
@@ -2605,7 +2695,7 @@ class Client(object):
         :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
         :type iceberg: bool
         :param visible_size: (optional) The maximum visible size of an iceberg order
-        :type visible_size: bool
+        :type visible_size: string
 
         .. code:: python
 
@@ -2675,8 +2765,8 @@ class Client(object):
 
     def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
                             tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
-                            hidden=None, iceberg=None, visible_size=None):
-        """Create a hf order
+                            hidden=None, iceberg=None, visible_size=None, **params):
+        """Create a hf limit order
 
         https://docs.kucoin.com/#place-hf-order
 
@@ -2770,7 +2860,7 @@ class Client(object):
             data['iceberg'] = iceberg
             data['visible_size'] = visible_size
 
-        return self._post('hf/orders', True, data=data)
+        return self._post('hf/orders', True, data=dict(data, **params))
 
     def cancel_order(self, order_id):
         """Cancel an order
