@@ -213,7 +213,7 @@ class Client(object):
     def get_timestamp(self):
         """Get the server timestamp
 
-        https://docs.kucoin.com/#time
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-server-time
 
         :return: response timestamp in ms
 
@@ -223,7 +223,7 @@ class Client(object):
     def get_status(self):
         """Get the service status
 
-        https://docs.kucoin.com/#service-status
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-service-status
 
         .. code:: python
 
@@ -239,6 +239,77 @@ class Client(object):
 
         """
         return self._get("status")
+
+    def get_announcements(self, page=None, limit=None, ann_type=None, lang=None, start=None, end=None, **params):
+        """Get a list of the latest news announcements
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-announcements
+
+        :param page: (optional) Current page
+        :type page: int
+        :param limit: (optional) Number of results to return
+        :type limit: int
+        :param ann_type: (optional) Announcement type: latest-announcements, activities, new-listings, product-updates, vip, maintenance-updates, product-updates, delistings, others, api-campaigns (default latest-announcements)
+        :type ann_type: string
+        :param lang: (optional) Language (default is en_US): zh_HK - Chinese (Hong Kong), ja_JP - Japanese (Japan), ko_KR - Korean (Korea), en_US - English, pl_PL - Polish (Poland), es_ES - Spanish (Spain), fr_FR - French (France), ar_AE - Arabic (Egypt), it_IT - Italian (Italy), id_ID - Indonesian (Indonesia), nl_NL - Dutch (Netherlands), pt_PT - Portuguese (Brazil), vi_VN - Vietnamese (Vietnam), de_DE - German (Germany), tr_TR - Turkish (Turkey), ms_MY - Malay (Malaysia), ru_RU - Russian (Russia), th_TH - Thai (Thailand), hi_IN - Hindi (India), bn_BD - Bengali (Bangladesh), fil_PH - Filipino (Philippines), ur_PK - Urdu (Pakistan).
+        :type lang: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+
+        .. code:: python
+
+            accounts = client.get_announcements()
+            accounts = client.get_announcements(page=2, lang='ja_JP')
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "totalNum": 198,
+                    "items": [
+                        {
+                            "annId": 131185,
+                            "annTitle": "Announcement of KuCoin Futures System Upgrade",
+                            "annType": [
+                                "latest-announcements",
+                                "futures-announcements"
+                            ],
+                            "annDesc": "Announcement of KuCoin Futures System Upgrade",
+                            "cTime": 1730798882000,
+                            "language": "en_US",
+                            "annUrl": "https://www.kucoin.com/announcement/announcement-of-kucoin-futures-system-upgrade-2024-11-11?lang=en_US"
+                        }
+                    ],
+                    "currentPage": 2,
+                    "pageSize": 1,
+                    "totalPage": 198
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+        if ann_type:
+            data['annType'] = ann_type
+        if lang:
+            data['lang'] = lang
+        if start:
+            data['startTime'] = start
+        if end:
+            data['endTime'] = end
+
+        return self._get('announcements', False, api_version=self.API_VERSION3, data=dict(data, **params))
 
     # Currency Endpoints
 
