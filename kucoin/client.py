@@ -2499,7 +2499,7 @@ class Client(object):
 
     def create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                      remark=None, time_in_force=None, cancel_after=None, post_only=None,
-                     hidden=None, iceberg=None, visible_size=None, trade_type=None, **params):
+                     hidden=None, iceberg=None, visible_size=None, **params):
         """Create a spot order
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/place-order
@@ -2534,8 +2534,6 @@ class Client(object):
         :type iceberg: bool
         :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
         :type visible_size: string
-        :param trade_type: (optional) - deprecated - TRADE (spot) is supported only (default is TRADE)
-        :type trade_type: string
 
         .. code:: python
 
@@ -2557,8 +2555,8 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
 
         """
-        trade_type = trade_type or params.get('trade_type') or params.get('tradeType')
 
+        trade_type = params.get('trade_type') or params.get('tradeType')
         if trade_type and trade_type != 'TRADE':
             raise KucoinRequestException('trade_type is deprecated. Only TRADE (spot) is supported. For margin orders use create_margin_order()')
 
@@ -2675,6 +2673,71 @@ class Client(object):
                                  remark=remark, stp=stp, time_in_force=time_in_force, cancel_after=cancel_after,
                                  post_only=post_only, hidden=hidden, iceberg=iceberg, visible_size=visible_size,
                                  trade_type=trade_type, **params)
+
+    def create_test_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                     hidden=None, iceberg=None, visible_size=None, **params):
+        """Create a test spot order
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/place-order-test
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+
+        .. code:: python
+
+            order = client.create_test_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.create_test_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "672cf15bb2cdb8000708765c"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_data_for_order(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+        return self._post('orders/test', True, data=dict(data, **params))
 
     def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                          remark=None, time_in_force=None, cancel_after=None, post_only=None,
