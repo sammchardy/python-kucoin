@@ -2421,7 +2421,7 @@ class Client(object):
 
     # Order Endpoints
 
-    def get_common_data_for_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None,
+    def get_common_order_data(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None,
                                   stp=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
                                   hidden=None, iceberg=None, visible_size=None):
         """Internal helper for creating a common data for order"""
@@ -2563,7 +2563,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_data_for_order(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
         return self._post('orders', True, data=dict(data, **params))
 
@@ -2735,9 +2735,58 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_data_for_order(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
         return self._post('orders/test', True, data=dict(data, **params))
+
+    def create_orders(self, symbol, order_list, **params):
+        """Create multiple spot limit orders
+
+        Maximum of 5 orders can be created at once
+        Only limit orders are supported
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/place-multiple-orders
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_list: List of orders to create
+        :type order_list: list of dict
+            every order should have keys described inside of get_order_data_for_create_orders method
+
+        .. code:: python
+
+            order_list = [
+                {
+                    "side": "buy",
+                    "price": "3000",
+                    "size": "0.1",
+                    "client_oid": "my_order_id_1"
+                },
+                {
+                    "side": "sell",
+                    "type": "limit",
+                    "price": "3500",
+                    "size": "0.1",
+                }
+            ]
+            orders = client.create_orders('ETH-USDT', order_list)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+
+
+        :raises: KucoinResponseException, KucoinAPIException, KucoinRequestException, LimitOrderException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'orderList': order_list
+        }
+
+        return self._post('orders/multi', True, data=dict(data, **params))
 
     def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                          remark=None, time_in_force=None, cancel_after=None, post_only=None,
@@ -2800,7 +2849,7 @@ class Client(object):
 
         """
 
-        data = self.get_common_data_for_order(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if tags:
