@@ -28,8 +28,8 @@ class Client(object):
 
     ORDER_LIMIT = 'limit'
     ORDER_MARKET = 'market'
-    ORDER_LIMIT_STOP = 'limit_stop'
-    ORDER_MARKET_STOP = 'market_stop'
+    ORDER_LIMIT_STOP = 'limit_stop' # todo handle with new interface
+    ORDER_MARKET_STOP = 'market_stop' # todo handle with new interface
 
     STOP_LOSS = 'loss'
     STOP_ENTRY = 'entry'
@@ -2421,6 +2421,83 @@ class Client(object):
 
     # Order Endpoints
 
+    def get_common_data_for_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None,
+                                  stp=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                                  hidden=None, iceberg=None, visible_size=None):
+
+        """Internal helper for creating a common data for order"""
+
+        data = {
+            'symbol': symbol,
+            'type': type,
+            'side': side
+        }
+
+        if type == self.ORDER_MARKET:
+            if not size and not funds:
+                raise MarketOrderException('Need size or fund parameter')
+            if size and funds:
+                raise MarketOrderException('Need size or fund parameter not both')
+            if size:
+                data['size'] = size
+            if funds:
+                data['funds'] = funds
+            if price:
+                raise MarketOrderException('Cannot use price parameter with market order')
+            if time_in_force:
+                raise MarketOrderException('Cannot use time_in_force parameter with market order')
+            if cancel_after:
+                raise MarketOrderException('Cannot use cancel_after parameter with market order')
+            if post_only:
+                raise MarketOrderException('Cannot use post_only parameter with market order')
+            if hidden:
+                raise MarketOrderException('Cannot use hidden parameter with market order')
+            if iceberg:
+                raise MarketOrderException('Cannot use iceberg parameter with market order')
+            if visible_size:
+                raise MarketOrderException('Cannot use visible_size parameter with market order')
+
+        elif type == self.ORDER_LIMIT:
+            if not price:
+                raise LimitOrderException('Need price parameter for limit order')
+            if funds:
+                raise LimitOrderException('Cannot use funds parameter with limit order')
+            if not size:
+                raise LimitOrderException('Need size parameter for limit order')
+            if cancel_after and time_in_force != self.TIMEINFORCE_GOOD_TILL_TIME:
+                raise LimitOrderException('Cancel after only works with time_in_force = "GTT"')
+            if hidden and iceberg:
+                raise LimitOrderException('Order can be either "hidden" or "iceberg"')
+            if iceberg and not visible_size:
+                raise LimitOrderException('Iceberg order requires visible_size')
+            data['size'] = size
+            data['price'] = price
+            if time_in_force:
+                data['timeInForce'] = time_in_force
+            if cancel_after:
+                data['cancelAfter'] = cancel_after
+            if post_only:
+                data['postOnly'] = post_only
+            if hidden:
+                data['hidden'] = hidden
+            if iceberg:
+                data['iceberg'] = iceberg
+            if visible_size:
+                data['visibleSize'] = visible_size
+
+        elif (type == self.ORDER_LIMIT_STOP or type == self.ORDER_MARKET_STOP):
+            raise KucoinRequestException('Invalid order type {}. Possible types are {} and {}. To create a stop order please use create_stop_order()'.format(type, self.ORDER_LIMIT, self.ORDER_MARKET))
+        else:
+            raise KucoinRequestException('Invalid order type {}. Possible types are {} and {}'.format(type, self.ORDER_LIMIT, self.ORDER_MARKET))
+
+        if client_oid:
+            data['clientOid'] = client_oid #todo check if it is mandatory
+        if stp:
+            data['stp'] = stp
+        if remark:
+            data['remark'] = remark
+        return data
+
     def create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
                             remark=None, stp=None, **params):
         """Create a market order
@@ -2490,9 +2567,9 @@ class Client(object):
         return self._post('orders', True, data=dict(data, **params))
 
     def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
-                            tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
-                            hidden=None, iceberg=None, visible_size=None, **params):
-        """Create a hf order
+                         remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                         hidden=None, iceberg=None, visible_size=None, tags=None, **params):
+        """Create a hf spot order
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
 
@@ -2550,36 +2627,18 @@ class Client(object):
 
         """
 
-        if type == self.ORDER_LIMIT:
-            if not price:
-                raise LimitOrderException('Need price parameter for limit order')
-            if funds:
-                raise LimitOrderException('Cannot use funds parameter with limit order')
-            return self.hf_create_limit_order(symbol, side, price, size, client_oid, stp,
-                            tags, remark, time_in_force, cancel_after, post_only,
-                            hidden, iceberg, visible_size, **params)
-        elif type == self.ORDER_MARKET:
-            if price:
-                raise MarketOrderException('Cannot use price parameter with market order')
-            if time_in_force:
-                raise MarketOrderException('Cannot use time_in_force parameter with market order')
-            if cancel_after:
-                raise MarketOrderException('Cannot use cancel_after parameter with market order')
-            if post_only:
-                raise MarketOrderException('Cannot use post_only parameter with market order')
-            if hidden:
-                raise MarketOrderException('Cannot use hidden parameter with market order')
-            if iceberg:
-                raise MarketOrderException('Cannot use iceberg parameter with market order')
-            if visible_size:
-                raise MarketOrderException('Cannot use visible_size parameter with market order')
-            return self.hf_create_market_order(symbol, side, size, funds, client_oid, stp, tags, remark)
-        else:
-            raise KucoinRequestException('Invalid order type {}'.format(type))
+        data = self.get_common_data_for_order(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if tags:
+            data['tags'] = tags
+
+        return self._post('hf/orders', True, data=dict(data, **params))
+
 
     def hf_create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
                                stp=None, tags=None, remark=None, **params):
-        """Create a hf market order
+        """Create a hf spot market order
 
         One of size or funds must be set
 
@@ -2622,34 +2681,8 @@ class Client(object):
 
         """
 
-        if not size and not funds:
-            raise MarketOrderException('Need size or fund parameter')
-
-        if size and funds:
-            raise MarketOrderException('Need size or fund parameter not both')
-
-        data = {
-            'symbol': symbol,
-            'side': side,
-            'type': self.ORDER_MARKET
-        }
-
-        if size:
-            data['size'] = size
-        if funds:
-            data['funds'] = funds
-        if client_oid:
-            data['clientOid'] = client_oid
-        else:
-            data['clientOid'] = flat_uuid()
-        if stp:
-            data['stp'] = stp
-        if tags:
-            data['tags'] = tags
-        if remark:
-            data['remark'] = remark
-
-        return self._post('hf/orders', True, data=dict(data, **params))
+        return self.hf_create_order(symbol, self.ORDER_MARKET, side, size, funds=funds, client_oid=client_oid,
+                                    stp=stp, remark=remark, tags=tags, **params)
 
     def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
                            time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
@@ -2761,9 +2794,9 @@ class Client(object):
         return self._post('orders', True, data=data)
 
     def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
-                            tags=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
-                            hidden=None, iceberg=None, visible_size=None, **params):
-        """Create a hf limit order
+                            remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                            hidden=None, iceberg=None, visible_size=None, tags=None, **params):
+        """Create a hf spot limit order
 
         https://docs.kucoin.com/#place-hf-order
 
@@ -2818,46 +2851,9 @@ class Client(object):
 
         """
 
-        if cancel_after and time_in_force != self.TIMEINFORCE_GOOD_TILL_TIME:
-            raise LimitOrderException('Cancel after only works with time_in_force = "GTT"')
-
-        if hidden and iceberg:
-            raise LimitOrderException('Order can be either "hidden" or "iceberg"')
-
-        if iceberg and not visible_size:
-            raise LimitOrderException('Iceberg order requires visible_size')
-
-        data = {
-            'symbol': symbol,
-            'side': side,
-            'type': self.ORDER_LIMIT,
-            'price': price,
-            'size': size
-        }
-
-        if client_oid:
-            data['clientOid'] = client_oid
-        else:
-            data['clientOid'] = flat_uuid()
-        if stp:
-            data['stp'] = stp
-        if tags:
-            data['tags'] = tags
-        if remark:
-            data['remark'] = remark
-        if time_in_force:
-            data['timeInForce'] = time_in_force
-        if cancel_after:
-            data['cancelAfter'] = cancel_after
-        if post_only:
-            data['postOnly'] = post_only
-        if hidden:
-            data['hidden'] = hidden
-        if iceberg:
-            data['iceberg'] = iceberg
-            data['visible_size'] = visible_size
-
-        return self._post('hf/orders', True, data=dict(data, **params))
+        return self.hf_create_order(symbol, self.ORDER_LIMIT, side, size, price=price, client_oid=client_oid,
+                                    stp=stp, remark=remark, time_in_force=time_in_force, cancel_after=cancel_after,
+                                    post_only=post_only, hidden=hidden, iceberg=iceberg, visible_size=visible_size, tags=tags, **params)
 
     def cancel_order(self, order_id):
         """Cancel an order
