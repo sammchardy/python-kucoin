@@ -2751,7 +2751,21 @@ class Client(object):
         :type symbol: string
         :param order_list: List of orders to create
         :type order_list: list of dict
-            every order should have keys described inside of get_order_data_for_create_orders method
+            every order should have the following keys:
+                - side: buy or sell
+                - price: Price
+                - size: Amount in base currency
+                - client_oid: (optional) Unique order id
+                - remark: (optional) remark for the order, max 100 utf8 characters
+                - stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+                - time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC
+                - cancel_after: (optional) time in ms to cancel after
+                - post_only: (optional) Post only flag
+                - hidden: (optional) Hidden order flag
+                - iceberg: (optional) Iceberg order flag
+                - visible_size: (optional) The maximum visible size of an iceberg order
+                - stop: (optional) loss or entry
+                - stop_price: (optional) stop price - required for stop orders
 
         .. code:: python
 
@@ -2781,9 +2795,33 @@ class Client(object):
 
         """
 
+        orders = []
+
+        for order in order_list:
+            if 'type' in order and order['type'] != self.ORDER_LIMIT:
+                raise KucoinRequestException('Only limit orders are supported by create_orders')
+            order_data = self.get_common_order_data(symbol, self.ORDER_LIMIT, order['side'], order['size'], order['price'],
+                                                    client_oid=order.get('client_oid'), remark=order.get('remark'),
+                                                    stp=order.get('stp'), time_in_force=order.get('time_in_force'),
+                                                    cancel_after=order.get('cancel_after'), post_only=order.get('post_only'),
+                                                    hidden=order.get('hidden'), iceberg=order.get('iceberg'),
+                                                    visible_size=order.get('visible_size'))
+            if 'client_oid' not in order_data:
+                order_data['clientOid'] = flat_uuid()
+            if 'stop' in order:
+                if not 'stop_price' in order:
+                    raise LimitOrderException('Stop order needs stop_price')
+                if order['stop'] not in ['loss', 'entry']:
+                    raise LimitOrderException('Stop order type must be loss or entry')
+                order_data['stop'] = order['stop']
+                order_data['stopPrice'] = order['stop_price']
+            elif 'stop_price' in order:
+                raise LimitOrderException('Stop price is only valid with stop order. Provide stop parameter (loss or entry)')
+            orders.append(order_data)
+
         data = {
             'symbol': symbol,
-            'orderList': order_list
+            'orderList': orders
         }
 
         return self._post('orders/multi', True, data=dict(data, **params))
