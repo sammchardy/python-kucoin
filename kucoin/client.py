@@ -15,7 +15,7 @@ from .utils import compact_json_dict, flat_uuid
 
 class Client(object):
     REST_API_URL = 'https://openapi-v2.kucoin.com'
-    # SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com' #does not supported anymore
+    # SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com' # does not supported anymore
     API_VERSION = 'v1'
     API_VERSION2 = 'v2'
     API_VERSION3 = 'v3'
@@ -28,8 +28,8 @@ class Client(object):
 
     ORDER_LIMIT = 'limit'
     ORDER_MARKET = 'market'
-    ORDER_LIMIT_STOP = 'limit_stop' # todo handle with new interface
-    ORDER_MARKET_STOP = 'market_stop' # todo handle with new interface
+    ORDER_LIMIT_STOP = 'limit_stop' # deprecated
+    ORDER_MARKET_STOP = 'market_stop' # deprecated
 
     STOP_LOSS = 'loss'
     STOP_ENTRY = 'entry'
@@ -2424,7 +2424,6 @@ class Client(object):
     def get_common_data_for_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None,
                                   stp=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
                                   hidden=None, iceberg=None, visible_size=None):
-
         """Internal helper for creating a common data for order"""
 
         data = {
@@ -2498,13 +2497,85 @@ class Client(object):
             data['remark'] = remark
         return data
 
+    def create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                     hidden=None, iceberg=None, visible_size=None, trade_type=None, **params):
+        """Create a spot order
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/place-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param trade_type: (optional) - deprecated - TRADE (spot) is supported only (default is TRADE)
+        :type trade_type: string
+
+        .. code:: python
+
+            order = client.create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "672a249054d62a0007ae04b8",
+                    "clientOid": "988a99edda5e496e95eb6e050c444994"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+        trade_type = trade_type or params.get('trade_type') or params.get('tradeType')
+
+        if trade_type and trade_type != 'TRADE':
+            raise KucoinRequestException('trade_type is deprecated. Only TRADE (spot) is supported. For margin orders use create_margin_order()')
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_data_for_order(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+        return self._post('orders', True, data=dict(data, **params))
+
     def create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
                             remark=None, stp=None, **params):
-        """Create a market order
+        """Create a spot market order
 
         One of size or funds must be set
 
-        https://docs.kucoin.com/#place-a-new-order
+        https://www.kucoin.com/docs/rest/spot-trading/orders/place-order
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -2520,8 +2591,6 @@ class Client(object):
         :type remark: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
-        :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
-        :type trade_type: string
 
         .. code:: python
 
@@ -2539,32 +2608,73 @@ class Client(object):
 
         """
 
-        if not size and not funds:
-            raise MarketOrderException('Need size or fund parameter')
+        return self.create_order(symbol, self.ORDER_MARKET, side, size=size, funds=funds, client_oid=client_oid,
+                                 remark=remark, stp=stp, **params)
 
-        if size and funds:
-            raise MarketOrderException('Need size or fund parameter not both')
+    def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
+                           time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
+                           cancel_after=None, post_only=None,
+                           hidden=None, iceberg=None, visible_size=None, **params):
+        """Create a spot limit order
 
-        data = {
-            'side': side,
-            'symbol': symbol,
-            'type': self.ORDER_MARKET
-        }
+        https://docs.kucoin.com/#place-a-new-order
 
-        if size:
-            data['size'] = size
-        if funds:
-            data['funds'] = funds
-        if client_oid:
-            data['clientOid'] = client_oid
-        else:
-            data['clientOid'] = flat_uuid()
-        if remark:
-            data['remark'] = remark
-        if stp:
-            data['stp'] = stp
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param price: Name of coin
+        :type price: string
+        :param size: Amount of base currency to buy or sell
+        :type size: string
+        :param client_oid: (optional) Unique order_id  default flat_uuid()
+        :type client_oid: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param trade_type: (optional) - deprecated - TRADE (spot) is supported only (default is TRADE)
+        :type trade_type: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
+        :type time_in_force: string
+        :param stop: (deprecated) not supported
+        :param stop_price: (deprecated) not supported
+        :param cancel_after: (optional) number of seconds to cancel the order if not filled
+            required time_in_force to be GTT
+        :type cancel_after: string
+        :param post_only: (optional) indicates that the order should only make liquidity. If any part of
+            the order results in taking liquidity, the order will be rejected and no part of it will execute.
+        :type post_only: bool
+        :param hidden: (optional) Orders not displayed in order book
+        :type hidden: bool
+        :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: string
 
-        return self._post('orders', True, data=dict(data, **params))
+        .. code:: python
+
+            order = client.create_limit_order('KCS-BTC', Client.SIDE_BUY, '0.01', '1000')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "orderOid": "596186ad07015679730ffa02"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, LimitOrderException
+
+        """
+
+        if stop or stop_price:
+            raise KucoinRequestException('stop and stop_price in create_limit_order are deprecated. To create a stop order please use create_stop_order()')
+
+        return self.create_order(symbol, self.ORDER_LIMIT, side, size=size, price=price, client_oid=client_oid,
+                                 remark=remark, stp=stp, time_in_force=time_in_force, cancel_after=cancel_after,
+                                 post_only=post_only, hidden=hidden, iceberg=iceberg, visible_size=visible_size,
+                                 trade_type=trade_type, **params)
 
     def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                          remark=None, time_in_force=None, cancel_after=None, post_only=None,
@@ -2589,8 +2699,6 @@ class Client(object):
         :type client_oid: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
-        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
-        :type tags: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
         :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
@@ -2605,6 +2713,8 @@ class Client(object):
         :type iceberg: bool
         :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
         :type visible_size: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
 
         .. code:: python
 
@@ -2637,12 +2747,12 @@ class Client(object):
 
 
     def hf_create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
-                               stp=None, tags=None, remark=None, **params):
+                               stp=None, remark=None, tags=None, **params):
         """Create a hf spot market order
 
         One of size or funds must be set
 
-        https://docs.kucoin.com/#place-hf-order
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -2656,10 +2766,10 @@ class Client(object):
         :type client_oid: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
-        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
-        :type tags: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
 
         .. code:: python
 
@@ -2684,121 +2794,12 @@ class Client(object):
         return self.hf_create_order(symbol, self.ORDER_MARKET, side, size, funds=funds, client_oid=client_oid,
                                     stp=stp, remark=remark, tags=tags, **params)
 
-    def create_limit_order(self, symbol, side, price, size, client_oid=None, remark=None,
-                           time_in_force=None, stop=None, stop_price=None, stp=None, trade_type=None,
-                           cancel_after=None, post_only=None,
-                           hidden=None, iceberg=None, visible_size=None):
-        """Create a limit order
-
-        https://docs.kucoin.com/#place-a-new-order
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param side: buy or sell
-        :type side: string
-        :param price: Name of coin
-        :type price: string
-        :param size: Amount of base currency to buy or sell
-        :type size: string
-        :param client_oid: (optional) Unique order_id  default flat_uuid()
-        :type client_oid: string
-        :param remark: (optional) remark for the order, max 100 utf8 characters
-        :type remark: string
-        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
-        :type stp: string
-        :param trade_type: (optional) The type of trading : TRADE（Spot Trade）, MARGIN_TRADE (Margin Trade). Default is TRADE
-        :type trade_type: string
-        :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
-        :type time_in_force: string
-        :param stop: (optional) stop type loss or entry - requires stop_price
-        :type stop: string
-        :param stop_price: (optional) trigger price for stop order
-        :type stop_price: string
-        :param cancel_after: (optional) number of seconds to cancel the order if not filled
-            required time_in_force to be GTT
-        :type cancel_after: string
-        :param post_only: (optional) indicates that the order should only make liquidity. If any part of
-            the order results in taking liquidity, the order will be rejected and no part of it will execute.
-        :type post_only: bool
-        :param hidden: (optional) Orders not displayed in order book
-        :type hidden: bool
-        :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
-        :type iceberg: bool
-        :param visible_size: (optional) The maximum visible size of an iceberg order
-        :type visible_size: string
-
-        .. code:: python
-
-            order = client.create_limit_order('KCS-BTC', Client.SIDE_BUY, '0.01', '1000')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "orderOid": "596186ad07015679730ffa02"
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException, LimitOrderException
-
-        """
-
-        if stop and not stop_price:
-            raise LimitOrderException('Stop order needs stop_price')
-
-        if stop_price and not stop:
-            raise LimitOrderException('Stop order type required with stop_price')
-
-        if cancel_after and time_in_force != self.TIMEINFORCE_GOOD_TILL_TIME:
-            raise LimitOrderException('Cancel after only works with time_in_force = "GTT"')
-
-        if hidden and iceberg:
-            raise LimitOrderException('Order can be either "hidden" or "iceberg"')
-
-        if iceberg and not visible_size:
-            raise LimitOrderException('Iceberg order requires visible_size')
-
-        data = {
-            'symbol': symbol,
-            'side': side,
-            'type': self.ORDER_LIMIT,
-            'price': price,
-            'size': size
-        }
-
-        if client_oid:
-            data['clientOid'] = client_oid
-        else:
-            data['clientOid'] = flat_uuid()
-        if remark:
-            data['remark'] = remark
-        if stp:
-            data['stp'] = stp
-        if trade_type:
-            data['tradeType'] = trade_type
-        if time_in_force:
-            data['timeInForce'] = time_in_force
-        if cancel_after:
-            data['cancelAfter'] = cancel_after
-        if post_only:
-            data['postOnly'] = post_only
-        if stop:
-            data['stop'] = stop
-            data['stopPrice'] = stop_price
-        if hidden:
-            data['hidden'] = hidden
-        if iceberg:
-            data['iceberg'] = iceberg
-            data['visible_size'] = visible_size
-
-        return self._post('orders', True, data=data)
-
     def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
                             remark=None, time_in_force=None, cancel_after=None, post_only=None,
                             hidden=None, iceberg=None, visible_size=None, tags=None, **params):
         """Create a hf spot limit order
 
-        https://docs.kucoin.com/#place-hf-order
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -2812,8 +2813,6 @@ class Client(object):
         :type client_oid: string
         :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
         :type stp: string
-        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
-        :type tags: string
         :param remark: (optional) remark for the order, max 100 utf8 characters
         :type remark: string
         :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
@@ -2830,6 +2829,8 @@ class Client(object):
         :type iceberg: bool
         :param visible_size: (optional) The maximum visible size of an iceberg order
         :type visible_size: bool
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
 
         .. code:: python
 
