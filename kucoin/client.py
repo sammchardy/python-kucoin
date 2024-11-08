@@ -44,11 +44,11 @@ class Client(object):
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = 'IOC'
     TIMEINFORCE_FILL_OR_KILL = 'FOK'
 
-    # SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
-    # SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
+    SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
+    SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
 
-    SPOT_KC_PARTNER = 'python-kucoinspot'
-    SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
+    # SPOT_KC_PARTNER = 'python-kucoinspot'
+    # SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
 
     def __init__(self, api_key, api_secret, passphrase, sandbox=False, requests_params=None):
         """Kucoin API Client constructor
@@ -123,7 +123,7 @@ class Client(object):
 
         data_json = ""
         endpoint = path
-        if method == "get":
+        if method == "get" or method == "delete":
             if data:
                 query_string = self._get_params_for_sig(data)
                 endpoint = "{}?{}".format(path, query_string)
@@ -164,12 +164,12 @@ class Client(object):
             kwargs['headers']['KC-API-PARTNER-VERIFY'] = 'true'
             kwargs['headers']['KC-API-PARTNER-SIGN'] = self._sign_partner()
 
-        if kwargs['data'] and method == 'get':
-            kwargs['params'] = kwargs['data']
-            del kwargs['data']
-
-        if signed and method != 'get' and kwargs['data']:
-            kwargs['data'] = compact_json_dict(kwargs['data'])
+        if kwargs['data']:
+            if method == 'post':
+                kwargs['data'] = compact_json_dict(kwargs['data'])
+            else:
+                kwargs['params'] = kwargs['data']
+                del kwargs['data']
 
         response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
@@ -2789,7 +2789,36 @@ class Client(object):
 
         .. code:: python
 
-
+            {
+                "code": "200000",
+                "data": {
+                    "data": [
+                        {
+                            "symbol": "ETH-USDT",
+                            "type": "limit",
+                            "side": "buy",
+                            "price": "100",
+                            "size": "0.01",
+                            "funds": null,
+                            "stp": "",
+                            "stop": "loss",
+                            "stopPrice": "90",
+                            "timeInForce": "GTC",
+                            "cancelAfter": 0,
+                            "postOnly": false,
+                            "hidden": false,
+                            "iceberge": false,
+                            "iceberg": false,
+                            "visibleSize": null,
+                            "channel": "API",
+                            "id": "672e023a54d62a0007a60f73",
+                            "status": "success",
+                            "failMsg": null,
+                            "clientOid": "test_create_orders"
+                        }
+                    ]
+                }
+            }
 
         :raises: KucoinResponseException, KucoinAPIException, KucoinRequestException, LimitOrderException
 
@@ -2806,7 +2835,8 @@ class Client(object):
                                                     cancel_after=order.get('cancel_after'), post_only=order.get('post_only'),
                                                     hidden=order.get('hidden'), iceberg=order.get('iceberg'),
                                                     visible_size=order.get('visible_size'))
-            if 'client_oid' not in order_data:
+            del order_data['symbol']
+            if 'clientOid' not in order_data:
                 order_data['clientOid'] = flat_uuid()
             if 'stop' in order:
                 if not 'stop_price' in order:
@@ -3006,17 +3036,17 @@ class Client(object):
                                     stp=stp, remark=remark, time_in_force=time_in_force, cancel_after=cancel_after,
                                     post_only=post_only, hidden=hidden, iceberg=iceberg, visible_size=visible_size, tags=tags, **params)
 
-    def cancel_order(self, order_id):
-        """Cancel an order
+    def cancel_order(self, order_id, **params):
+        """Cancel a spot order
 
-        https://docs.kucoin.com/#cancel-an-order
+        https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-orderid
 
         :param order_id: Order id
         :type order_id: string
 
         .. code:: python
 
-            res = client.cancel_order('5bd6e9286d99522a52e458de)
+            res = client.cancel_order('5bd6e9286d99522a52e458de')
 
         :returns: ApiResponse
 
@@ -3034,19 +3064,19 @@ class Client(object):
 
         """
 
-        return self._delete('orders/{}'.format(order_id), True)
+        return self._delete('orders/{}'.format(order_id), True, data=params)
 
-    def cancel_order_by_client_oid(self, client_oid):
-        """Cancel an order by the clientOid
+    def cancel_order_by_client_oid(self, client_oid, **params):
+        """Cancel a spot order by the clientOid
 
-        https://docs.kucoin.com/#cancel-single-order-by-clientoid
+        https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-clientoid
 
         :param client_oid: ClientOid
         :type client_oid: string
 
         .. code:: python
 
-            res = client.cancel_order_by_client_oid('6d539dc614db3)
+            res = client.cancel_order_by_client_oid('6d539dc614db3')
 
         :returns: ApiResponse
 
@@ -3063,7 +3093,7 @@ class Client(object):
 
         """
 
-        return self._delete('hf/orders/{}'.format(client_oid), True)
+        return self._delete('order/client-order/{}'.format(client_oid), True, data=params)
 
     def hf_cancel_order(self, order_id, symbol):
         """Cancel a hf order by the orderId
@@ -3139,10 +3169,17 @@ class Client(object):
 
         return self._delete('hf/orders/client-order{}'.format(client_oid), True, data=data)
 
-    def cancel_all_orders(self, symbol=None):
+    def cancel_all_orders(self, symbol=None, trade_type=None, **params):
         """Cancel all orders
 
-        https://docs.kucoin.com/#cancel-all-orders
+        https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-all-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETH-USDT
+        :type symbol: string
+        :param trade_type: (optional) The type of trading:
+            TRADE - spot trading, MARGIN_TRADE - cross margin trading, MARGIN_ISOLATED_TRADE - isolated margin trading
+            default is TRADE
+        :type trade_type: string
 
         .. code:: python
 
@@ -3162,9 +3199,12 @@ class Client(object):
 
         """
         data = {}
-        if symbol is not None:
+        if symbol:
             data['symbol'] = symbol
-        return self._delete('orders', True, data=data)
+        if trade_type:
+            data['tradeType'] = trade_type
+
+        return self._delete('orders', True, data=dict(data, **params))
 
     def hf_cancel_all_orders(self):
         """Cancel all orders
