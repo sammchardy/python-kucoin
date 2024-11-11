@@ -3095,6 +3095,43 @@ class Client(object):
 
         return self._delete('order/client-order/{}'.format(client_oid), True, data=params)
 
+    def cancel_all_orders(self, symbol=None, trade_type=None, **params):
+        """Cancel all orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-all-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETH-USDT
+        :type symbol: string
+        :param trade_type: (optional) The type of trading:
+            TRADE - spot trading, MARGIN_TRADE - cross margin trading, MARGIN_ISOLATED_TRADE - isolated margin trading
+            default is TRADE
+        :type trade_type: string
+
+        .. code:: python
+
+            res = client.cancel_all_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderIds": [
+                    "5bd6e9286d99522a52e458de"
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+        if trade_type:
+            data['tradeType'] = trade_type
+
+        return self._delete('orders', True, data=dict(data, **params))
+
     def hf_cancel_order(self, order_id, symbol):
         """Cancel a hf order by the orderId
 
@@ -3169,43 +3206,6 @@ class Client(object):
 
         return self._delete('hf/orders/client-order{}'.format(client_oid), True, data=data)
 
-    def cancel_all_orders(self, symbol=None, trade_type=None, **params):
-        """Cancel all orders
-
-        https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-all-orders
-
-        :param symbol: (optional) Name of symbol e.g. ETH-USDT
-        :type symbol: string
-        :param trade_type: (optional) The type of trading:
-            TRADE - spot trading, MARGIN_TRADE - cross margin trading, MARGIN_ISOLATED_TRADE - isolated margin trading
-            default is TRADE
-        :type trade_type: string
-
-        .. code:: python
-
-            res = client.cancel_all_orders()
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "cancelledOrderIds": [
-                    "5bd6e9286d99522a52e458de"
-                ]
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-        data = {}
-        if symbol:
-            data['symbol'] = symbol
-        if trade_type:
-            data['tradeType'] = trade_type
-
-        return self._delete('orders', True, data=dict(data, **params))
-
     def hf_cancel_all_orders(self):
         """Cancel all orders
 
@@ -3239,10 +3239,10 @@ class Client(object):
 
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
-                   start=None, end=None, page=None, limit=None, trade_type='TRADE'):
+                   start=None, end=None, page=None, limit=None, trade_type=None, **params):
         """Get list of orders
 
-        https://docs.kucoin.com/#list-orders
+        https://www.kucoin.com/docs/rest/spot-trading/orders/get-order-list
 
         :param symbol: (optional) Name of symbol e.g. KCS-BTC
         :type symbol: string
@@ -3252,7 +3252,9 @@ class Client(object):
         :type side: string
         :param order_type: (optional) limit, market, limit_stop or market_stop
         :type order_type: string
-        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
+        :param trade_type: (optional) The type of trading :
+            TRADE - spot trading, MARGIN_TRADE - cross margin trading, MARGIN_ISOLATED_TRADE - isolated margin trading
+            default is TRADE
         :type trade_type: string
         :param start: (optional) Start time as unix timestamp
         :type start: string
@@ -3272,43 +3274,47 @@ class Client(object):
         .. code:: python
 
             {
-                "currentPage": 1,
-                "pageSize": 1,
-                "totalNum": 153408,
-                "totalPage": 153408,
-                "items": [
-                    {
-                        "id": "5c35c02703aa673ceec2a168",
-                        "symbol": "BTC-USDT",
-                        "opType": "DEAL",
-                        "type": "limit",
-                        "side": "buy",
-                        "price": "10",
-                        "size": "2",
-                        "funds": "0",
-                        "dealFunds": "0.166",
-                        "dealSize": "2",
-                        "fee": "0",
-                        "feeCurrency": "USDT",
-                        "stp": "",
-                        "stop": "",
-                        "stopTriggered": false,
-                        "stopPrice": "0",
-                        "timeInForce": "GTC",
-                        "postOnly": false,
-                        "hidden": false,
-                        "iceberge": false,
-                        "visibleSize": "0",
-                        "cancelAfter": 0,
-                        "channel": "IOS",
-                        "clientOid": null,
-                        "remark": null,
-                        "tags": null,
-                        "isActive": false,
-                        "cancelExist": false,
-                        "createdAt": 1547026471000
-                    }
-                ]
+                "code": "200000",
+                "data": {
+                    "currentPage": 1,
+                    "pageSize": 50,
+                    "totalNum": 1,
+                    "totalPage": 1,
+                    "items": [
+                        {
+                            "id": "67320d92429d8b0007a962d0",
+                            "symbol": "ETH-USDT",
+                            "opType": "DEAL",
+                            "type": "limit",
+                            "side": "buy",
+                            "price": "100",
+                            "size": "0.01",
+                            "funds": "0",
+                            "dealFunds": "0",
+                            "dealSize": "0",
+                            "fee": "0",
+                            "feeCurrency": "USDT",
+                            "stp": null,
+                            "stop": null,
+                            "stopTriggered": false,
+                            "stopPrice": "0",
+                            "timeInForce": "GTC",
+                            "postOnly": false,
+                            "hidden": false,
+                            "iceberg": false,
+                            "visibleSize": "0",
+                            "cancelAfter": 0,
+                            "channel": "API",
+                            "clientOid": null,
+                            "remark": null,
+                            "tags": "partner:ccxt",
+                            "isActive": true,
+                            "cancelExist": false,
+                            "createdAt": 1731333522333,
+                            "tradeType": "TRADE"
+                        }
+                    ]
+                }
             }
 
         :raises: KucoinResponseException, KucoinAPIException
@@ -3336,7 +3342,7 @@ class Client(object):
         if trade_type:
             data['tradeType'] = trade_type
 
-        return self._get('orders', True, data=data)
+        return self._get('orders', True, data=dict(data, **params))
 
     def get_historical_orders(self, symbol=None, side=None,
                               start=None, end=None, page=None, limit=None):
