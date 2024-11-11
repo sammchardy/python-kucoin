@@ -2750,7 +2750,7 @@ class Client(object):
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
         :param order_list: List of orders to create
-        :type order_list: list of dict
+        :type order_list: list of dicts
             every order should have the following keys:
                 - side: buy or sell
                 - price: Price
@@ -2856,186 +2856,6 @@ class Client(object):
 
         return self._post('orders/multi', True, data=dict(data, **params))
 
-    def hf_create_order (self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
-                         remark=None, time_in_force=None, cancel_after=None, post_only=None,
-                         hidden=None, iceberg=None, visible_size=None, tags=None, **params):
-        """Create a hf spot order
-
-        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param type: order type (limit or market)
-        :type type: string
-        :param side: buy or sell
-        :type side: string
-        :param size: (optional) Desired amount in base currency (required for limit order)
-        :type size: string
-        :param price: (optional) Price (required for limit order)
-        :type price: string
-        :param funds: (optional) Desired amount of quote currency to use (for market order only)
-        :type funds: string
-        :param client_oid: (optional) Unique order id (default flat_uuid())
-        :type client_oid: string
-        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
-        :type stp: string
-        :param remark: (optional) remark for the order, max 100 utf8 characters
-        :type remark: string
-        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
-        :type time_in_force: string
-        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
-        :type cancel_after: string
-        :param post_only: (optional) Post only flag (for limit order only)
-        :type post_only: bool
-        :param hidden: (optional) Hidden order flag (for limit order only)
-        :type hidden: bool
-        :param iceberg: (optional) Iceberg order flag (for limit order only)
-        :type iceberg: bool
-        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
-        :type visible_size: string
-        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
-        :type tags: string
-
-        .. code:: python
-
-            order = client.hf_create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
-            order = client.hf_create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "code": "200000",
-                "data": {
-                    "orderId": "672a249054d62a0007ae04b8",
-                    "clientOid": "988a99edda5e496e95eb6e050c444994"
-                }
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
-
-        """
-
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
-                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
-
-        if tags:
-            data['tags'] = tags
-
-        return self._post('hf/orders', True, data=dict(data, **params))
-
-
-    def hf_create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
-                               stp=None, remark=None, tags=None, **params):
-        """Create a hf spot market order
-
-        One of size or funds must be set
-
-        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param side: buy or sell
-        :type side: string
-        :param size: (optional) Desired amount in base currency
-        :type size: string
-        :param funds: (optional) Desired amount of quote currency to use
-        :type funds: string
-        :param client_oid: (optional) Unique order id (default flat_uuid())
-        :type client_oid: string
-        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
-        :type stp: string
-        :param remark: (optional) remark for the order, max 100 utf8 characters
-        :type remark: string
-        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
-        :type tags: string
-
-        .. code:: python
-
-            order = client.hf_create_market_order('ETH-USDT', Client.SIDE_BUY, size=20)
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "code": "200000",
-                "data": {
-                    "orderId": "5bd6e9286d99522a52e458de",
-                    "clientOid": "11223344"
-                }
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException
-
-        """
-
-        return self.hf_create_order(symbol, self.ORDER_MARKET, side, size, funds=funds, client_oid=client_oid,
-                                    stp=stp, remark=remark, tags=tags, **params)
-
-    def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
-                            remark=None, time_in_force=None, cancel_after=None, post_only=None,
-                            hidden=None, iceberg=None, visible_size=None, tags=None, **params):
-        """Create a hf spot limit order
-
-        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param side: buy or sell
-        :type side: string
-        :param price: Name of coin
-        :type price: string
-        :param size: Amount of base currency to buy or sell
-        :type size: string
-        :param client_oid: (optional) Unique order_id  default flat_uuid()
-        :type client_oid: string
-        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
-        :type stp: string
-        :param remark: (optional) remark for the order, max 100 utf8 characters
-        :type remark: string
-        :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
-        :type time_in_force: string
-        :param cancel_after: (optional) number of seconds to cancel the order if not filled
-            required time_in_force to be GTT
-        :type cancel_after: string
-        :param post_only: (optional) indicates that the order should only make liquidity. If any part of
-            the order results in taking liquidity, the order will be rejected and no part of it will execute.
-        :type post_only: bool
-        :param hidden: (optional) Orders not displayed in order book
-        :type hidden: bool
-        :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
-        :type iceberg: bool
-        :param visible_size: (optional) The maximum visible size of an iceberg order
-        :type visible_size: bool
-        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
-        :type tags: string
-
-        .. code:: python
-
-            order = client.hf_create_limit_order('KCS-BTC', Client.SIDE_BUY, '0.01', '1000')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "code": "200000",
-                "data": {
-                    "orderId": "5bd6e9286d99522a52e458de",
-                    "clientOid": "11223344"
-                }
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException, LimitOrderException
-
-        """
-
-        return self.hf_create_order(symbol, self.ORDER_LIMIT, side, size, price=price, client_oid=client_oid,
-                                    stp=stp, remark=remark, time_in_force=time_in_force, cancel_after=cancel_after,
-                                    post_only=post_only, hidden=hidden, iceberg=iceberg, visible_size=visible_size, tags=tags, **params)
-
     def cancel_order(self, order_id, **params):
         """Cancel a spot order
 
@@ -3131,112 +2951,6 @@ class Client(object):
             data['tradeType'] = trade_type
 
         return self._delete('orders', True, data=dict(data, **params))
-
-    def hf_cancel_order(self, order_id, symbol):
-        """Cancel a hf order by the orderId
-
-        https://docs.kucoin.com/#cancel-hf-order-by-orderid
-
-        :param order_id: OrderId
-        :type order_id: string
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            res = client.hf_cancel_order_by_order_id('5bd6e9286d99522a52e458de', 'KCS-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "code": "200000",
-                "data": {
-                    "orderId": "630625dbd9180300014c8d52"
-                }
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        KucoinAPIException If order_id is not found
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-
-        return self._delete('hf/orders/{}'.format(order_id), True, data=data)
-
-    def hf_cancel_order_by_client_oid(self, client_oid, symbol):
-        """Cancel a hf order by the clientOid
-
-        https://docs.kucoin.com/#cancel-hf-order-by-clientoid
-
-        :param client_oid: ClientOid
-        :type client_oid: string
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            res = client.hf_cancel_order_by_client_oid('6d539dc614db3', 'KCS-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "code": "200000",
-                "data": {
-                    "clientOid": "6d539dc614db3"
-                }
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        KucoinAPIException If order_id is not found
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-
-        return self._delete('hf/orders/client-order{}'.format(client_oid), True, data=data)
-
-    def hf_cancel_all_orders(self):
-        """Cancel all orders
-
-        https://docs.kucoin.com/#cancel-all-hf-orders
-
-        .. code:: python
-
-            res = client.hf_cancel_all_orders()
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "succeedSymbols": [
-                    "BTC-USDT",
-                    "ETH-USDT"
-                ],
-                "failedSymbols": [
-                    {
-                        "symbol": "BTC-USDT",
-                        "error": "can't cancel, system timeout"
-                    }
-                ],
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-        return self._delete('hf/orders/cancelAll', True)
-
 
     def get_orders(self, symbol=None, status=None, side=None, order_type=None,
                    start=None, end=None, page=None, limit=None, trade_type=None, **params):
@@ -3382,10 +3096,10 @@ class Client(object):
 
         return self._get('limit/orders', True, data=dict(data, **params))
 
-    def get_order(self, order_id):
+    def get_order(self, order_id, **params):
         """Get order details
 
-        https://docs.kucoin.com/#get-an-order
+        https://www.kucoin.com/docs/rest/spot-trading/orders/get-order-details-by-orderid
 
         :param order_id: orderOid value
         :type order_id: str
@@ -3434,7 +3148,818 @@ class Client(object):
 
         """
 
-        return self._get('orders/{}'.format(order_id), True)
+        return self._get('orders/{}'.format(order_id), True, data=params)
+
+    def get_order_by_client_oid(self, client_oid, **params):
+        """Get order details by clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/get-order-details-by-clientoid
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+
+        .. code:: python
+
+            order = client.get_order_by_client_oid('6d539dc614db312')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "id": "5f3113a1c9b6d539dc614dc6",
+                "symbol": "KCS-BTC",
+                "opType": "DEAL",
+                "type": "limit",
+                "side": "buy",
+                "price": "0.00001",
+                "size": "1",
+                "funds": "0",
+                "dealFunds": "0",
+                "dealSize": "0",
+                "fee": "0",
+                "feeCurrency": "BTC",
+                "stp": "",
+                "stop": "",
+                "stopTriggered": false,
+                "stopPrice": "0",
+                "timeInForce": "GTC",
+                "postOnly": false,
+                "hidden": false,
+                "iceberg": false,
+                "visibleSize": "0",
+                "cancelAfter": 0,
+                "channel": "API",
+                "clientOid": "6d539dc614db312",
+                "remark": "",
+                "tags": "",
+                "isActive": true,
+                "cancelExist": false,
+                "createdAt": 1597051810000,
+                "tradeType": "TRADE"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('order/client-order/{}'.format(client_oid), True, data=params)
+
+    def hf_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                         remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                         hidden=None, iceberg=None, visible_size=None, tags=None, **params):
+        """Create a hf spot order
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+
+        .. code:: python
+
+            order = client.hf_create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.hf_create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "672a249054d62a0007ae04b8",
+                    "clientOid": "988a99edda5e496e95eb6e050c444994"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if tags:
+            data['tags'] = tags
+
+        return self._post('hf/orders', True, data=dict(data, **params))
+
+    def hf_create_market_order(self, symbol, side, size=None, funds=None, client_oid=None,
+                               stp=None, remark=None, tags=None, **params):
+        """Create a hf spot market order
+
+        One of size or funds must be set
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency
+        :type size: string
+        :param funds: (optional) Desired amount of quote currency to use
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+
+        .. code:: python
+
+            order = client.hf_create_market_order('ETH-USDT', Client.SIDE_BUY, size=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "5bd6e9286d99522a52e458de",
+                    "clientOid": "11223344"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException
+
+        """
+
+        return self.hf_create_order(symbol, self.ORDER_MARKET, side, size, funds=funds, client_oid=client_oid,
+                                    stp=stp, remark=remark, tags=tags, **params)
+
+    def hf_create_limit_order(self, symbol, side, price, size, client_oid=None, stp=None,
+                            remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                            hidden=None, iceberg=None, visible_size=None, tags=None, **params):
+        """Create a hf spot limit order
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param price: Name of coin
+        :type price: string
+        :param size: Amount of base currency to buy or sell
+        :type size: string
+        :param client_oid: (optional) Unique order_id  default flat_uuid()
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK (default is GTC)
+        :type time_in_force: string
+        :param cancel_after: (optional) number of seconds to cancel the order if not filled
+            required time_in_force to be GTT
+        :type cancel_after: string
+        :param post_only: (optional) indicates that the order should only make liquidity. If any part of
+            the order results in taking liquidity, the order will be rejected and no part of it will execute.
+        :type post_only: bool
+        :param hidden: (optional) Orders not displayed in order book
+        :type hidden: bool
+        :param iceberg:  (optional) Only visible portion of the order is displayed in the order book
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: bool
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+
+        .. code:: python
+
+            order = client.hf_create_limit_order('KCS-BTC', Client.SIDE_BUY, '0.01', '1000')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "5bd6e9286d99522a52e458de",
+                    "clientOid": "11223344"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, LimitOrderException
+
+        """
+
+        return self.hf_create_order(symbol, self.ORDER_LIMIT, side, size, price=price, client_oid=client_oid,
+                                    stp=stp, remark=remark, time_in_force=time_in_force, cancel_after=cancel_after,
+                                    post_only=post_only, hidden=hidden, iceberg=iceberg, visible_size=visible_size, tags=tags, **params)
+
+    def hf_create_test_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                         remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                         hidden=None, iceberg=None, visible_size=None, tags=None, **params):
+        """Create a hf test spot order
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-hf-order-test
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+
+        .. code:: python
+
+            order = client.hf_create_test_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.hf_create_test_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "672a249054d62a0007ae04b8",
+                    "clientOid": "988a99edda5e496e95eb6e050c444994"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if tags:
+            data['tags'] = tags
+
+        return self._post('hf/orders/test', True, data=dict(data, **params))
+
+    def sync_hf_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                         remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                         hidden=None, iceberg=None, visible_size=None, tags=None, **params):
+        """Create a hf spot order
+        The difference between this interface and hf_create_order is that this interface will
+        synchronously return the order information after the order matching is completed
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/sync-place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+        :type tags: string
+
+        .. code:: python
+
+            order = client.sync_hf_create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.sync_hf_create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "673219d13cda6500071f613d",
+                    "orderTime": 1731336657616,
+                    "originSize": "0",
+                    "dealSize": "0.0003158",
+                    "remainSize": "0",
+                    "canceledSize": "0",
+                    "originFunds": "1",
+                    "dealFunds": "0.999709112",
+                    "remainFunds": "0",
+                    "canceledFunds": "0.000290888",
+                    "status": "done",
+                    "matchTime": 1731336657641
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if tags:
+            data['tags'] = tags
+
+        return self._post('hf/orders/sync', True, data=dict(data, **params))
+
+    def hf_create_orders(self, order_list, **params):
+        """Create multiple hf spot orders
+
+        Maximum of 5 orders can be created at once
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/place-multiple-orders
+
+        :param order_list: List of orders to create
+        :type order_list: list of dicts
+            every order should have the following keys:
+                - symbol: Name of symbol e.g. ETH-USDT
+                - type: order type (limit or market)
+                - side: buy or sell
+                - size: amount in base currency
+                - price: (optional) price (mandatory for limit order)
+                - client_oid: (optional) unique order id
+                - remark: (optional) remark for the order, max 100 utf8 characters
+                - stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+                - time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC
+                - cancel_after: (optional) time in ms to cancel after
+                - post_only: (optional) Post only flag
+                - hidden: (optional) Hidden order flag
+                - iceberg: (optional) Iceberg order flag
+                - visible_size: (optional) The maximum visible size of an iceberg order
+                - tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+
+        .. code:: python
+
+            order_list = [
+                {
+                    "symbol": "ETH-USDT",
+                    "side": "buy",
+                    'type': 'market',
+                    "size": "0.1",
+                    "client_oid": "my_order_id_1"
+                },
+                {
+                    "symbol": "ETH-USDT",
+                    "side": "sell",
+                    "type": "limit",
+                    "price": "3500",
+                    "size": "0.1",
+                }
+            ]
+            orders = client.hf_create_orders(order_list)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, KucoinRequestException, LimitOrderException
+
+        """
+
+        orders = []
+
+        for order in order_list:
+            order_data = self.get_common_order_data(order.get('symbol'), order.get('type'), order.get('side'),
+                                                    order.get('size'), order.get('price'), order.get('funds'),
+                                                    order.get('client_oid'), order.get('stp'), order.get('remark'),
+                                                    order.get('time_in_force'), order.get('cancel_after'), order.get('post_only'),
+                                                    order.get('hidden'), order.get('iceberg'), order.get('visible_size'))
+            if 'tags' in order:
+                order_data['tags'] = order['tags']
+            orders.append(order_data)
+
+        data = {
+            'orderList': orders
+        }
+
+        return self._post('hf/orders/multi', True, data=dict(data, **params))
+
+    def sync_hf_create_orders(self, order_list, **params):
+        """Create multiple hf spot orders
+
+        The difference between this interface and hf_create_orders is that this interface will
+        synchronously return the order information after the order matching is completed
+        Maximum of 20 orders can be created at once
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/sync-place-multiple-hf-orders
+
+        :param order_list: List of orders to create
+        :type order_list: list of dicts
+            every order should have the following keys:
+                - symbol: Name of symbol e.g. ETH-USDT
+                - type: order type (limit or market)
+                - side: buy or sell
+                - size: amount in base currency
+                - price: (optional) price (mandatory for limit order)
+                - client_oid: (optional) unique order id
+                - remark: (optional) remark for the order, max 100 utf8 characters
+                - stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+                - time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC
+                - cancel_after: (optional) time in ms to cancel after
+                - post_only: (optional) Post only flag
+                - hidden: (optional) Hidden order flag
+                - iceberg: (optional) Iceberg order flag
+                - visible_size: (optional) The maximum visible size of an iceberg order
+                - tags: (optional) order tag, length cannot exceed 20 characters (ASCII)
+
+        .. code:: python
+
+            order_list = [
+                {
+                    {
+                    "symbol": "ETH-USDT",
+                    "side": "buy",
+                    'type': 'market',
+                    "size": "0.1",
+                    "client_oid": "my_order_id_1"
+                },
+                {
+                    "symbol": "ETH-USDT",
+                    "side": "sell",
+                    "type": "limit",
+                    "price": "3500",
+                    "size": "0.1",
+                }
+            ]
+            orders = client.sync_hf_create_orders(order_list)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, KucoinRequestException, LimitOrderException
+
+        """
+
+        orders = []
+
+        for order in order_list:
+            order_data = self.get_common_order_data(order.get('symbol'), order.get('type'), order.get('side'),
+                                                    order.get('size'), order.get('price'), order.get('funds'),
+                                                    order.get('client_oid'), order.get('stp'), order.get('remark'),
+                                                    order.get('time_in_force'), order.get('cancel_after'), order.get('post_only'),
+                                                    order.get('hidden'), order.get('iceberg'), order.get('visible_size'))
+            if 'tags' in order:
+                order_data['tags'] = order['tags']
+            orders.append(order_data)
+
+        data = {
+            'orderList': orders
+        }
+
+        return self._post('hf/orders/multi/sync', True, data=dict(data, **params))
+
+    def hf_modify_order(self, symbol, order_id=None, client_oid=None, new_size=None, new_price=None, **params):
+        """Modify an existing hf order
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/modify-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_id: OrderId
+        :type order_id: string
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param new_size: (optional) Desired amount in base currency
+        :type new_size: string
+        :param new_price: (optional) Price
+        :type new_price: string
+
+        .. code:: python
+
+            order = client.hf_modify_order('ETH-USDT', order_id='5c35c02703aa673ceec2a168', new_size='0.2')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if not order_id and not client_oid:
+            raise KucoinAPIException('Either order_id or client_oid is required')
+        if order_id and client_oid:
+            raise KucoinAPIException('Either order_id or client_oid is required, not both')
+
+        if order_id:
+            data['orderId'] = order_id
+        if client_oid:
+            data['clientOid'] = client_oid
+        if new_size:
+            data['newSize'] = new_size
+        if new_price:
+            data['newPrice'] = new_price
+
+        return self._post('hf/orders/alter', True, data=dict(data, **params))
+
+    def hf_cancel_order(self, order_id, symbol, **params):
+        """Cancel an hf order by the orderId
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-hf-order-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_order_by_order_id('5bd6e9286d99522a52e458de', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/{}'.format(order_id), True, data=dict(data, **params))
+
+    def sync_hf_cancel_order(self, order_id, symbol, **params):
+        """Cancel an hf order by the orderId
+        The difference between this interface and hf_cancel_order is that this interface will
+        synchronously return the order information after the order canceling is completed.
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/sync-cancel-hf-order-by-orderid
+
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.sync_hf_cancel_order('5bd6e9286d99522a52e458de', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/sync/{}'.format(order_id), True, data=dict(data, **params))
+
+    def hf_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+        """Cancel a hf order by the clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-hf-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_order_by_client_oid('6d539dc614db3', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/client-order{}'.format(client_oid), True, data=dict(data, **params))
+
+    def sync_hf_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+        """Cancel a hf order by the clientOid
+        The difference between this interface and hf_cancel_order is that this interface will
+        synchronously return the order information after the order canceling is completed.
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/sync-cancel-hf-order-by-orderid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: Name of symbol e.g. ETH-USDT
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.sync_hf_cancel_order_by_client_oid('6d539dc614db3', 'ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders/sync/client-order/{}'.format(client_oid), True, data=dict(data, **params))
+
+    def hf_cancel_specified_quantity_of_order(self, order_id, symbol, cancel_size, **params):
+        """Cancel a specified quantity of an hf order by the orderId
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-specified-number-hf-orders-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param cancel_size: The quantity to cancel
+        :type cancel_size: string
+
+        .. code:: python
+
+            res = client.hf_cancel_specified_quantity_of_order('5bd6e9286d99522a52e458de', 'ETH-USDT, '0.1')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'cancelSize': cancel_size
+        }
+
+        return self._delete('hf/orders/cancel/{}'.format(order_id), True, data=dict(data, **params))
+
+    def hf_cancel_orders_by_symbol(self, symbol, **params):
+        """Cancel all hf orders by symbol
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-all-hf-orders-by-symbol
+
+        :param symbol: Name of symbol e.g. ETH-USDT
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_cancel_orders_by_symbol('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/orders', True, data=dict(data, **params))
+
+    def hf_cancel_all_orders(self, **params):
+        """Cancel all hf orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-all-hf-orders
+
+        .. code:: python
+
+            res = client.hf_cancel_all_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "succeedSymbols": [
+                    "ETH-USDT"
+                ],
+                "failedSymbols": [
+                    {
+                        "symbol": "BTC-USDT",
+                        "error": "can't cancel, system timeout"
+                    }
+                ],
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        return self._delete('hf/orders/cancelAll', True, data=params)
 
     def hf_get_order(self, order_id, symbol):
         """Get hf order details by orderId
@@ -3502,61 +4027,6 @@ class Client(object):
         }
 
         return self._get('hf/orders/{}'.format(order_id), True, data=data)
-
-    def get_order_by_client_oid(self, client_oid):
-        """Get order details by clientOid
-
-        https://docs.kucoin.com/#get-an-order
-
-        :param client_oid: clientOid value
-        :type client_oid: str
-
-        .. code:: python
-
-            order = client.get_order_by_client_oid('6d539dc614db312')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "id": "5f3113a1c9b6d539dc614dc6",
-                "symbol": "KCS-BTC",
-                "opType": "DEAL",
-                "type": "limit",
-                "side": "buy",
-                "price": "0.00001",
-                "size": "1",
-                "funds": "0",
-                "dealFunds": "0",
-                "dealSize": "0",
-                "fee": "0",
-                "feeCurrency": "BTC",
-                "stp": "",
-                "stop": "",
-                "stopTriggered": false,
-                "stopPrice": "0",
-                "timeInForce": "GTC",
-                "postOnly": false,
-                "hidden": false,
-                "iceberg": false,
-                "visibleSize": "0",
-                "cancelAfter": 0,
-                "channel": "API",
-                "clientOid": "6d539dc614db312",
-                "remark": "",
-                "tags": "",
-                "isActive": true,
-                "cancelExist": false,
-                "createdAt": 1597051810000,
-                "tradeType": "TRADE"
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        return self._get('order/client-order/{}'.format(client_oid), True)
 
     # Fill Endpoints
 
@@ -4204,7 +4674,7 @@ class Client(object):
 
         return self._post(path, signed)
 
-    def get_user_info (self):
+    def get_user_info(self):
         """Get account summary info
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-summary-info
