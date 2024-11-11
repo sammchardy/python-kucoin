@@ -3346,18 +3346,17 @@ class Client(object):
 
     def get_historical_orders(self, symbol=None, side=None,
                               start=None, end=None, page=None, limit=None):
-        """List of KuCoin V1 historical orders.
+        """Deprecated
 
-        https://docs.kucoin.com/#get-v1-historical-orders-list
+        """
 
-        :param symbol: (optional) Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param side: (optional) buy or sell
-        :type side: string
-        :param start: (optional) Start time as unix timestamp
-        :type start: string
-        :param end: (optional) End time as unix timestamp
-        :type end: string
+        raise KucoinAPIException('The interface has been deprecated. Please use get_orders')
+
+    def get_recent_orders(self, page=None, limit=None, **params):
+        """Get up to 1000 last orders in the last 24 hours.
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/get-recent-orders-list
+
         :param page: (optional) Page to fetch
         :type page: int
         :param limit: (optional) Number of orders
@@ -3365,50 +3364,23 @@ class Client(object):
 
         .. code:: python
 
-            orders = client.get_historical_orders(symbol='KCS-BTC')
+            orders = client.get_recent_orders()
 
         :returns: ApiResponse
 
-        .. code:: python
-
-            {
-                "currentPage": 1,
-                "pageSize": 50,
-                "totalNum": 1,
-                "totalPage": 1,
-                "items": [
-                    {
-                        "symbol": "SNOV-ETH",
-                        "dealPrice": "0.0000246",
-                        "dealValue": "0.018942",
-                        "amount": "770",
-                        "fee": "0.00001137",
-                        "side": "sell",
-                        "createdAt": 1540080199
-                    }
-                ]
-            }
+        todo add the response example
 
         :raises: KucoinResponseException, KucoinAPIException
 
         """
 
         data = {}
-
-        if symbol:
-            data['symbol'] = symbol
-        if side:
-            data['side'] = side
-        if start:
-            data['startAt'] = start
-        if end:
-            data['endAt'] = end
         if page:
-            data['currentPage'] = page
+            data['page'] = page
         if limit:
-            data['pageSize'] = limit
+            data['limit'] = limit
 
-        return self._get('hist-orders', True, data=data)
+        return self._get('limit/orders', True, data=dict(data, **params))
 
     def get_order(self, order_id):
         """Get order details
