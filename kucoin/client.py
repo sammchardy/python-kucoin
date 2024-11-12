@@ -4287,61 +4287,62 @@ class Client(object):
 
     # Fill Endpoints
 
-    def get_fills(self, order_id=None, symbol=None, side=None, order_type=None,
-                  start=None, end=None, page=None, limit=None, trade_type=None):
+    def get_fills(self, trade_type, order_id=None, symbol=None, side=None, type=None, start=None, end=None, page=None, limit=None, **params):
         """Get a list of recent fills.
 
-        https://docs.kucoin.com/#list-fills
+        https://www.kucoin.com/docs/rest/spot-trading/fills/get-filled-list
 
-        :param order_id: (optional) generated order id
+        :param trade_type: TRADE (Spot Trading), MARGIN_TRADE (Margin Trading), MARGIN_ISOLATED_TRADE (Isolated Margin Trading), TRADE as default.
+        :type trade_type: string
+        :param order_id: (optional) OrderId
         :type order_id: string
         :param symbol: (optional) Name of symbol e.g. KCS-BTC
         :type symbol: string
         :param side: (optional) buy or sell
         :type side: string
-        :param order_type: (optional) limit, market, limit_stop or market_stop
-        :type order_type: string
-        :param start: Start time as unix timestamp (optional)
-        :type start: string
-        :param end: End time as unix timestamp (optional)
-        :type end: string
-        :param trade_type: The type of trading : TRADE（Spot Trading）, MARGIN_TRADE (Margin Trading).
-        :type trade_type: string
-        :param page: optional - Page to fetch
+        :param type: (optional) limit, market, limit_stop or market_stop
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param page: (optional) Page number
         :type page: int
-        :param limit: optional - Number of orders
+        :param limit: (optional) Number of orders
         :type limit: int
+
         .. code:: python
 
-            fills = client.get_fills()
+            fills = client.get_fills('TRADE')
 
         :returns: ApiResponse
 
         .. code:: python
 
             {
-                "currentPage":1,
-                "pageSize":1,
-                "totalNum":251915,
-                "totalPage":251915,
-                "items":[
+                "currentPage": 1,
+                "pageSize": 1,
+                "totalNum": 251915,
+                "totalPage": 251915,
+                "items": [
                     {
-                        "symbol":"BTC-USDT",
-                        "tradeId":"5c35c02709e4f67d5266954e",
-                        "orderId":"5c35c02703aa673ceec2a168",
-                        "counterOrderId":"5c1ab46003aa676e487fa8e3",
-                        "side":"buy",
-                        "liquidity":"taker",
-                        "forceTaker":true,
-                        "price":"0.083",
-                        "size":"0.8424304",
-                        "funds":"0.0699217232",
-                        "fee":"0",
-                        "feeRate":"0",
-                        "feeCurrency":"USDT",
-                        "stop":"",
-                        "type":"limit",
-                        "createdAt":1547026472000
+                    "symbol": "BTC-USDT",
+                    "tradeId": "5c35c02709e4f67d5266954e",
+                    "orderId": "5c35c02703aa673ceec2a168",
+                    "counterOrderId": "5c1ab46003aa676e487fa8e3",
+                    "side": "buy",
+                    "liquidity": "taker",
+                    "forceTaker": true,
+                    "price": "0.083",
+                    "size": "0.8424304",
+                    "funds": "0.0699217232",
+                    "fee": "0",
+                    "feeRate": "0",
+                    "feeCurrency": "USDT",
+                    "stop": "",
+                    "type": "limit",
+                    "createdAt": 1547026472000,
+                    "tradeType": "TRADE"
                     }
                 ]
             }
@@ -4350,7 +4351,9 @@ class Client(object):
 
         """
 
-        data = {}
+        data = {
+            'tradeType': trade_type
+        }
 
         if order_id:
             data['orderId'] = order_id
@@ -4358,8 +4361,8 @@ class Client(object):
             data['symbol'] = symbol
         if side:
             data['side'] = side
-        if order_type:
-            data['type'] = order_type
+        if type:
+            data['type'] = type
         if start:
             data['startAt'] = start
         if end:
@@ -4368,10 +4371,52 @@ class Client(object):
             data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
-        if trade_type:
-            data['tradeType'] = trade_type
 
-        return self._get('fills', True, data=data)
+        return self._get('fills', False, data=dict(data, **params))
+
+    def get_recent_fills(self, **params):
+        """Get a list of recent fills.
+
+        https://www.kucoin.com/docs/rest/spot-trading/fills/get-recent-filled-list
+
+        .. code:: python
+
+            fills = client.get_recent_fills()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "counterOrderId": "5db7ee769797cf0008e3beea",
+                        "createdAt": 1572335233000,
+                        "fee": "0.946357371456",
+                        "feeCurrency": "USDT",
+                        "feeRate": "0.001",
+                        "forceTaker": true,
+                        "funds": "946.357371456",
+                        "liquidity": "taker",
+                        "orderId": "5db7ee805d53620008dce1ba",
+                        "price": "9466.8",
+                        "side": "buy",
+                        "size": "0.09996592",
+                        "stop": "",
+                        "symbol": "BTC-USDT",
+                        "tradeId": "5db7ee8054c05c0008069e21",
+                        "tradeType": "MARGIN_TRADE",
+                        "type": "market"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('limit/fills', True, data=params)
 
     def hf_get_fills(self, symbol, order_id=None, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
         """Get a list of hf fills
