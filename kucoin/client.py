@@ -3205,6 +3205,8 @@ class Client(object):
 
         return self._get('order/client-order/{}'.format(client_oid), True, data=params)
 
+    # HF Order Endpoints
+
     def hf_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                          remark=None, time_in_force=None, cancel_after=None, post_only=None,
                          hidden=None, iceberg=None, visible_size=None, tags=None, **params):
@@ -3961,19 +3963,209 @@ class Client(object):
         """
         return self._delete('hf/orders/cancelAll', True, data=params)
 
-    def hf_get_order(self, order_id, symbol):
-        """Get hf order details by orderId
+    def hf_get_active_orders(self, symbol, **params):
+        """Get a list of active hf orders
 
-        https://docs.kucoin.com/#get-hf-order-details-by-orderid
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-active-hf-orders-list
 
-        :param order_id: orderId value
-        :type order_id: str
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
 
         .. code:: python
 
-            order = client.hf_get_order('5c35c02703aa673ceec2a168', 'KCS-BTC')
+            orders = client.hf_get_active_orders('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code" : "200000",
+                "data" : [
+                    "id": "5c35c02703aa673ceec2a168",
+                    "symbol": "BTC-USDT",
+                    "opType": "DEAL",
+                    "type": "limit",
+                    "side": "buy",
+                    "price": "10",
+                    "size": "2",
+                    "funds": "0",
+                    "dealFunds": "0.166",
+                    "dealSize": "2",
+                    "fee": "0",
+                    "feeCurrency": "USDT",
+                    "stp": "",
+                    "timeInForce": "GTC",
+                    "postOnly": false,
+                    "hidden": false,
+                    "iceberg": false,
+                    "visibleSize": "0",
+                    "cancelAfter": 0,
+                    "channel": "IOS",
+                    "clientOid": "",
+                    "remark": "",
+                    "tags": "",
+                    "active": true,
+                    "inOrderBook": true,
+                    "cancelExist": false,
+                    "createdAt": 1547026471000,
+                    "lastUpdatedAt": 1547026471001,
+                    "tradeType": "TRADE",
+                    "cancelledSize": "0",
+                    "cancelledFunds": "0",
+                    "remainSize": "0",
+                    "remainFunds": "0"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('hf/orders/active', True, data=dict(data, **params))
+
+    def hf_get_symbol_with_active_orders(self, **params):
+        """Get a list of symbols with active hf orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-symbol-with-active-hf-orders-list
+
+        .. code:: python
+
+            orders = client.hf_get_symbol_with_active_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "symbols": ["BTC-USDT"]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('hf/orders/active/symbols', True, data=params)
+
+    def hf_get_completed_order_list(self, symbol, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
+        """Get a list of completed hf orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-completed-order-list
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param type: (optional) limit, market, limit_stop or market_stop
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param last_id: (optional) The last orderId of the last page
+        :type last_id: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            orders = client.hf_get_completed_order_list('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "lastId": 2682265600,
+                    "items": [
+                    {
+                        "id": "63074a5a27ecbe0001e1f3ba",
+                        "symbol": "CSP-USDT",
+                        "opType": "DEAL",
+                        "type": "limit",
+                        "side": "sell",
+                        "price": "0.1",
+                        "size": "0.1",
+                        "funds": "0.01",
+                        "dealSize": "0",
+                        "dealFunds": "0",
+                        "fee": "0",
+                        "feeCurrency": "USDT",
+                        "stp": "",
+                        "timeInForce": "GTC",
+                        "postOnly": false,
+                        "hidden": false,
+                        "iceberg": false,
+                        "visibleSize": "0",
+                        "cancelAfter": 0,
+                        "channel": "API",
+                        "clientOid": "",
+                        "remark": "",
+                        "tags": "",
+                        "cancelExist": true,
+                        "createdAt": 1661422170924,
+                        "lastUpdatedAt": 1661422196926,
+                        "tradeType": "TRADE",
+                        "inOrderBook": false,
+                        "active": false,
+                        "cancelledSize": "0",
+                        "cancelledFunds": "0",
+                        "remainSize": "0",
+                        "remainFunds": "0"
+                    }
+                    ]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if side:
+            data['side'] = side
+        if type:
+            data['type'] = type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if last_id:
+            data['lastId'] = last_id
+        if limit:
+            data['limit'] = limit
+
+        return self._get('hf/orders/done', True, data=dict(data, **params))
+
+    def hf_get_order_details(self, order_id, symbol, **params):
+        """Get an hf order details
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-order-details-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.hf_get_order_details('5bd6e9286d99522a52e458de', 'KCS-BTC')
 
         :returns: ApiResponse
 
@@ -4026,7 +4218,72 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('hf/orders/{}'.format(order_id), True, data=data)
+        return self._get('hf/orders/{}'.format(order_id), True, data=dict(data, **params))
+
+    def hf_auto_cancel_order(self, timeout, symbol=None, **params):
+        """Auto cancel a hf order
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/auto-cancel-hf-order-setting
+
+        :param timeout: The timeout period in ms
+        :type timeout: int
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_auto_cancel_order(60000)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "currentTime": 1682010526,
+                    "triggerTime": 1682010531
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'timeout': timeout
+        }
+
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._post('hf/orders/dead-cancel-all', True, data=dict(data, **params))
+
+    def hf_get_auto_cancel_order(self, **params):
+        """Get auto cancel setting
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/auto-cancel-hf-order-setting-query
+
+        .. code:: python
+
+            res = client.hf_get_auto_cancel_order()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "timeout": 5,
+                "symbols": "BTC-USDT",
+                "currentTime": 1682010526,
+                "triggerTime": 1682010531
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('hf/orders/dead-cancel-all', True, data=params)
 
     # Fill Endpoints
 
@@ -4115,6 +4372,90 @@ class Client(object):
             data['tradeType'] = trade_type
 
         return self._get('fills', True, data=data)
+
+    def hf_get_fills(self, symbol, order_id=None, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
+        """Get a list of hf fills
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-filled-list
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_id: (optional) OrderId
+        :type order_id: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param type: (optional) limit, market, limit_stop or market_stop
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param last_id: (optional) The last orderId of the last page
+        :type last_id: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            fills = client.hf_get_fills('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "items": [
+                    {
+                        "id": 2678765568,
+                        "symbol": "BTC-ETC",
+                        "tradeId": 616179312641,
+                        "orderId": "6306cf6e27ecbe0001e1e03a",
+                        "counterOrderId": "6306cf4027ecbe0001e1df4d",
+                        "side": "buy",
+                        "liquidity": "taker",
+                        "forceTaker": false,
+                        "price": "1",
+                        "size": "1",
+                        "funds": "1",
+                        "fee": "0.00021",
+                        "feeRate": "0.00021",
+                        "feeCurrency": "USDT",
+                        "stop": "",
+                        "tradeType": "TRADE",
+                        "type": "limit",
+                        "createdAt": 1661390702919
+                    }
+                    ],
+                    "lastId": 2678765568
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if order_id:
+            data['orderId'] = order_id
+        if side:
+            data['side'] = side
+        if type:
+            data['type'] = type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if last_id:
+            data['lastId'] = last_id
+        if limit:
+            data['limit'] = limit
+
+        return self._get('hf/fills', True, data=dict(data, **params))
 
     # Market Endpoints
 
