@@ -4153,7 +4153,7 @@ class Client(object):
 
         return self._get('hf/orders/done', True, data=dict(data, **params))
 
-    def hf_get_order_details(self, order_id, symbol, **params):
+    def hf_get_order(self, order_id, symbol, **params):
         """Get an hf order details
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-order-details-by-orderid
@@ -4165,7 +4165,7 @@ class Client(object):
 
         .. code:: python
 
-            order = client.hf_get_order_details('5bd6e9286d99522a52e458de', 'KCS-BTC')
+            order = client.hf_get_order('5bd6e9286d99522a52e458de', 'KCS-BTC')
 
         :returns: ApiResponse
 
@@ -4284,6 +4284,319 @@ class Client(object):
         """
 
         return self._get('hf/orders/dead-cancel-all', True, data=params)
+
+    def create_stop_order(self, symbol, type, side, stop_price, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None,
+                     hidden=None, iceberg=None, visible_size=None, stop=None, trade_type=None, **params):
+        """Create a stop order
+
+        https://www.kucoin.com/docs/rest/spot-trading/stop-order/place-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param stop_price: Stop price
+        :type stop_price: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param stop: (optional) stop type - loss or entry (default is loss)
+        :type stop: string
+        :param trade_type: (optional) TRADE (Spot Trading), MARGIN_TRADE (Margin Trading), MARGIN_ISOLATED_TRADE (Isolated Margin Trading), default is TRADE.
+        :type trade_type: string
+
+        .. code:: python
+
+            order = client.create_stop_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, stop_price=2100, size=20, price=2000)
+            order = client.create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, stop_price=2100, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "orderId": "672a249054d62a0007ae04b8",
+                    "clientOid": "988a99edda5e496e95eb6e050c444994"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        data['stopPrice'] = stop_price
+        if stop:
+            data['stop'] = stop
+        if trade_type:
+            data['tradeType'] = trade_type
+
+        return self._post('stop-order', True, data=dict(data, **params))
+
+    def cancel_stop_order(self, order_id, **params):
+        """Cancel a stop order
+
+        https://www.kucoin.com/docs/rest/spot-trading/stop-order/cancel-order-by-orderid
+
+        :param order_id: Order id
+        :type order_id: string
+
+        .. code:: python
+
+            res = client.cancel_stop_order('5bd6e9286d99522a52e458de')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderIds": [
+                    "5bd6e9286d99522a52e458de"
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        return self._delete('stop-order/{}'.format(order_id), True, data=params)
+
+    def cancel_order_by_client_oid(self, client_oid, symbol=None, **params):
+        """Cancel a spot order by the clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: (optional) Name of symbol e.g. ETH-USDT
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.cancel_order_by_client_oid('6d539dc614db3')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderId": "5f311183c9b6d539dc614db3",
+                "clientOid": "6d539dc614db3"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'clientOid': client_oid
+        }
+
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._delete('stop-order/cancelOrderByClientOid', True, data=dict(data, **params))
+
+    def cancel_all_stop_orders(self, symbol=None, trade_type=None, order_ids=None, **params):
+        """Cancel all stop orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/stop-order/cancel-stop-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETH-USDT
+        :type symbol: string
+        :param trade_type: (optional) The type of trading:
+            TRADE - spot trading, MARGIN_TRADE - cross margin trading, MARGIN_ISOLATED_TRADE - isolated margin trading
+            default is TRADE
+        :type trade_type: string
+        :param order_ids: (optional) Comma seperated order IDs (e.g. '5bd6e9286d99522a52e458de,5bd6e9286d99522a52e458df')
+        :type order_ids: string
+
+        .. code:: python
+
+            res = client.cancel_all_stop_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderIds": [
+                    "5bd6e9286d99522a52e458de"
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+        if trade_type:
+            data['tradeType'] = trade_type
+        if order_ids:
+            data['orderIds'] = order_ids
+
+        return self._delete('stop-order/cancel', True, data=dict(data, **params))
+
+    def get_stop_orders(self, symbol=None, side=None, order_type=None, start=None, end=None,
+                        page=None, limit=None, trade_type=None, order_ids=None, stop=None, **params):
+        """Get list of stop orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/stop-order/get-stop-orders-list
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param order_type: (optional) limit, market, limit_stop or market_stop
+        :type order_type: string
+        :param trade_type: (optional) The type of trading :
+            TRADE - spot trading, MARGIN_TRADE - cross margin trading, MARGIN_ISOLATED_TRADE - isolated margin trading
+            default is TRADE
+        :type trade_type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+        :param order_ids: (optional) Comma seperated order IDs (e.g. '5bd6e9286d99522a52e458de,5bd6e9286d99522a52e458df')
+        :type order_ids: string
+        :param stop: (optional) stop (stop loss order) or oco (oco order) todo check this parameter
+        :type stop: string
+
+        .. code:: python
+
+            orders = client.get_stop_orders(symbol='KCS-BTC', side='sell')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+        if side:
+            data['side'] = side
+        if order_type:
+            data['type'] = order_type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+        if trade_type:
+            data['tradeType'] = trade_type
+        if order_ids:
+            data['orderIds'] = order_ids
+        if stop:
+            data['stop'] = stop
+
+        return self._get('stop-order', True, data=dict(data, **params))
+
+    def get_stop_order(self, order_id, **params):
+        """Get stop order details
+
+        https://www.kucoin.com/docs/rest/spot-trading/stop-order/get-order-details-by-orderid
+
+        :param order_id: orderOid value
+        :type order_id: str
+
+        .. code:: python
+
+            order = client.get_stop_order('5c35c02703aa673ceec2a168')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('stop-order/{}'.format(order_id), True, data=params)
+
+    def get_stop_order_by_client_oid(self, client_oid, symbol=None, **params):
+        """Get stop order details by clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/stop-order/get-order-details-by-clientoid
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+        :param symbol: (optional) Name of symbol e.g. ETH-USDT
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.get_stop_order_by_client_oid('6d539dc614db312')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'clientOid': client_oid
+        }
+
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._get('stop-order/queryOrderByClientOid', True, data=dict(data, **params))
 
     # Fill Endpoints
 
