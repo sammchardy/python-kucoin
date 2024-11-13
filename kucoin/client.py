@@ -4598,6 +4598,263 @@ class Client(object):
 
         return self._get('stop-order/queryOrderByClientOid', True, data=dict(data, **params))
 
+    def oco_create_order(self, symbol, side, size, price, stop_price, limit_price, client_oid=None, remark=None, **params):
+        """Create an OCO order
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/place-order
+
+        :param symbol: Name of symbol e.g. ETH-USDT
+        :type symbol: string
+        :param side: buy or sell
+        :type side: string
+        :param size: Desired amount in base currency
+        :type size: string
+        :param price: price
+        :type price: string
+        :param stop_price: trigger price
+        :type stop_price: string
+        :param limit_price: limit order price after take-profit and stop-loss are triggered
+        :type limit_price: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+
+        .. code:: python
+
+            order = client.oco_create_order('ETH-USDT', Client.SIDE_BUY, size=20, price=2000, stop_price=2100, limit_price=2200)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'side': side,
+            'size': size,
+            'price': price,
+            'stopPrice': stop_price,
+            'limitPrice': limit_price
+        }
+
+        if not client_oid:
+            client_oid = flat_uuid()
+        else:
+            data['clientOid'] = client_oid
+
+        if remark:
+            data['remark'] = remark
+
+        return self._post('oco/order', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def oco_cancel_order(self, order_id, **params):
+        """Cancel an oco order
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/cancel-order-by-orderid
+
+        :param order_id: Order id
+        :type order_id: string
+
+        .. code:: python
+
+            res = client.oco_cancel_order('5bd6e9286d99522a52e458de')
+
+        :returns: ApiResponse
+
+        todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        return self._delete('oco/order/{}'.format(order_id), True, api_version=self.API_VERSION3, data=params)
+
+    def oco_cancel_order_by_client_oid(self, client_oid, **params):
+        """Cancel a spot order by the clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/cancel-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+
+        .. code:: python
+
+            res = client.oco_cancel_order_by_client_oid('6d539dc614db3')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        return self._delete('oco/client-order/{}'.format(client_oid), True, api_version=self.API_VERSION3, data=params)
+
+    def oco_cancel_all_orders(self, symbol=None, order_ids=None, **params):
+        """Cancel all oco orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/cancel-multiple-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETH-USDT
+        :type symbol: string
+        :param order_ids: (optional) Comma seperated order IDs (e.g. '5bd6e9286d99522a52e458de,5bd6e9286d99522a52e458df')
+        :type order_ids: string
+
+        .. code:: python
+
+            res = client.oco_cancel_all_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+        if order_ids:
+            data['orderIds'] = order_ids
+
+        return self._delete('oco/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def oco_get_order_info(self, order_id, **params):
+        """Get oco order information
+        for the order details use oco_get_order()
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-info-by-orderid
+
+        :param order_id: orderOid value
+        :type order_id: str
+
+        .. code:: python
+
+            order = client.oco_get_order_info('5c35c02703aa673ceec2a168')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('oco/order/{}'.format(order_id), True, api_version=self.API_VERSION3, data=params)
+
+    def oco_get_order(self, order_id, **params):
+        """Get oco order information
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-details-by-orderid
+
+        :param order_id: orderOid value
+        :type order_id: str
+
+        .. code:: python
+
+            order = client.oco_get_order('5c35c02703aa673ceec2a168')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('oco/order/details/{}'.format(order_id), True, api_version=self.API_VERSION3, data=params)
+
+    def oco_get_order_by_client_oid(self, client_oid, **params):
+        """Get oco order details by clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-info-by-clientoid
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+
+        .. code:: python
+
+            order = client.oco_get_order_by_client_oid('6d539dc614db312')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('oco/client-order/{}'.format(client_oid), True, api_version=self.API_VERSION3, data=params)
+
+    def oco_get_orders(self, symbol=None, start=None, end=None, page=None, limit=None, order_ids=None, **params):
+        """Get list of oco orders
+
+        https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-list
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+        :param order_ids: (optional) Comma seperated order IDs (e.g. '5bd6e9286d99522a52e458de,5bd6e9286d99522a52e458df')
+        :type order_ids: string
+
+        .. code:: python
+
+            orders = client.oco_get_orders(symbol='KCS-BTC')
+
+        :returns: ApiResponse
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+        if order_ids:
+            data['orderIds'] = order_ids
+
+        return self._get('oco/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
     # Fill Endpoints
 
     def get_fills(self, trade_type, order_id=None, symbol=None, side=None, type=None, start=None, end=None, page=None, limit=None, **params):
