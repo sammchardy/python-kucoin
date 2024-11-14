@@ -3749,7 +3749,7 @@ class Client(object):
 
         .. code:: python
 
-            res = client.hf_cancel_order_by_order_id('5bd6e9286d99522a52e458de', 'KCS-BTC')
+            res = client.hf_cancel_order('5bd6e9286d99522a52e458de', 'KCS-BTC')
 
         :returns: ApiResponse
 
@@ -4058,7 +4058,7 @@ class Client(object):
 
         return self._get('hf/orders/active/symbols', True, data=params)
 
-    def hf_get_completed_order_list(self, symbol, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
+    def hf_get_completed_orders(self, symbol, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
         """Get a list of completed hf orders
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-completed-order-list
@@ -4080,7 +4080,7 @@ class Client(object):
 
         .. code:: python
 
-            orders = client.hf_get_completed_order_list('ETH-USDT')
+            orders = client.hf_get_completed_orders('ETH-USDT')
 
         :returns: ApiResponse
 
@@ -4154,7 +4154,7 @@ class Client(object):
         return self._get('hf/orders/done', True, data=dict(data, **params))
 
     def hf_get_order(self, order_id, symbol, **params):
-        """Get an hf order details
+        """Get an hf order details by the orderId
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-order-details-by-orderid
 
@@ -4219,6 +4219,36 @@ class Client(object):
         }
 
         return self._get('hf/orders/{}'.format(order_id), True, data=dict(data, **params))
+
+    def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
+        """Get hf order details by clientOid
+
+        https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-order-details-by-clientoid
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.hf_get_order_by_client_oid('6d539dc614db312', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('hf/orders/client-order/{}'.format(client_oid), True, data=dict(data, **params))
 
     def hf_auto_cancel_order(self, timeout, symbol=None, **params):
         """Auto cancel a hf order
@@ -4789,7 +4819,7 @@ class Client(object):
         https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-info-by-clientoid
 
         :param client_oid: clientOid value
-        :type client_oid: str
+        :type client_oid: string
 
         .. code:: python
 
@@ -4854,6 +4884,602 @@ class Client(object):
             data['orderIds'] = order_ids
 
         return self._get('oco/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None, hidden=None,
+                     iceberg=None, visible_size=None, margin_model=None, auto_borrow=None, auto_repay=None, **params):
+        """Create a margin order
+
+        https://www.kucoin.com/docs/rest/margin-trading/orders/place-margin-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param margin_model: (optional) cross or isolated (default is cross)
+        :type margin_model: string
+        :param auto_borrow: (optional) auto borrow flag (default is False). If true the system will first borrow you funds
+            at the optimal interest rate and then place an order for you. Currently autoBorrow parameter
+            only supports cross mode, not isolated mode. When add this param, stop profit and stop loss are not supported,
+            if it is a sell order, the size must be passed
+        :type auto_borrow: bool
+        :param auto_repay: (optional) auto repay flag (default is False). Automatically repay when placing an order,
+            that is, the system automatically triggers repayment after the order is completed.
+            The maximum currency repayment amount is the trade amount.
+            The same order does not support the simultaneous use of autoBorrow and autoRepay.
+
+        .. code:: python
+
+            order = client.margin_create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.margin_create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if margin_model:
+            data['marginModel'] = margin_model
+        if auto_borrow and auto_repay:
+            raise KucoinRequestException('auto_borrow and auto_repay cannot be used together')
+        if auto_borrow:
+            data['autoBorrow'] = auto_borrow
+        if auto_repay:
+            data['autoRepay'] = auto_repay
+
+        return self._post('margin/order', True, data=dict(data, **params))
+
+    def margin_create_test_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None, hidden=None,
+                     iceberg=None, visible_size=None, margin_model=None, auto_borrow=None, auto_repay=None, **params):
+        """Create a margin test order
+
+        https://www.kucoin.com/docs/rest/margin-trading/orders/place-margin-order-test
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param margin_model: (optional) cross or isolated (default is cross)
+        :type margin_model: string
+        :param auto_borrow: (optional) auto borrow flag (default is False). If true the system will first borrow you funds
+            at the optimal interest rate and then place an order for you. Currently autoBorrow parameter
+            only supports cross mode, not isolated mode. When add this param, stop profit and stop loss are not supported,
+            if it is a sell order, the size must be passed
+        :type auto_borrow: bool
+        :param auto_repay: (optional) auto repay flag (default is False). Automatically repay when placing an order,
+            that is, the system automatically triggers repayment after the order is completed.
+            The maximum currency repayment amount is the trade amount.
+            The same order does not support the simultaneous use of autoBorrow and autoRepay.
+
+        .. code:: python
+
+            order = client.margin_create_test_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.margin_create_test_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if margin_model:
+            data['marginModel'] = margin_model
+        if auto_borrow and auto_repay:
+            raise KucoinRequestException('auto_borrow and auto_repay cannot be used together')
+        if auto_borrow:
+            data['autoBorrow'] = auto_borrow
+        if auto_repay:
+            data['autoRepay'] = auto_repay
+
+        return self._post('margin/order/test', True, data=dict(data, **params))
+
+    def hf_margin_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None, hidden=None,
+                     iceberg=None, visible_size=None, is_isolated=None, auto_borrow=None, auto_repay=None, **params):
+        """Create an hf margin order
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/place-hf-order
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param is_isolated: (optional) True for isolated margin, False for cross margin (default is False)
+        :type margin_model: bool
+        :param auto_borrow: (optional) auto borrow flag (default is False).
+            When Margin HFTrading Account has inefficient balance,
+            System autoborrows inefficient assets and opens positions
+            according to the lowest market interest rate.
+        :type auto_borrow: bool
+        :param auto_repay: (optional) auto repay flag (default is False).
+            AutoPay allows returning borrowed assets when you close a position.
+            System automatically triggers the repayment and the maximum repayment
+            amount equals to the filled-order amount.
+
+        .. code:: python
+
+            order = client.hf_margin_create_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.hf_margin_create_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if is_isolated:
+            data['isIsolated'] = is_isolated # todo check this parameter for margin_create_order
+        if auto_borrow:
+            data['autoBorrow'] = auto_borrow
+        if auto_repay:
+            data['autoRepay'] = auto_repay
+
+        return self._post('hf/margin/order', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_create_test_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
+                     remark=None, time_in_force=None, cancel_after=None, post_only=None, hidden=None,
+                     iceberg=None, visible_size=None, is_isolated=None, auto_borrow=None, auto_repay=None, **params):
+        """Create an hf margin test order
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/place-hf-order-test
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param type: order type (limit or market)
+        :type type: string
+        :param side: buy or sell
+        :type side: string
+        :param size: (optional) Desired amount in base currency (required for limit order)
+        :type size: string
+        :param price: (optional) Price (required for limit order)
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use (for market order only)
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO, CB or DC (default is None)
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC, GTT, IOC, or FOK - default is GTC (for limit order only)
+        :type time_in_force: string
+        :param cancel_after: (optional) time in ms to cancel after (for limit order only)
+        :type cancel_after: string
+        :param post_only: (optional) Post only flag (for limit order only)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (for limit order only)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (for limit order only)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order (for limit orders only)
+        :type visible_size: string
+        :param is_isolated: (optional) True for isolated margin, False for cross margin (default is False)
+        :type margin_model: bool
+        :param auto_borrow: (optional) auto borrow flag (default is False).
+            When Margin HFTrading Account has inefficient balance,
+            System autoborrows inefficient assets and opens positions
+            according to the lowest market interest rate.
+        :type auto_borrow: bool
+        :param auto_repay: (optional) auto repay flag (default is False).
+            AutoPay allows returning borrowed assets when you close a position.
+            System automatically triggers the repayment and the maximum repayment
+            amount equals to the filled-order amount.
+
+        .. code:: python
+
+            order = client.hf_margin_create_test_order('ETH-USDT', Client.ORDER_LIMIT, Client.SIDE_BUY, size=20, price=2000)
+            order = client.hf_margin_create_test_order('ETH-USDT', Client.ORDER_MARKET, Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if not client_oid:
+            client_oid = flat_uuid()
+
+        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+                                              time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
+
+        if is_isolated:
+            data['isIsolated'] = is_isolated # todo check this parameter for margin_create_order
+        if auto_borrow:
+            data['autoBorrow'] = auto_borrow
+        if auto_repay:
+            data['autoRepay'] = auto_repay
+
+        return self._post('hf/margin/order/test', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_cancel_order(self, order_id, symbol, **params):
+        """Cancel an hf margin order by the orderId
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/cancel-hf-order-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_margin_cancel_order('5bd6e9286d99522a52e458de', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/margin/orders/{}'.format(order_id), True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+        """Cancel a hf margin order by the clientOid
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/cancel-hf-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.hf_margin_cancel_order_by_client_oid('6d539dc614db3', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('hf/margin/orders/client-order/{}'.format(client_oid), True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_cancel_orders_by_symbol(self, symbol, trade_type, **params):
+        """Cancel all hf margin orders by symbol
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/cancel-all-hf-orders-by-symbol
+
+        :param symbol: Name of symbol e.g. ETH-USDT
+        :type symbol: string
+        :param trade_type: MARGIN_TRADE (Margin Trading) or MARGIN_ISOLATED_TRADE (Isolated Margin Trading)
+        :type trade_type: string
+
+        .. code:: python
+
+            res = client.hf_margin_cancel_orders_by_symbol('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'tradeType': trade_type
+        }
+
+        return self._delete('hf/margin/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_get_active_orders(self, symbol, trade_type, **params):
+        """Get a list of active hf margin orders
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-active-hf-orders-list
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param trade_type: MARGIN_TRADE (Margin Trading) or MARGIN_ISOLATED_TRADE (Isolated Margin Trading)
+        :type trade_type: string
+
+        .. code:: python
+
+            orders = client.hf_margin_get_active_orders('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'tradeType': trade_type
+        }
+
+        return self._get('hf/margin/orders/active', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_get_completed_orders(self, symbol, trade_type, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
+        """Get a list of completed hf margin orders
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-filled-list
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param trade_type: MARGIN_TRADE (Margin Trading) or MARGIN_ISOLATED_TRADE (Isolated Margin Trading)
+        :type trade_type: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param type: (optional) limit, market, limit_stop or market_stop
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param last_id: (optional) The last orderId of the last page
+        :type last_id: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            orders = client.hf_margin_get_completed_orders('ETH-USDT', 'MARGIN_ISOLATED_TRADE')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'tradeType': trade_type
+        }
+
+        if side:
+            data['side'] = side
+        if type:
+            data['type'] = type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if last_id:
+            data['lastId'] = last_id
+        if limit:
+            data['limit'] = limit
+
+        return self._get('hf/margin/orders/done', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_get_order(self, order_id, symbol, **params):
+        """Get an hf margin order details by the orderId
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-order-details-by-orderid
+
+        :param order_id: OrderId
+        :type order_id: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.hf_get_order('5bd6e9286d99522a52e458de', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('hf/margin/orders/{}'.format(order_id), True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
+        """Get hf margin order details by clientOid
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-order-details-by-clientoid
+
+        :param client_oid: clientOid value
+        :type client_oid: str
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            order = client.hf_get_order_by_client_oid('6d539dc614db312', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('hf/margin/orders/client-order/{}'.format(client_oid), True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def hf_margin_get_symbol_with_active_orders(self, trade_type, **params):
+        """Get a list of symbols with active hf margin orders
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-active-hf-order-symbols
+
+        :param trade_type: MARGIN_TRADE (Margin Trading) or MARGIN_ISOLATED_TRADE (Isolated Margin Trading)
+        :type trade_type: string
+
+        .. code:: python
+
+            orders = client.hf_margin_get_symbol_with_active_orders('MARGIN_TRADE')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbolSize": 1,
+                    "symbols": ["ADA-USDT"]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'tradeType': trade_type
+        }
+
+        return self._get('hf/margin/order/active/symbols', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     # Fill Endpoints
 
@@ -5071,6 +5697,66 @@ class Client(object):
             data['limit'] = limit
 
         return self._get('hf/fills', True, data=dict(data, **params))
+
+    def hf_margin_get_fills(self, symbol, trade_type, order_id=None, side=None, type=None, start=None, end=None, last_id=None, limit=None, **params):
+        """Get a list of hf fills
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-transaction-records
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param trade_type: MARGIN_TRADE (Margin Trading) or MARGIN_ISOLATED_TRADE (Isolated Margin Trading)
+        :type trade_type: string
+        :param order_id: (optional) OrderId
+        :type order_id: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param type: (optional) limit, market, limit_stop or market_stop
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param last_id: (optional) The last orderId of the last page
+        :type last_id: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            fills = client.hf_get_fills('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'tradeType': trade_type
+        }
+
+        if order_id:
+            data['orderId'] = order_id
+        if side:
+            data['side'] = side
+        if type:
+            data['type'] = type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if last_id:
+            data['lastId'] = last_id
+        if limit:
+            data['limit'] = limit
+
+        return self._get('hf/margin/fills', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     # Market Endpoints
 
