@@ -1139,6 +1139,116 @@ class Client(object):
 
         return self._get('sub/user', True, api_version=self.API_VERSION2, data=dict(data, **params))
 
+    def margin_get_account_detail(self, **params):
+        """Get account detail
+
+        https://www.kucoin.com/docs/rest/funding/funding-overview/get-account-detail-margin
+
+        .. code:: python
+
+            account = client.margin_get_account_detail()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "debtRatio": "0",
+                    "accounts": [
+                        {
+                            "currency": "KCS",
+                            "totalBalance": "0.01",
+                            "availableBalance": "0.01",
+                            "holdBalance": "0",
+                            "liability": "0",
+                            "maxBorrowSize": "0"
+                        },
+                        {
+                            "currency": "USDT",
+                            "totalBalance": "0",
+                            "availableBalance": "0",
+                            "holdBalance": "0",
+                            "liability": "0",
+                            "maxBorrowSize": "0"
+                        },
+                        ...
+                    ]
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('margin/account', True, data=params)
+
+    def margin_get_cross_account_detail(self, quote_currency=None, query_type=None, **params):
+        """Get cross account detail
+
+        https://www.kucoin.com/docs/rest/funding/funding-overview/get-account-detail-cross-margin
+
+        :param quote_currency: (optional) quote currency
+        :type quote_currency: string
+        :param query_type: (optional) query type
+        :type query_type: string
+
+        .. code:: python
+
+            account = client.margin_get_cross_account_detail()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "timestamp": 1669708513820,
+                    "currentPage": 1,
+                    "pageSize": 100,
+                    "totalNum": 1,
+                    "totalPage": 1,
+                    "items": [
+                        {
+                            "totalLiabilityOfQuoteCurrency": "0.976",
+                            "totalAssetOfQuoteCurrency": "1.00",
+                            "debtRatio": "0.976",
+                            "status": "LIQUIDATION",
+                            "assets": [
+                                {
+                                    "currency": "BTC",
+                                    "borrowEnabled": true,
+                                    "repayEnabled": true,
+                                    "transferEnabled": false,
+                                    "borrowed": "0.976",
+                                    "totalAsset": "1.00",
+                                    "available": "0.024",
+                                    "hold": "0",
+                                    "maxBorrowSize": "0"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if quote_currency:
+            data['quoteCurrency'] = quote_currency
+        if query_type:
+            data['type'] = query_type
+
+        return self._get('margin/accounts', True, data=dict(data, **params))
+
     def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
         """Get the account info of a sub-user specified by the subUserId
 
