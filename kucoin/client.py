@@ -6381,7 +6381,13 @@ class Client(object):
 
         """
 
-        return self._get('mark-price/{}'.format(symbol)'/current', False, data=dict(data, **params))
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('mark-price/{}/current'.format(symbol), False, data=dict(data, **params))
+
+
 
     def margin_get_config(self, **params):
         """Get the margin configuration
