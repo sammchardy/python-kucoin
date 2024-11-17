@@ -480,6 +480,519 @@ class Client(object):
 
         return self._get('currencies/{}'.format(currency), False, api_version=self.API_VERSION3, data=dict({'chain': chain}, **params))
 
+    # Market Endpoints
+
+    def get_symbols(self, market=None, **params):
+        """Get a list of available currency pairs for trading.
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbols-list
+
+        :param market: (optional) Name of market e.g. BTC
+        :type market: string
+
+        .. code:: python
+
+            symbols = client.get_symbols()
+            symbols = client.get_symbols('USDS')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                {
+                    "symbol": "XLM-USDT",
+                    "name": "XLM-USDT",
+                    "baseCurrency": "XLM",
+                    "quoteCurrency": "USDT",
+                    "feeCurrency": "USDT",
+                    "market": "USDS",
+                    "baseMinSize": "0.1",
+                    "quoteMinSize": "0.01",
+                    "baseMaxSize": "10000000000",
+                    "quoteMaxSize": "99999999",
+                    "baseIncrement": "0.0001",
+                    "quoteIncrement": "0.000001",
+                    "priceIncrement": "0.000001",
+                    "priceLimitRate": "0.1",
+                    "minFunds": "0.1",
+                    "isMarginEnabled": true,
+                    "enableTrading": true
+                },
+                {
+                    "symbol": "VET-USDT",
+                    "name": "VET-USDT",
+                    "baseCurrency": "VET",
+                    "quoteCurrency": "USDT",
+                    "feeCurrency": "USDT",
+                    "market": "USDS",
+                    "baseMinSize": "10",
+                    "quoteMinSize": "0.01",
+                    "baseMaxSize": "10000000000",
+                    "quoteMaxSize": "99999999",
+                    "baseIncrement": "0.0001",
+                    "quoteIncrement": "0.000001",
+                    "priceIncrement": "0.0000001",
+                    "priceLimitRate": "0.1",
+                    "minFunds": "0.1",
+                    "isMarginEnabled": true,
+                    "enableTrading": true
+                }
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if market:
+            data['market'] = market
+
+        return self._get('symbols', False, api_version=self.API_VERSION2, data=dict(data, **params))
+
+    def get_symbol(self, symbol=None, **params):
+        """Get a symbol details for trading.
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbol-detail
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            symbol = client.get_symbol('XLM-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "data" : {
+                    "quoteMinSize" : "0.1",
+                    "quoteCurrency" : "USDT",
+                    "feeCurrency" : "USDT",
+                    "symbol" : "BTC-USDT",
+                    "market" : "USDS",
+                    "baseMaxSize" : "10000000000",
+                    "baseIncrement" : "0.00000001",
+                    "quoteIncrement" : "0.000001",
+                    "priceIncrement" : "0.1",
+                    "priceLimitRate" : "0.1",
+                    "minFunds" : "0.1",
+                    "isMarginEnabled" : true,
+                    "enableTrading" : true,
+                    "baseCurrency" : "BTC",
+                    "baseMinSize" : "0.00001",
+                    "name" : "BTC-USDT",
+                    "quoteMaxSize" : "99999999"
+                },
+                "code" : "200000"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._get('symbol', False, api_version=self.API_VERSION2, data=dict(data, **params))
+
+    def get_ticker(self, symbol, **params):
+        """Get symbol ticker
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-ticker
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            ticker = client.get_ticker('ETH-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "sequence": "1550467636704",
+                "price": "0.03715005",
+                "size": "0.17",
+                "bestAsk": "0.03715004",
+                "bestAskSize": "1.788",
+                "bestBid": "0.03710768",
+                "bestBidSize": "3.803",
+                "time": 1550653727731
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        data = {
+            'symbol': symbol
+        }
+        return self._get('market/orderbook/level1', False, data=dict(data, **params))
+
+    def get_tickers(self):
+        """Get symbol tickers
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-all-tickers
+
+        .. code:: python
+
+            tickers = client.get_tickers()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "time": 1602832092060,
+                "ticker": [
+                    {
+                    "symbol": "BTC-USDT", // symbol
+                    "symbolName": "BTC-USDT", // Name of trading pairs, it would change after renaming
+                    "buy": "11328.9", // bestAsk
+                    "sell": "11329", // bestBid
+                    "bestBidSize": "0.1",
+                    "bestAskSize": "1",
+                    "changeRate": "-0.0055", // 24h change rate
+                    "changePrice": "-63.6", // 24h change price
+                    "high": "11610", // 24h highest price
+                    "low": "11200", // 24h lowest price
+                    "vol": "2282.70993217", // 24h volume，the aggregated trading volume in BTC
+                    "volValue": "25984946.157790431", // 24h total, the trading volume in quote currency of last 24 hours
+                    "last": "11328.9", // last price
+                    "averagePrice": "11360.66065903", // 24h average transaction price yesterday
+                    "takerFeeRate": "0.001", // Basic Taker Fee
+                    "makerFeeRate": "0.001", // Basic Maker Fee
+                    "takerCoefficient": "1", // Taker Fee Coefficient
+                    "makerCoefficient": "1" // Maker Fee Coefficient
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        return self._get('market/allTickers', False)
+
+    def get_24hr_stats(self, symbol, **params):
+        """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-24hr-stats
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            stats = client.get_24hr_stats('ETH-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "time": 1602832092060, // time
+                "symbol": "BTC-USDT", // symbol
+                "buy": "11328.9", // bestAsk
+                "sell": "11329", // bestBid
+                "changeRate": "-0.0055", // 24h change rate
+                "changePrice": "-63.6", // 24h change price
+                "high": "11610", // 24h highest price
+                "low": "11200", // 24h lowest price
+                "vol": "2282.70993217", // 24h volume the aggregated trading volume in BTC
+                "volValue": "25984946.157790431", // 24h total, the trading volume in quote currency of last 24 hours
+                "last": "11328.9", // last price
+                "averagePrice": "11360.66065903", // 24h average transaction price yesterday
+                "takerFeeRate": "0.001", // Basic Taker Fee
+                "makerFeeRate": "0.001", // Basic Maker Fee
+                "takerCoefficient": "1", // Taker Fee Coefficient
+                "makerCoefficient": "1" // Maker Fee Coefficient
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('market/stats', False, data=dict(data, **params))
+
+    def get_markets(self):
+        """Get supported market list
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-market-list
+
+        .. code:: python
+
+            markets = client.get_markets()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "data": [
+                    "USDS", //SC has been changed to USDS
+                    "BTC",
+                    "KCS",
+                    "ALTS", //ALTS market includes ETH, NEO, TRX
+                    "NFT-ETF",
+                    "FIAT",
+                    "DeFi",
+                    "NFT",
+                    "Metaverse",
+                    "Polkadot",
+                    "ETF"
+                ],
+                "code": "200000"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        return self._get('markets', False)
+
+    def get_order_book(self, symbol, depth_20=False, **params):
+        """Get a list of bids and asks aggregated by price for a symbol.
+
+        Returns up to 20 or 100 depth each side. Fastest Order book API
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-part-order-book-aggregated-
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param depth_20: If to return only 20 depth
+        :type depth_20: bool
+
+        .. code:: python
+
+            orders = client.get_order_book('KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "sequence": "3262786978",
+                "time": 1550653727731,
+                "bids": [
+                    ["6500.12", "0.45054140"],
+                    ["6500.11", "0.45054140"]
+                ],
+                "asks": [
+                    ["6500.16", "0.57753524"],
+                    ["6500.15", "0.57753524"]
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+        path = 'market/orderbook/level2_'
+        if depth_20:
+            path += '20'
+        else:
+            path += '100'
+
+        return self._get(path, False, data=dict(data, **params))
+
+    def get_full_order_book(self, symbol, **params):
+        """Get a list of all bids and asks aggregated by price for a symbol.
+
+        This call is generally used by professional traders because it uses more server resources and traffic,
+        and Kucoin has strict access frequency control.
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-full-order-book-aggregated-
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            orders = client.get_order_book('KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "sequence": "3262786978",
+                "bids": [
+                    ["6500.12", "0.45054140"],  # [price size]
+                    ["6500.11", "0.45054140"]
+                ],
+                "asks": [
+                    ["6500.16", "0.57753524"],
+                    ["6500.15", "0.57753524"]
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('market/orderbook/level2', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def get_trade_histories(self, symbol, **params):
+        """List the latest trades for a symbol
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-trade-histories
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            orders = client.get_trade_histories('KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                {
+                    "sequence": "1545896668571",
+                    "price": "0.07",                # Filled price
+                    "size": "0.004",                # Filled amount
+                    "side": "buy",                  # Filled side. The filled side is set to the taker by default.
+                    "time": 1545904567062140823     # Transaction time
+                },
+                {
+                    "sequence": "1545896668578",
+                    "price": "0.054",
+                    "size": "0.066",
+                    "side": "buy",
+                    "time": 1545904581619888405
+                }
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('market/histories', False, data=dict(data, **params))
+
+    def get_kline_data(self, symbol, kline_type='5min', start=None, end=None, **params):
+        """Get kline data
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-klines
+
+        For each query, the system would return at most 1500 pieces of data.
+        To obtain more data, please page the data by time.
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
+                           4hour, 6hour, 8hour, 12hour, 1day, 1week
+        :type kline_type: string
+        :param start: Start time as unix timestamp (optional) default start of day in UTC
+        :type start: int
+        :param end: End time as unix timestamp (optional) default now in UTC
+        :type end: int
+
+        .. code:: python
+
+            klines = client.get_kline_data('KCS-BTC', '5min', 1507479171, 1510278278)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            [
+                [
+                    "1545904980",             //Start time of the candle cycle
+                    "0.058",                  //opening price
+                    "0.049",                  //closing price
+                    "0.058",                  //highest price
+                    "0.049",                  //lowest price
+                    "0.018",                  //Transaction amount
+                    "0.000945"                //Transaction volume
+                ],
+                [
+                    "1545904920",
+                    "0.058",
+                    "0.072",
+                    "0.072",
+                    "0.058",
+                    "0.103",
+                    "0.006986"
+                ]
+            ]
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if kline_type is not None:
+            data['type'] = kline_type
+        if start is not None:
+            data['startAt'] = start
+        if end is not None:
+            data['endAt'] = end
+
+        return self._get('market/candles', False, data=dict(data, **params))
+
+    def get_fiat_prices(self, base=None, currencies=None, **params):
+        """Get fiat price for currency
+
+        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-fiat-price
+
+        :param base: (optional) Fiat,eg.USD,EUR, default is USD.
+        :type base: string
+        :param currencies: (optional) Cryptocurrencies.For multiple cyrptocurrencies, please separate them with
+                       comma one by one. default is all
+        :type currencies: string
+
+        .. code:: python
+
+            prices = client.get_fiat_prices()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "BTC": "3911.28000000",
+                "ETH": "144.55492453",
+                "LTC": "48.45888179",
+                "KCS": "0.45546856"
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if base is not None:
+            data['base'] = base
+        if currencies is not None:
+            data['currencies'] = currencies
+
+        return self._get('prices', False, data=dict(data, **params))
+
     # User Account Endpoints
 
     def get_accounts(self, currency=None, account_type=None, **params):
@@ -5758,195 +6271,37 @@ class Client(object):
 
         return self._get('hf/margin/fills', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
-    # Market Endpoints
+    # Margin Info Endpoints
 
-    def get_symbols(self, market=None, **params):
-        """Get a list of available currency pairs for trading.
+    def margin_get_leverage_token_info(self, currency=None, **params):
+        """Get a list of leverage token info
 
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbols-list
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-leveraged-token-info
 
-        :param market: (optional) Name of market e.g. BTC
-        :type market: string
-
-        .. code:: python
-
-            symbols = client.get_symbols()
-            symbols = client.get_symbols('USDS')
-
-        :returns: ApiResponse
+        :param currency: (optional) Currency, if empty query all currencies
+        :type currency: string
 
         .. code:: python
 
-            [
-                {
-                    "symbol": "XLM-USDT",
-                    "name": "XLM-USDT",
-                    "baseCurrency": "XLM",
-                    "quoteCurrency": "USDT",
-                    "feeCurrency": "USDT",
-                    "market": "USDS",
-                    "baseMinSize": "0.1",
-                    "quoteMinSize": "0.01",
-                    "baseMaxSize": "10000000000",
-                    "quoteMaxSize": "99999999",
-                    "baseIncrement": "0.0001",
-                    "quoteIncrement": "0.000001",
-                    "priceIncrement": "0.000001",
-                    "priceLimitRate": "0.1",
-                    "minFunds": "0.1",
-                    "isMarginEnabled": true,
-                    "enableTrading": true
-                },
-                {
-                    "symbol": "VET-USDT",
-                    "name": "VET-USDT",
-                    "baseCurrency": "VET",
-                    "quoteCurrency": "USDT",
-                    "feeCurrency": "USDT",
-                    "market": "USDS",
-                    "baseMinSize": "10",
-                    "quoteMinSize": "0.01",
-                    "baseMaxSize": "10000000000",
-                    "quoteMaxSize": "99999999",
-                    "baseIncrement": "0.0001",
-                    "quoteIncrement": "0.000001",
-                    "priceIncrement": "0.0000001",
-                    "priceLimitRate": "0.1",
-                    "minFunds": "0.1",
-                    "isMarginEnabled": true,
-                    "enableTrading": true
-                }
-            ]
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {}
-        if market:
-            data['market'] = market
-
-        return self._get('symbols', False, api_version=self.API_VERSION2, data=dict(data, **params))
-
-    def get_symbol(self, symbol=None, **params):
-        """Get a symbol details for trading.
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbol-detail
-
-        :param symbol: (optional) Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            symbol = client.get_symbol('XLM-USDT')
+            leverage_token_info = client.get_leverage_token_info()
 
         :returns: ApiResponse
 
         .. code:: python
 
             {
-                "data" : {
-                    "quoteMinSize" : "0.1",
-                    "quoteCurrency" : "USDT",
-                    "feeCurrency" : "USDT",
-                    "symbol" : "BTC-USDT",
-                    "market" : "USDS",
-                    "baseMaxSize" : "10000000000",
-                    "baseIncrement" : "0.00000001",
-                    "quoteIncrement" : "0.000001",
-                    "priceIncrement" : "0.1",
-                    "priceLimitRate" : "0.1",
-                    "minFunds" : "0.1",
-                    "isMarginEnabled" : true,
-                    "enableTrading" : true,
-                    "baseCurrency" : "BTC",
-                    "baseMinSize" : "0.00001",
-                    "name" : "BTC-USDT",
-                    "quoteMaxSize" : "99999999"
-                },
-                "code" : "200000"
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {}
-        if symbol:
-            data['symbol'] = symbol
-
-        return self._get('symbol', False, api_version=self.API_VERSION2, data=dict(data, **params))
-
-    def get_ticker(self, symbol, **params):
-        """Get symbol ticker
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-ticker
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            ticker = client.get_ticker('ETH-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "sequence": "1550467636704",
-                "price": "0.03715005",
-                "size": "0.17",
-                "bestAsk": "0.03715004",
-                "bestAskSize": "1.788",
-                "bestBid": "0.03710768",
-                "bestBidSize": "3.803",
-                "time": 1550653727731
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-        data = {
-            'symbol': symbol
-        }
-        return self._get('market/orderbook/level1', False, data=dict(data, **params))
-
-    def get_tickers(self):
-        """Get symbol tickers
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-all-tickers
-
-        .. code:: python
-
-            tickers = client.get_tickers()
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "time": 1602832092060,
-                "ticker": [
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
                     {
-                    "symbol": "BTC-USDT", // symbol
-                    "symbolName": "BTC-USDT", // Name of trading pairs, it would change after renaming
-                    "buy": "11328.9", // bestAsk
-                    "sell": "11329", // bestBid
-                    "bestBidSize": "0.1",
-                    "bestAskSize": "1",
-                    "changeRate": "-0.0055", // 24h change rate
-                    "changePrice": "-63.6", // 24h change price
-                    "high": "11610", // 24h highest price
-                    "low": "11200", // 24h lowest price
-                    "vol": "2282.70993217", // 24h volume，the aggregated trading volume in BTC
-                    "volValue": "25984946.157790431", // 24h total, the trading volume in quote currency of last 24 hours
-                    "last": "11328.9", // last price
-                    "averagePrice": "11360.66065903", // 24h average transaction price yesterday
-                    "takerFeeRate": "0.001", // Basic Taker Fee
-                    "makerFeeRate": "0.001", // Basic Maker Fee
-                    "takerCoefficient": "1", // Taker Fee Coefficient
-                    "makerCoefficient": "1" // Maker Fee Coefficient
+                        "currency": "BTCUP",
+                        "netAsset": 0.001,
+                        "targetLeverage": "2-4",
+                        "actualLeverage": "2.33",
+                        "assetsUnderManagement": "766834.764756714775 USDT"
+                        "basket": "-78.671762 XBTUSDTM"
                     }
                 ]
             }
@@ -5954,322 +6309,203 @@ class Client(object):
         :raises: KucoinResponseException, KucoinAPIException
 
         """
-        return self._get('market/allTickers', False)
-
-    def get_24hr_stats(self, symbol, **params):
-        """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-24hr-stats
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            stats = client.get_24hr_stats('ETH-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "time": 1602832092060, // time
-                "symbol": "BTC-USDT", // symbol
-                "buy": "11328.9", // bestAsk
-                "sell": "11329", // bestBid
-                "changeRate": "-0.0055", // 24h change rate
-                "changePrice": "-63.6", // 24h change price
-                "high": "11610", // 24h highest price
-                "low": "11200", // 24h lowest price
-                "vol": "2282.70993217", // 24h volume the aggregated trading volume in BTC
-                "volValue": "25984946.157790431", // 24h total, the trading volume in quote currency of last 24 hours
-                "last": "11328.9", // last price
-                "averagePrice": "11360.66065903", // 24h average transaction price yesterday
-                "takerFeeRate": "0.001", // Basic Taker Fee
-                "makerFeeRate": "0.001", // Basic Maker Fee
-                "takerCoefficient": "1", // Taker Fee Coefficient
-                "makerCoefficient": "1" // Maker Fee Coefficient
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-
-        return self._get('market/stats', False, data=dict(data, **params))
-
-    def get_markets(self):
-        """Get supported market list
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-market-list
-
-        .. code:: python
-
-            markets = client.get_markets()
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "data": [
-                    "USDS", //SC has been changed to USDS
-                    "BTC",
-                    "KCS",
-                    "ALTS", //ALTS market includes ETH, NEO, TRX
-                    "NFT-ETF",
-                    "FIAT",
-                    "DeFi",
-                    "NFT",
-                    "Metaverse",
-                    "Polkadot",
-                    "ETF"
-                ],
-                "code": "200000"
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-        return self._get('markets', False)
-
-    def get_order_book(self, symbol, depth_20=False, **params):
-        """Get a list of bids and asks aggregated by price for a symbol.
-
-        Returns up to 20 or 100 depth each side. Fastest Order book API
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-part-order-book-aggregated-
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param depth_20: If to return only 20 depth
-        :type depth_20: bool
-
-        .. code:: python
-
-            orders = client.get_order_book('KCS-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "sequence": "3262786978",
-                "time": 1550653727731,
-                "bids": [
-                    ["6500.12", "0.45054140"],
-                    ["6500.11", "0.45054140"]
-                ],
-                "asks": [
-                    ["6500.16", "0.57753524"],
-                    ["6500.15", "0.57753524"]
-                ]
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-        path = 'market/orderbook/level2_'
-        if depth_20:
-            path += '20'
-        else:
-            path += '100'
-
-        return self._get(path, False, data=dict(data, **params))
-
-    def get_full_order_book(self, symbol, **params):
-        """Get a list of all bids and asks aggregated by price for a symbol.
-
-        This call is generally used by professional traders because it uses more server resources and traffic,
-        and Kucoin has strict access frequency control.
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-full-order-book-aggregated-
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            orders = client.get_order_book('KCS-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "sequence": "3262786978",
-                "bids": [
-                    ["6500.12", "0.45054140"],  # [price size]
-                    ["6500.11", "0.45054140"]
-                ],
-                "asks": [
-                    ["6500.16", "0.57753524"],
-                    ["6500.15", "0.57753524"]
-                ]
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-
-        return self._get('market/orderbook/level2', True, api_version=self.API_VERSION3, data=dict(data, **params))
-
-    def get_trade_histories(self, symbol, **params):
-        """List the latest trades for a symbol
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-trade-histories
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-
-        .. code:: python
-
-            orders = client.get_trade_histories('KCS-BTC')
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            [
-                {
-                    "sequence": "1545896668571",
-                    "price": "0.07",                # Filled price
-                    "size": "0.004",                # Filled amount
-                    "side": "buy",                  # Filled side. The filled side is set to the taker by default.
-                    "time": 1545904567062140823     # Transaction time
-                },
-                {
-                    "sequence": "1545896668578",
-                    "price": "0.054",
-                    "size": "0.066",
-                    "side": "buy",
-                    "time": 1545904581619888405
-                }
-            ]
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-
-        return self._get('market/histories', False, data=dict(data, **params))
-
-    def get_kline_data(self, symbol, kline_type='5min', start=None, end=None, **params):
-        """Get kline data
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-klines
-
-        For each query, the system would return at most 1500 pieces of data.
-        To obtain more data, please page the data by time.
-
-        :param symbol: Name of symbol e.g. KCS-BTC
-        :type symbol: string
-        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
-                           4hour, 6hour, 8hour, 12hour, 1day, 1week
-        :type kline_type: string
-        :param start: Start time as unix timestamp (optional) default start of day in UTC
-        :type start: int
-        :param end: End time as unix timestamp (optional) default now in UTC
-        :type end: int
-
-        .. code:: python
-
-            klines = client.get_kline_data('KCS-BTC', '5min', 1507479171, 1510278278)
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            [
-                [
-                    "1545904980",             //Start time of the candle cycle
-                    "0.058",                  //opening price
-                    "0.049",                  //closing price
-                    "0.058",                  //highest price
-                    "0.049",                  //lowest price
-                    "0.018",                  //Transaction amount
-                    "0.000945"                //Transaction volume
-                ],
-                [
-                    "1545904920",
-                    "0.058",
-                    "0.072",
-                    "0.072",
-                    "0.058",
-                    "0.103",
-                    "0.006986"
-                ]
-            ]
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
-
-        data = {
-            'symbol': symbol
-        }
-
-        if kline_type is not None:
-            data['type'] = kline_type
-        if start is not None:
-            data['startAt'] = start
-        if end is not None:
-            data['endAt'] = end
-
-        return self._get('market/candles', False, data=dict(data, **params))
-
-    def get_fiat_prices(self, base=None, currencies=None, **params):
-        """Get fiat price for currency
-
-        https://www.kucoin.com/docs/rest/spot-trading/market-data/get-fiat-price
-
-        :param base: (optional) Fiat,eg.USD,EUR, default is USD.
-        :type base: string
-        :param currencies: (optional) Cryptocurrencies.For multiple cyrptocurrencies, please separate them with
-                       comma one by one. default is all
-        :type currencies: string
-
-        .. code:: python
-
-            prices = client.get_fiat_prices()
-
-        :returns: ApiResponse
-
-        .. code:: python
-
-            {
-                "BTC": "3911.28000000",
-                "ETH": "144.55492453",
-                "LTC": "48.45888179",
-                "KCS": "0.45546856"
-            }
-
-        :raises: KucoinResponseException, KucoinAPIException
-
-        """
 
         data = {}
 
-        if base is not None:
-            data['base'] = base
-        if currencies is not None:
-            data['currencies'] = currencies
+        if currency:
+            data['currency'] = currency
 
-        return self._get('prices', False, data=dict(data, **params))
+        return self._get('etf/info', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_get_all_trading_pairs_mark_prices(self, **params):
+        """Get a list of trading pairs and their mark prices
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-all-trading-pairs-mark-price
+
+        .. code:: python
+
+            trading_pairs_mark_prices = client.get_all_trading_pairs_mark_prices()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "symbol": "POND-BTC",
+                        "timePoint": 1721027167000,
+                        "value": 2.96603125E-7
+                    },
+                    {
+                        "symbol": "REN-BTC",
+                        "timePoint": 1721027217000,
+                        "value": 7.36068750E-7
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('mark-price/all-symbols', False, api_version=self.API_VERSION3, data=params)
+
+    def margin_get_mark_price(self, symbol, **params):
+        """Get the mark price of a symbol
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-mark-price
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            mark_price = client.get_mark_price('ETH-USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "USDT-BTC",
+                    "timePoint": 1659930234000,
+                    "value": 0.0000429
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('mark-price/{}'.format(symbol)'/current', False, data=dict(data, **params))
+
+    def margin_get_config(self, **params):
+        """Get the margin configuration
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-margin-configuration-info
+
+        .. code:: python
+
+            margin_config = client.get_config()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "currencyList": [
+                        "XEM",
+                        "MATIC",
+                        "VRA",
+                        ...
+                    ],
+                    "maxLeverage": 5,
+                    "warningDebtRatio": "0.95",
+                    "liqDebtRatio": "0.97"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('margin/config', True, data=params)
+
+    def margin_get_cross_isolated_risk_limit_config(self, isolated, symbol=None, currency=None, **params):
+        """Get the cross or isolated margin risk limit configuration
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-cross-isolated-margin-risk-limit-currency-config
+
+        :param isolated: True for isolated margin, False for cross margin
+        :type isolated: bool
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param currency: (optional) Currency
+        :type currency: string
+
+        .. code:: python
+
+            risk_limit_config = client.get_cross_isolated_risk_limit_config(False)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            CROSS MARGIN RESPONSES
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
+                    {
+                        "timestamp": 1697783812257,
+                        "currency": "XMR",
+                        "borrowMaxAmount": "999999999999999999",
+                        "buyMaxAmount": "999999999999999999",
+                        "holdMaxAmount": "999999999999999999",
+                        "borrowCoefficient": "0.5",
+                        "marginCoefficient": "1",
+                        "precision": 8,
+                        "borrowMinAmount": "0.001",
+                        "borrowMinUnit": "0.001",
+                        "borrowEnabled": true
+                    }
+                ]
+            }
+            ISOLATED MARGIN RESPONSES
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
+                    {
+                        "timestamp": 1697782543851,
+                        "symbol": "LUNC-USDT",
+                        "baseMaxBorrowAmount": "999999999999999999",
+                        "quoteMaxBorrowAmount": "999999999999999999",
+                        "baseMaxBuyAmount": "999999999999999999",
+                        "quoteMaxBuyAmount": "999999999999999999",
+                        "baseMaxHoldAmount": "999999999999999999",
+                        "quoteMaxHoldAmount": "999999999999999999",
+                        "basePrecision": 8,
+                        "quotePrecision": 8,
+                        "baseBorrowCoefficient": "1",
+                        "quoteBorrowCoefficient": "1",
+                        "baseMarginCoefficient": "1",
+                        "quoteMarginCoefficient": "1",
+                        "baseBorrowMinAmount": null,
+                        "baseBorrowMinUnit": null,
+                        "quoteBorrowMinAmount": "0.001",
+                        "quoteBorrowMinUnit": "0.001",
+                        "baseBorrowEnabled": false,
+                        "quoteBorrowEnabled": true
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'isolated': isolated
+        }
+
+        if symbol:
+            data['symbol'] = symbol
+        if currency:
+            data['currency'] = currency
+
+        return self._get('margin/currencies', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     # Websocket Endpoints
 
