@@ -1247,8 +1247,123 @@ class Client(object):
         if query_type:
             data['type'] = query_type
 
-        return self._get('margin/accounts', True, data=dict(data, **params))
+        return self._get('margin/accounts', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_get_isolated_account_detail(self, symbol=None, quote_currency=None, query_type=None, **params):
+        """Get isolated account detail
 
+        https://www.kucoin.com/docs/rest/funding/funding-overview/get-account-detail-isolated-margin
+
+        :param symbol: (optional) symbol
+        :type symbol: string
+        :param quote_currency: (optional) quote currency
+        :type quote_currency: string
+        :param query_type: (optional) query type
+        :type query_type: string
+
+        .. code:: python
+
+            account = client.margin_get_isolated_account_detail()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "totalAssetOfQuoteCurrency": "3.4939947",
+                        "totalLiabilityOfQuoteCurrency": "0.00239066",
+                        "timestamp": 1668062174000,
+                        "assets": [
+                            {
+                                "symbol": "MANA-USDT",
+                                "debtRatio": "0",
+                                "status": "BORROW",
+                                "baseAsset": {
+                                    "currency": "MANA",
+                                    "borrowEnabled": true,
+                                    "repayEnabled": true,
+                                    "transferEnabled": true,
+                                    "borrowed": "0",
+                                    "totalAsset": "0",
+                                    "available": "0",
+                                    "hold": "0",
+                                    "maxBorrowSize": "1000"
+                                },
+                                "quoteAsset": {
+                                    "currency": "USDT",
+                                    "borrowEnabled": true,
+                                    "repayEnabled": true,
+                                    "transferEnabled": true,
+                                    "borrowed": "0",
+                                    "totalAsset": "0",
+                                    "available": "0",
+                                    "hold": "0",
+                                    "maxBorrowSize": "50000"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+        if quote_currency:
+            data['quoteCurrency'] = quote_currency
+        if query_type:
+            data['type'] = query_type
+
+        return self._get('isolated/accounts', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def futures_get_account_detail(self, currency=None, **params):
+        """Get futures account detail
+
+        https://www.kucoin.com/docs/rest/funding/funding-overview/get-account-detail-futures
+
+        :param currency: (optional) currency
+        :type currency: string
+
+        .. code:: python
+
+            account = client.futures_get_account_detail()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "accountEquity": 99.8999305281,
+                    "unrealisedPNL": 0,
+                    "marginBalance": 99.8999305281,
+                    "positionMargin": 0, 
+                    "orderMargin": 0,
+                    "frozenFunds": 0,
+                    "availableBalance":
+                    "currency": "XBT" ,
+                    "riskRatio": 0 
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if currency:
+            data['currency'] = currency
+
+        return self._get('account-overview', True, data=dict(data, **params))
+    
     def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
         """Get the account info of a sub-user specified by the subUserId
 
@@ -1435,6 +1550,76 @@ class Client(object):
             data['pageSize'] = limit
 
         return self._get('sub-accounts', True, api_version=self.API_VERSION2, data=dict(data, **params))
+    
+    def futures_get_all_subaccounts_balance(self, currency=None, **params):
+        """Get the account info of all sub-users
+
+        https://www.kucoin.com/docs/rest/funding/funding-overview/get-all-sub-accounts-balance-futures
+
+        :param currency: (optional) currency
+        :type currency: string
+
+        .. code:: python
+
+            accounts = client.futures_get_all_subaccounts_balance()
+
+        :returns: API Response
+
+        .. code-block:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "summary": {
+                        "accountEquityTotal": 9.99,
+                        "unrealisedPNLTotal": 0,
+                        "marginBalanceTotal": 9.99,
+                        "positionMarginTotal": 0,
+                        "orderMarginTotal": 0,
+                        "frozenFundsTotal": 0,
+                        "availableBalanceTotal": 9.99,
+                        "currency": "USDT"
+                    },
+                    "accounts": [
+                        {
+                            "accountName": "main",
+                            "accountEquity": 9.99,
+                            "unrealisedPNL": 0,
+                            "marginBalance": 9.99,
+                            "positionMargin": 0,
+                            "orderMargin": 0,
+                            "frozenFunds": 0,
+                            "availableBalance": 9.99,
+                            "currency": "USDT"
+                        },
+                        {
+                            "accountName": "subacct",
+                            "accountEquity": 0,
+                            "unrealisedPNL": 0,
+                            "marginBalance": 0,
+                            "positionMargin": 0,
+                            "orderMargin": 0,
+                            "frozenFunds": 0,
+                            "availableBalance": 0,
+                            "currency": "USDT"
+                        }
+                    ]
+                }
+            }
+
+        :raises:  KucoinResponseException, KucoinAPIException
+
+        """
+        # todo check and add the response
+
+        data = {}
+        if currency:
+            data['currency'] = currency
+
+        return self._get('account-overview-all', True, data=dict(data, **params))
 
     def get_subaccount_api_list(self, sub_name, api_key=None, **params):
         """Get the API key list of a sub-user
