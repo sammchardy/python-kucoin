@@ -1809,7 +1809,7 @@ class Client(object):
             path = 'hf/margin/account/ledgers'
         return self._get(path, True, data=dict(data, **params))
 
-    def get_futures_account_activity(self, currency=None, type=None, start=None, end=None, limit=None, offset=None, forward=True, **params):
+    def futures_get_account_activity(self, currency=None, type=None, start=None, end=None, limit=None, offset=None, forward=True, **params):
         """Get list of futures account activity
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-ledgers-futures
@@ -6512,6 +6512,195 @@ class Client(object):
             data['currency'] = currency
 
         return self._get('margin/currencies', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_get_isolated_synbols_config(self, **params):
+        """Get the isolated margin symbol configuration
+
+        https://www.kucoin.com/docs/rest/margin-trading/isolated-margin/get-isolated-margin-symbols-configuration
+
+        .. code:: python
+
+            isolated_symbols_config = client.get_isolated_synbols_config()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "symbol": "EOS-USDC",
+                        "symbolName": "EOS-USDC",
+                        "baseCurrency": "EOS",
+                        "quoteCurrency": "USDC",
+                        "maxLeverage": 10,
+                        "flDebtRatio": "0.97",
+                        "tradeEnable": true,
+                        "autoRenewMaxDebtRatio": "0.96",
+                        "baseBorrowEnable": true,
+                        "quoteBorrowEnable": true,
+                        "baseTransferInEnable": true,
+                        "quoteTransferInEnable": true
+                    },
+                    {
+                        "symbol": "MANA-USDT",
+                        "symbolName": "MANA-USDT",
+                        "baseCurrency": "MANA",
+                        "quoteCurrency": "USDT",
+                        "maxLeverage": 10,
+                        "flDebtRatio": "0.9",
+                        "tradeEnable": true,
+                        "autoRenewMaxDebtRatio": "0.96",
+                        "baseBorrowEnable": true,
+                        "quoteBorrowEnable": true,
+                        "baseTransferInEnable": true,
+                        "quoteTransferInEnable": true
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('isolated/symbols', True, data=params)
+
+    def margin_get_isolated_account_info(self, balance_currency=None, **params):
+        """Get the isolated margin account info
+
+        https://www.kucoin.com/docs/rest/margin-trading/isolated-margin/get-isolated-margin-account-info
+
+        :param balance_currency: (optional) The pricing coin, currently only supports USDT, KCS, and BTC. Defaults to BTC if no value is passed.
+        :type balance_currency: string
+
+        .. code:: python
+
+            isolated_account_info = client.get_isolated_account_info()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "totalConversionBalance": "3.4939947",
+                    "liabilityConversionBalance": "0.00239066",
+                    "assets": [
+                        {
+                            "symbol": "MANA-USDT",
+                            "status": "CLEAR",
+                            "debtRatio": "0",
+                            "baseAsset": {
+                            "currency": "MANA",
+                            "totalBalance": "0",
+                            "holdBalance": "0",
+                            "availableBalance": "0",
+                            "liability": "0",
+                            "interest": "0",
+                            "borrowableAmount": "0"
+                        },
+                            "quoteAsset": {
+                                "currency": "USDT",
+                                "totalBalance": "0",
+                                "holdBalance": "0",
+                                "availableBalance": "0",
+                                "liability": "0",
+                                "interest": "0",
+                                "borrowableAmount": "0"
+                            }
+                        },
+                        {
+                            "symbol": "EOS-USDC",
+                            "status": "CLEAR",
+                            "debtRatio": "0",
+                            "baseAsset": {
+                                "currency": "EOS",
+                                "totalBalance": "0",
+                                "holdBalance": "0",
+                                "availableBalance": "0",
+                                "liability": "0",
+                                "interest": "0",
+                                "borrowableAmount": "0"
+                            },
+                            "quoteAsset": {
+                                "currency": "USDC",
+                                "totalBalance": "0",
+                                "holdBalance": "0",
+                                "availableBalance": "0",
+                                "liability": "0",
+                                "interest": "0",
+                                "borrowableAmount": "0"
+                            }
+                        }
+                    ]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if balance_currency:
+            data['balanceCurrency'] = balance_currency
+
+        return self._get('isolated/accounts', True, data=dict(data, **params))
+
+    def margin_get_single_isolated_account_info(self, symbol, **params):
+        """Get the isolated margin account info for a single symbol
+
+        https://www.kucoin.com/docs/rest/margin-trading/isolated-margin/get-single-isolated-margin-account-info
+
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            isolated_account_info = client.get_single_isolated_account_info('EOS-USDC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "MANA-USDT",
+                    "status": "CLEAR",
+                    "debtRatio": "0",
+                    "baseAsset": {
+                        "currency": "MANA",
+                        "totalBalance": "0",
+                        "holdBalance": "0",
+                        "availableBalance": "0",
+                        "liability": "0",
+                        "interest": "0",
+                        "borrowableAmount": "0"
+                    },
+                    "quoteAsset": {
+                        "currency": "USDT",
+                        "totalBalance": "0",
+                        "holdBalance": "0",
+                        "availableBalance": "0",
+                        "liability": "0",
+                        "interest": "0",
+                        "borrowableAmount": "0"
+                    }
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('isolated/account/{}'.format(symbol), True, data=dict(data, **params))
 
     # Websocket Endpoints
 
