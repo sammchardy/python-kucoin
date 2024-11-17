@@ -6701,6 +6701,424 @@ class Client(object):
         }
 
         return self._get('isolated/account/{}'.format(symbol), True, data=dict(data, **params))
+    
+    def margin_borrow(self, currency, size, time_in_force, isolated=False, symbol=None, is_hf=False, **params):
+        """Borrow funds for margin trading
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/margin-borrowing
+
+        :param currency: Currency
+        :type currency: string
+        :param size: Amount to borrow
+        :type size: string
+        :param time_in_force: GTC (Good till cancelled) or GTT (Good till time)
+        :type time_in_force: string
+        :param isolated: (optional) True for isolated margin, False for cross margin
+        :type isolated: bool
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param is_hf: (optional) true: high frequency borrowing, false: low frequency borrowing; default false
+        :type is_hf: bool
+
+        .. code:: python
+
+            borrow = client.margin_borrow('USDT', '100', 'GTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "orderNo": "5da6dba0f943c0c81f5d5db5",
+                    "actualSize": 10
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'size': size,
+            'timeInForce': time_in_force
+        }
+
+        if isolated:
+            data['isolated'] = isolated
+        if symbol:
+            data['symbol'] = symbol
+        if is_hf:
+            data['isHf'] = is_hf
+
+        return self._post('margin/borrow', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_repay(self, currency, size, isolated=False, symbol=None, is_hf=False, **params):
+        """Repay borrowed funds for margin trading
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/repayment
+
+        :param currency: Currency
+        :type currency: string
+        :param size: Amount to repay
+        :type size: string
+        :param isolated: (optional) True for isolated margin, False for cross margin
+        :type isolated: bool
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param is_hf: (optional) true: high frequency borrowing, false: low frequency borrowing; default false
+        :type is_hf: bool
+
+        .. code:: python
+
+            repay = client.margin_repay('USDT', '100')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "orderNo": "5da6dba0f943c0c81f5d5db5",
+                    "actualSize": 10
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'size': size
+        }
+
+        if isolated:
+            data['isolated'] = isolated
+        if symbol:
+            data['symbol'] = symbol
+        if is_hf:
+            data['isHf'] = is_hf
+
+        return self._post('margin/repay', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_get_borrow_history(self, currency, isolated=False, symbol=None, order_no=None, 
+                                  start=None, end=None, page=None, limit=None, **params):
+        
+        """Get the borrow history for margin trading
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-margin-borrowing-history
+
+        :param currency: Currency
+        :type currency: string
+        :param isolated: (optional) True for isolated margin, False for cross margin
+        :type isolated: bool
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_no: (optional) OrderNo
+        :type order_no: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+            
+                borrow_history = client.margin_get_borrow_history('USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 50,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": [
+                    {
+                        "orderNo": "5da6dba0f943c0c81f5d5db5",
+                        "symbol": "BTC-USDT",
+                        "currency": "USDT",
+                        "size": 10,
+                        "actualSize": 10,
+                        "status": "DONE",
+                        "createdTime": 1555056425000
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        if isolated:
+            data['isolated'] = isolated
+        if symbol:
+            data['symbol'] = symbol
+        if order_no:
+            data['orderNo'] = order_no
+        if start:
+            data['startTime'] = start
+        if end:
+            data['endTime'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+        
+        return self._get('margin/borrow', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_get_repay_history(self, currency, isolated=False, symbol=None, order_no=None,
+                                 start=None, end=None, page=None, limit=None, **params):
+            
+        """Get the repay history for margin trading
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-repayment-history
+
+        :param currency: Currency
+        :type currency: string
+        :param isolated: (optional) True for isolated margin, False for cross margin
+        :type isolated: bool
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param order_no: (optional) OrderNo
+        :type order_no: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+            
+                repay_history = client.margin_get_repay_history('USDT')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 50,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": {
+                    "orderNo": "5da6dba0f943c0c81f5d5db5",
+                    "symbol": "BTC-USDT",
+                    "currency": "USDT",
+                    "size": 10,
+                    "actualSize": 10,
+                    "status": "DONE",
+                    "createdTime": 1555056425000
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        if isolated:
+            data['isolated'] = isolated
+        if symbol:
+            data['symbol'] = symbol
+        if order_no:
+            data['orderNo'] = order_no
+        if start:
+            data['startTime'] = start
+        if end:
+            data['endTime'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+        
+        return self._get('margin/repay', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_get_cross_isolated_interest_records(self, isolated=False, symbol=None, currency=None, 
+                                                   start=None, end=None, page=None, limit=None, **params):
+        
+        """Get the cross or isolated margin interest records
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-cross-isolated-margin-interest-records
+
+        :param isolated: (optional) True for isolated margin, False for cross margin
+        :type isolated: bool
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param currency: (optional) Currency
+        :type currency: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            interest_records = client.margin_get_cross_isolated_interest_records()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 50,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": [
+                    {
+                        "createdAt": 1697783812257,
+                        "currency": "XMR",
+                        "interestAmount": "0.1",
+                        "dayRatio": "0.001"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if isolated:
+            data['isolated'] = isolated
+        if symbol:
+            data['symbol'] = symbol
+        if currency:
+            data['currency'] = currency
+        if start:
+            data['startTime'] = start
+        if end:
+            data['endTime'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+        
+        return self._get('margin/interest', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_get_cross_trading_pairs_config(self, symbol=None, **params):
+        """Get the cross margin trading pairs configuration
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-cross-margin-trading-pairs-configuration
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            trading_pairs_config = client.margin_get_cross_trading_pairs_config()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "timestamp": 1718779915377,
+                    "items": [{
+                        "symbol": "ATOM-USDT",
+                        "name": "ATOM-USDT",
+                        "enableTrading": true,
+                        "market": "USDS",
+                        "baseCurrency": "ATOM",
+                        "quoteCurrency": "USDT",
+                        "baseIncrement": 0.0001,
+                        "baseMinSize": 0.1,
+                        "quoteIncrement": 0.0001,
+                        "quoteMinSize": 0.1,
+                        "baseMaxSize": 10000000000,
+                        "quoteMaxSize": 99999999,
+                        "priceIncrement": 0.0001,
+                        "feeCurrency": "USDT",
+                        "priceLimitRate": 0.1,
+                        "minFunds": 0.1
+                    }]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._get('margin/symbols', True, api_version=self.API_VERSION3, data=dict(data, **params))
+    
+    def margin_modify_leverage_multiplier(self, leverage, symbol=None, isolated=False, **params):
+        """Modify the leverage multiplier
+
+        https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/modify-leverage-multiplier
+
+        :param leverage: Must be greater than 1 and up to two decimal places, 
+                        and cannot be less than the user's current debt leverage or greater than the system's maximum leverage
+        :type leverage: int
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param isolated: (optional) True for isolated margin, False for cross margin
+        :type isolated: bool
+
+        .. code:: python
+
+            leverage_multiplier = client.margin_modify_leverage_multiplier(5)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": None
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'leverage': leverage
+        }
+
+        if symbol:
+            data['symbol'] = symbol
+        if isolated:
+            data['isolated'] = isolated
+
+        return self._post('position/update-user-leverage', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     # Websocket Endpoints
 
