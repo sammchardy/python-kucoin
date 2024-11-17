@@ -6701,7 +6701,7 @@ class Client(object):
         }
 
         return self._get('isolated/account/{}'.format(symbol), True, data=dict(data, **params))
-    
+
     def margin_borrow(self, currency, size, time_in_force, isolated=False, symbol=None, is_hf=False, **params):
         """Borrow funds for margin trading
 
@@ -6757,7 +6757,7 @@ class Client(object):
             data['isHf'] = is_hf
 
         return self._post('margin/borrow', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
+
     def margin_repay(self, currency, size, isolated=False, symbol=None, is_hf=False, **params):
         """Repay borrowed funds for margin trading
 
@@ -6810,10 +6810,10 @@ class Client(object):
             data['isHf'] = is_hf
 
         return self._post('margin/repay', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
-    def margin_get_borrow_history(self, currency, isolated=False, symbol=None, order_no=None, 
+
+    def margin_get_borrow_history(self, currency, isolated=False, symbol=None, order_no=None,
                                   start=None, end=None, page=None, limit=None, **params):
-        
+
         """Get the borrow history for margin trading
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-margin-borrowing-history
@@ -6836,7 +6836,7 @@ class Client(object):
         :type limit: int
 
         .. code:: python
-            
+
                 borrow_history = client.margin_get_borrow_history('USDT')
 
         :returns: ApiResponse
@@ -6883,12 +6883,12 @@ class Client(object):
             data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
-        
+
         return self._get('margin/borrow', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
+
     def margin_get_repay_history(self, currency, isolated=False, symbol=None, order_no=None,
                                  start=None, end=None, page=None, limit=None, **params):
-            
+
         """Get the repay history for margin trading
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-repayment-history
@@ -6911,7 +6911,7 @@ class Client(object):
         :type limit: int
 
         .. code:: python
-            
+
                 repay_history = client.margin_get_repay_history('USDT')
 
         :returns: ApiResponse
@@ -6956,12 +6956,12 @@ class Client(object):
             data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
-        
+
         return self._get('margin/repay', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
-    def margin_get_cross_isolated_interest_records(self, isolated=False, symbol=None, currency=None, 
+
+    def margin_get_cross_isolated_interest_records(self, isolated=False, symbol=None, currency=None,
                                                    start=None, end=None, page=None, limit=None, **params):
-        
+
         """Get the cross or isolated margin interest records
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-cross-isolated-margin-interest-records
@@ -7024,9 +7024,9 @@ class Client(object):
             data['currentPage'] = page
         if limit:
             data['pageSize'] = limit
-        
+
         return self._get('margin/interest', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
+
     def margin_get_cross_trading_pairs_config(self, symbol=None, **params):
         """Get the cross margin trading pairs configuration
 
@@ -7078,13 +7078,13 @@ class Client(object):
             data['symbol'] = symbol
 
         return self._get('margin/symbols', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
+
     def margin_modify_leverage_multiplier(self, leverage, symbol=None, isolated=False, **params):
         """Modify the leverage multiplier
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/modify-leverage-multiplier
 
-        :param leverage: Must be greater than 1 and up to two decimal places, 
+        :param leverage: Must be greater than 1 and up to two decimal places,
                         and cannot be less than the user's current debt leverage or greater than the system's maximum leverage
         :type leverage: int
         :param symbol: (optional) Name of symbol e.g. KCS-BTC
@@ -7119,6 +7119,345 @@ class Client(object):
             data['isolated'] = isolated
 
         return self._post('position/update-user-leverage', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    # Lending Market Endpoints
+
+    def margin_lending_get_currency_info(self, currency=None, **params):
+        """Get the lending currency info
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/get-currency-information
+
+        :param currency: (optional) Currency
+        :type currency: string
+
+        .. code:: python
+
+            currency_info = client.lending_get_currency_info()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
+                    {
+                        "currency": "BTC",
+                        "purchaseEnable": true,
+                        "redeemEnable": true,
+                        "increment": "1",
+                        "minPurchaseSize": "10",
+                        "minInterestRate": "0.004",
+                        "maxInterestRate": "0.02",
+                        "interestIncrement": "0.0001",
+                        "maxPurchaseSize": "20000",
+                        "marketInterestRate": "0.009",
+                        "autoPurchaseEnable": true
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if currency:
+            data['currency'] = currency
+
+        return self._get('project/list', False, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_lending_get_interest_rate(self, currency, **params):
+        """ Get the interest rate for a currency
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/get-interest-rates
+
+        :param currency: Currency
+        :type currency: string
+
+        .. code:: python
+
+            interest_rate = client.lending_get_interest_rate('BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
+                    {
+                        "time": "202303261200",
+                        "marketInterestRate": "0.003"
+                    },
+                    {
+                        "time": "202303261300",
+                        "marketInterestRate": "0.004"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency
+        }
+
+        return self._get('project/marketInterestRatet', False, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_lending_subscribtion(self, currency, size, interest_rate, **params):
+        """ Subscribe to a lending product
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/subscription
+
+        :param currency: Currency
+        :type currency: string
+        :param size: Amount to subscribe
+        :type size: string
+        :param interest_rate: Interest rate
+        :type interest_rate: string
+
+        .. code:: python
+
+            subscription = client.lending_subscribtion('BTC', '10', '0.004')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "orderNo": "5da6dba0f943c0c81f5d5db5"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'size': size,
+            'interestRate': interest_rate
+        }
+
+        return self._post('purchase', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_lending_redemption(self, currency, size, purchase_order_no, **params):
+        """ Redeem a lending product
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/redemption
+
+        :param currency: Currency
+        :type currency: string
+        :param size: Amount to redeem
+        :type size: string
+        :param purchase_order_no: OrderNo
+        :type purchase_order_no: string
+
+        .. code:: python
+
+            redemption = client.lending_redemption('BTC', '10', '5da6dba0f943c0c81f5d5db5')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "orderNo": "5da6dba0f943c0c81f5d5db5"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'size': size,
+            'purchaseOrderNo': purchase_order_no
+        }
+
+        return self._post('redeem', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_lending_modify_subscription_orders(self, currency, purchase_order_no, interest_rate, **params):
+        """ Modify subscription orders
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/modify-subscription-orders
+
+        :param currency: Currency
+        :type currency: string
+        :param purchase_order_no: OrderNo
+        :type purchase_order_no: string
+        :param interest_rate: Interest rate
+        :type interest_rate: string
+
+        .. code:: python
+
+            modify_subscription = client.lending_modify_subscription_orders('BTC', '5da6dba0f943c0c81f5d5db5', '0.004')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'purchaseOrderNo': purchase_order_no,
+            'interestRate': interest_rate
+        }
+
+        return self._post('lend/purchase/update', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_lending_get_redemtion_orders(self, currency, status, redeem_order_no=None, page=None, limit=None, **params):
+        """ Get redemption orders
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/get-redemption-orders
+
+        :param currency: Currency
+        :type currency: string
+        :param status: Status
+        :type status: string
+        :param redeem_order_no: (optional) OrderNo
+        :type redeem_order_no: string
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            redemption_orders = client.lending_get_redemtion_orders('BTC', 'DONE')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 100,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": [
+                    {
+                        "currency": "BTC",
+                        "purchaseOrderNo": "5da6dba0f943c0c81f5d5db5",
+                        "redeemOrderNo": "5da6dbasdffga1f5d5dfsb5",
+                        "redeemAmount": "300000",
+                        "receiptAmount": "250000",
+                        "applyTime": 1669508513820,
+                        "status": "PENDING"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'status': status
+        }
+
+        if redeem_order_no:
+            data['orderNo'] = redeem_order_no
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('redeem/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    def margin_lending_get_subscription_orders(self, currency, status, purchase_order_no=None, page=None, limit=None, **params):
+        """ Get subscription orders
+
+        https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/get-subscription-orders
+
+        :param currency: Currency
+        :type currency: string
+        :param status: Status
+        :type status: string
+        :param purchase_order_no: (optional) OrderNo
+        :type purchase_order_no: string
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            subscription_orders = client.lending_get_subscription_orders('BTC', 'DONE')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "currentPage": 1,
+                "pageSize": 100,
+                "totalNum": 1,
+                "totalPage": 1,
+                "items": [
+                    {
+                        "currency": "BTC",
+                        "purchaseOrderNo": "5da6dba0f943c0c81f5d5db5",
+                        "purchaseAmount": "300000",
+                        "lendAmount": "0",
+                        "redeemAmount": "300000",
+                        "interestRate": "0.0003",
+                        "incomeAmount": "200",
+                        "applyTime": 1669508513820,
+                        "status": "DONE"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'currency': currency,
+            'status': status
+        }
+
+        if purchase_order_no:
+            data['orderNo'] = purchase_order_no
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('purchase/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
     # Websocket Endpoints
 
