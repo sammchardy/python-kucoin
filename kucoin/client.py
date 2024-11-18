@@ -7364,6 +7364,188 @@ class Client(object):
 
         return self._get('hf/margin/fills', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
+    def futures_get_fills(self, order_id=None, symbol=None, side=None, type=None, start=None, end=None, page=None, limit=None, **params):
+        """Get a list of recent futures fills.
+
+        https://www.kucoin.com/docs/rest/futures-trading/fills/get-filled-list
+
+        :param order_id: (optional) OrderId
+        :type order_id: string
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param type: (optional) limit, market, limit_stop or market_stop
+        :type type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of orders
+        :type limit: int
+
+        .. code:: python
+
+            fills = client.futures_get_fills()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "currentPage": 1,
+                    "pageSize": 1,
+                    "totalNum": 251915,
+                    "totalPage": 251915,
+                    "items": [
+                        {
+                            "symbol": "XBTUSDM",
+                            "tradeId": "5ce24c1f0c19fc3c58edc47c",
+                            "orderId": "5ce24c16b210233c36ee321d",
+                            "side": "sell",
+                            "liquidity": "taker",
+                            "forceTaker": true,
+                            "price": "8302",
+                            "size": 10,
+                            "value": "0.001204529",
+                            "feeRate": "0.0005",
+                            "fixFee": "0.00000006",
+                            "feeCurrency": "XBT",
+                            "stop": "",
+                            "fee": "0.0000012022",
+                            "orderType": "limit",
+                            "tradeType": "trade",
+                            "createdAt": 1558334496000,
+                            "settleCurrency": "XBT",
+                            "openFeePay": "0.002",
+                            "closeFeePay": "0.002",
+                            "tradeTime": 1558334496000000000,
+                            "marginMode": "ISOLATED"
+                        }
+                    ]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if order_id:
+            data['orderId'] = order_id
+        if symbol:
+            data['symbol'] = symbol
+        if side:
+            data['side'] = side
+        if type:
+            data['type'] = type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('fills', False, data=dict(data, **params))
+
+    def futures_get_recent_fills(self, symbol=None, **params):
+        """Get a list of recent futures fills.
+
+        https://www.kucoin.com/docs/rest/futures-trading/fills/get-recent-filled-list
+
+        .. code:: python
+
+            fills = client.futures_get_recent_fills()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "symbol": "XBTUSDM",
+                        "tradeId": "5ce24c1f0c19fc3c58edc47c",
+                        "orderId": "5ce24c16b210233c36ee321d",
+                        "side": "sell",
+                        "liquidity": "taker",
+                        "forceTaker": true,
+                        "price": "8302",
+                        "size": 10,
+                        "value": "0.001204529",
+                        "feeRate": "0.0005",
+                        "fixFee": "0.00000006",
+                        "feeCurrency": "XBT",
+                        "stop": "",
+                        "fee": "0.0000012022",
+                        "orderType": "limit",
+                        "tradeType": "trade",
+                        "createdAt": 1558334496000,
+                        "settleCurrency": "XBT",
+                        "openFeePay": "0.002",
+                        "closeFeePay": "0.002",
+                        "tradeTime": 1558334496000000000,
+                        "marginMode": "ISOLATED"
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._get('recentFills', False, data=dict(data, **params))
+
+    def futures_get_active_order_value(self, symbol, **params):
+        """Get the active order value of a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/fills/get-active-order-value-calculation
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+
+        .. code:: python
+
+            active_order_value = client.futures_get_active_order_value('XBTUSDM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "openOrderBuySize": 20,
+                    "openOrderSellSize": 0,
+                    "openOrderBuyCost": "0.0025252525",
+                    "openOrderSellCost": "0",
+                    "settleCurrency": "XBT"
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('openOrderStatistics', False, data=dict(data, **params))
+
     # Margin Info Endpoints
 
     def margin_get_leverage_token_info(self, currency=None, **params):
