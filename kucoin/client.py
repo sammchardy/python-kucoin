@@ -1789,7 +1789,7 @@ class Client(object):
 
         """
 
-        return self._get('24hrStats', False, data=params)
+        return self._get('trade-statistics', False, data=params)
 
     # User Account Endpoints
 
