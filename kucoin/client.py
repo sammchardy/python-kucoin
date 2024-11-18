@@ -993,6 +993,804 @@ class Client(object):
 
         return self._get('prices', False, data=dict(data, **params))
 
+    # Futures Market Endpoints
+
+    def futures_get_symbols(self, **params):
+        """Get a list of available currency pairs for trading.
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-symbols-list
+
+        .. code:: python
+
+            symbols = client.futures_get_symbols()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "XBTUSDTM",
+                    "rootSymbol": "USDT",
+                    "type": "FFWCSX",
+                    "firstOpenDate": 1585555200000,
+                    "expireDate": null,
+                    "settleDate": null,
+                    "baseCurrency": "XBT",
+                    "quoteCurrency": "USDT",
+                    "settleCurrency": "USDT",
+                    "maxOrderQty": 1000000,
+                    "maxPrice": 1000000.0,
+                    "lotSize": 1,
+                    "tickSize": 0.1,
+                    "indexPriceTickSize": 0.01,
+                    "multiplier": 0.001,
+                    "initialMargin": 0.008,
+                    "maintainMargin": 0.004,
+                    "maxRiskLimit": 100000,
+                    "minRiskLimit": 100000,
+                    "riskStep": 50000,
+                    "makerFeeRate": 2.0E-4,
+                    "takerFeeRate": 6.0E-4,
+                    "takerFixFee": 0.0,
+                    "makerFixFee": 0.0,
+                    "settlementFee": null,
+                    "isDeleverage": true,
+                    "isQuanto": true,
+                    "isInverse": false,
+                    "markMethod": "FairPrice",
+                    "fairMethod": "FundingRate",
+                    "fundingBaseSymbol": ".XBTINT8H",
+                    "fundingQuoteSymbol": ".USDTINT8H",
+                    "fundingRateSymbol": ".XBTUSDTMFPI8H",
+                    "indexSymbol": ".KXBTUSDT",
+                    "settlementSymbol": "",
+                    "status": "Open",
+                    "fundingFeeRate": 6.41E-4,
+                    "predictedFundingFeeRate": 5.5E-5,
+                    "fundingRateGranularity": 28800000,
+                    "openInterest": "6273644",
+                    "turnoverOf24h": 1.9110000807101517E9,
+                    "volumeOf24h": 21807.101,
+                    "markPrice": 87351.75,
+                    "indexPrice": 87357.57,
+                    "lastTradePrice": 87319.4,
+                    "nextFundingRateTime": 1816952,
+                    "maxLeverage": 125,
+                    "sourceExchanges": [
+                        "okex",
+                        "binance",
+                        "kucoin",
+                        "bybit",
+                        "bitmart",
+                        "gateio"
+                    ],
+                    "premiumsSymbol1M": ".XBTUSDTMPI",
+                    "premiumsSymbol8H": ".XBTUSDTMPI8H",
+                    "fundingBaseSymbol1M": ".XBTINT",
+                    "fundingQuoteSymbol1M": ".USDTINT",
+                    "lowPrice": 85201.8,
+                    "highPrice": 90000.0,
+                    "priceChgPct": -0.0033,
+                    "priceChg": -291.0,
+                    "k": 490.0,
+                    "m": 300.0,
+                    "f": 1.3,
+                    "mmrLimit": 0.3,
+                    "mmrLevConstant": 125.0,
+                    "supportCross": true,
+                    "buyLimit": 91717.92,
+                    "sellLimit": 82982.88
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('contracts/active', False, data=params)
+
+    def futures_get_symbol(self, symbol=None, **params):
+        """Get a symbol details for trading.
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-symbol-detail
+
+        :param symbol: (optional) Name of symbol e.g. XBTUSDTM
+        :type symbol: string
+
+        .. code:: python
+
+            symbol = client.futures_get_symbol('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "XBTUSDTM",
+                    "rootSymbol": "USDT",
+                    "type": "FFWCSX",
+                    "firstOpenDate": 1585555200000,
+                    "expireDate": null,
+                    "settleDate": null,
+                    "baseCurrency": "XBT",
+                    "quoteCurrency": "USDT",
+                    "settleCurrency": "USDT",
+                    "maxOrderQty": 1000000,
+                    "maxPrice": 1000000.0,
+                    "lotSize": 1,
+                    "tickSize": 0.1,
+                    "indexPriceTickSize": 0.01,
+                    "multiplier": 0.001,
+                    "initialMargin": 0.008,
+                    "maintainMargin": 0.004,
+                    "maxRiskLimit": 100000,
+                    "minRiskLimit": 100000,
+                    "riskStep": 50000,
+                    "makerFeeRate": 2.0E-4,
+                    "takerFeeRate": 6.0E-4,
+                    "takerFixFee": 0.0,
+                    "makerFixFee": 0.0,
+                    "settlementFee": null,
+                    "isDeleverage": true,
+                    "isQuanto": true,
+                    "isInverse": false,
+                    "markMethod": "FairPrice",
+                    "fairMethod": "FundingRate",
+                    "fundingBaseSymbol": ".XBTINT8H",
+                    "fundingQuoteSymbol": ".USDTINT8H",
+                    "fundingRateSymbol": ".XBTUSDTMFPI8H",
+                    "indexSymbol": ".KXBTUSDT",
+                    "settlementSymbol": "",
+                    "status": "Open",
+                    "fundingFeeRate": 6.41E-4,
+                    "predictedFundingFeeRate": 5.5E-5,
+                    "fundingRateGranularity": 28800000,
+                    "openInterest": "6273644",
+                    "turnoverOf24h": 1.9110000807101517E9,
+                    "volumeOf24h": 21807.101,
+                    "markPrice": 87351.75,
+                    "indexPrice": 87357.57,
+                    "lastTradePrice": 87319.4,
+                    "nextFundingRateTime": 1816952,
+                    "maxLeverage": 125,
+                    "sourceExchanges": [
+                        "okex",
+                        "binance",
+                        "kucoin",
+                        "bybit",
+                        "bitmart",
+                        "gateio"
+                    ],
+                    "premiumsSymbol1M": ".XBTUSDTMPI",
+                    "premiumsSymbol8H": ".XBTUSDTMPI8H",
+                    "fundingBaseSymbol1M": ".XBTINT",
+                    "fundingQuoteSymbol1M": ".USDTINT",
+                    "lowPrice": 85201.8,
+                    "highPrice": 90000.0,
+                    "priceChgPct": -0.0033,
+                    "priceChg": -291.0,
+                    "k": 490.0,
+                    "m": 300.0,
+                    "f": 1.3,
+                    "mmrLimit": 0.3,
+                    "mmrLevConstant": 125.0,
+                    "supportCross": true,
+                    "buyLimit": 91717.92,
+                    "sellLimit": 82982.88
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._get('contracts/{}'.format(symbol), False, data=dict(data, **params))
+
+    def futures_get_ticker(self, symbol, **params):
+        """Get symbol ticker
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-ticker
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+
+        .. code:: python
+
+            ticker = client.futures_get_ticker('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "sequence": 1001,
+                    "symbol":
+                    "side": "buy",
+                    "size": 10,
+                    "price": "7000.0",
+                    "bestBidSize": 20,
+                    "bestBidPrice": "7000.0",
+                    "bestAskSize": 30,
+                    "bestAskPrice": "7001.0",
+                    "tradeId": "5cbd7377a6ffab0c7ba98b26",
+                    "ts": 1550653727731
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('ticker', False, data=dict(data, **params))
+
+    def futures_get_tickers(self, **params):
+        """Get symbol tickers
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-latest-ticker-for-all-contracts
+
+        .. code:: python
+
+            tickers = client.futures_get_tickers()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
+                    {
+                        "sequence": 1721456489271,
+                        "symbol": "THETAUSDTM",
+                        "side": "buy",
+                        "size": 728,
+                        "tradeId": "1721456489263",
+                        "price": "1.479",
+                        "bestBidPrice": "1.536",
+                        "bestBidSize": 272,
+                        "bestAskPrice": "1.54",
+                        "bestAskSize": 1000,
+                        "ts": 1722237164196000000
+                    }
+                    ...
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('allTickers', False, data=params)
+
+    def futures_get_order_book(self, symbol, depth_20=False, **params):
+        """Get a list of bids and asks aggregated by price for a symbol.
+
+        Returns up to 20 or 100 depth each side. Fastest Order book API
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-part-order-book-level-2
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+
+        .. code:: python
+
+            orders = client.futures_get_order_book('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "XBTUSDM",
+                    "sequence": 100,
+                    "asks": [
+                        ["5000.0", 1000],
+                        ["6000.0", 1983]
+                    ],
+                    "bids": [
+                        ["3200.0", 800],
+                        ["3100.0", 100]
+                    ],
+                    "ts": 1604643655040584408
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        path = 'level2/depth'
+        if depth_20:
+            path += '20'
+        else:
+            path += '100'
+
+        return self._get(path, False, data=dict(data, **params))
+
+    def futures_get_full_order_book(self, symbol, **params):
+        """Get a list of all bids and asks aggregated by price for a symbol.
+
+        This call is generally used by professional traders because it uses more server resources and traffic,
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-full-order-book-level-2
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+
+        .. code:: python
+
+            orders = client.futures_get_full_order_book('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": "XBTUSDM",
+                    "sequence": 100,
+                    "asks": [
+                        ["5000.0", 1000],
+                        ["6000.0", 1983]
+                    ],
+                    "bids": [
+                        ["3200.0", 800],
+                        ["3100.0", 100]
+                    ],
+                    "ts": 1604643655040584408
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('level2/snapshot', False, data=dict(data, **params))
+
+    def futures_get_trade_histories(self, symbol, **params):
+        """List the latest trades for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-transaction-history
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+
+        .. code:: python
+
+            orders = client.futures_get_trade_histories('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "sequence": 102,
+                    "tradeId": "5cbd7377a6ffab0c7ba98b26",
+                    "takerOrderId": "5cbd7377a6ffab0c7ba98b27",
+                    "makerOrderId": "5cbd7377a6ffab0c7ba98b28",
+                    "price": "7000.0",
+                    "size": 1,
+                    "side": "buy",
+                    "ts": 1545904567062140823
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('trade/history', False, data=dict(data, **params))
+
+    def futures_get_klines(self, symbol, kline_type='5min', start=None, end=None, **params):
+        """Get kline data
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-klines
+
+        For each query, the system would return at most 1500 pieces of data.
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+        :type symbol: string
+        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
+                            4hour, 6hour, 8hour, 12hour, 1day, 1week
+        :type kline_type: string
+        :param start: Start time as unix timestamp (optional) default start of day in UTC
+        :type start: int
+        :param end: End time as unix timestamp (optional) default now in UTC
+        :type end: int
+
+        .. code:: python
+
+            klines = client.futures_get_klines('XBTUSDTM', '5min', 1507479171, 1510278278)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": [
+                    [
+                        1575331200000,
+                        7495.01,
+                        8309.67,
+                        7250,
+                        7463.55,
+                        0
+                    ],
+                    [
+                        1575374400000,
+                        7464.37,
+                        8297.85,
+                        7273.02,
+                        7491.44,
+                        0
+                    ]
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'granularity': kline_type
+        }
+
+        if start is not None:
+            data['from'] = start
+        if end is not None:
+            data['to'] = end
+
+        return self._get('kline/query', False, data=dict(data, **params))
+
+    def futures_get_interest_rate(self, symbol, start=None, end=None, reverse=True,
+                                offset=None, forward=False, max_count=None, **params):
+        """Get interest rate
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-interest-rate-list
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+        :type symbol: string
+        :param start: Start time as unix timestamp (optional) default start of day in UTC
+        :type start: int
+        :param end: End time as unix timestamp (optional) default now in UTC
+        :type end: int
+        :param reverse: (optional) True means “yes”. False means no. This parameter is set as True by default.
+        :type reverse: bool
+        :param offset: (optional) Start offset. The unique attribute of the last returned result of the last request.
+                                The data of the first page will be returned by default.
+        :type offset: int
+        :param forward: (optional) True means “yes”. False means no. This parameter is set as False by default.
+        :type forward: bool
+        :param max_count: (optional) Maximum number of data to return. The default value is 100.
+        :type max_count: int
+
+        .. code:: python
+
+            interest_rate = client.futures_get_interest_rate('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "dataList": [
+                    {
+                        "symbol": ".XBTINT",
+                        "granularity": 60000,
+                        "timePoint": 1557996300000,
+                        "value": 0.0003
+                    },
+                    {
+                        "symbol": ".XBTINT",
+                        "granularity": 60000,
+                        "timePoint": 1557996240000,
+                        "value": 0.0003
+                    },
+                    {
+                        "symbol": ".XBTINT",
+                        "granularity": 60000,
+                        "timePoint": 1557996180000,
+                        "value": 0.0003
+                    }
+                ],
+                "hasMore": true
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if start is not None:
+            data['startAt'] = start
+        if end is not None:
+            data['endAt'] = end
+        if reverse is not None:
+            data['reverse'] = reverse
+        if offset is not None:
+            data['offset'] = offset
+        if forward is not None:
+            data['forward'] = forward
+        if max_count is not None:
+            data['maxCount'] = max_count
+
+        return self._get('interest/query', False, data=dict(data, **params))
+
+    def futures_get_index(self, symbol, start=None, end=None, reverse=True,
+                        offset=None, forward=False, max_count=None, **params):
+        """Get index
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-index-list
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+        :type symbol: string
+        :param start: Start time as unix timestamp (optional) default start of day in UTC
+        :type start: int
+        :param end: End time as unix timestamp (optional) default now in UTC
+        :type end: int
+        :param reverse: (optional) True means “yes”. False means no. This parameter is set as True by default.
+        :type reverse: bool
+        :param offset: (optional) Start offset. The unique attribute of the last returned result of the last request.
+                                The data of the first page will be returned by default.
+        :type offset: int
+        :param forward: (optional) True means “yes”. False means no. This parameter is set as False by default.
+        :type forward: bool
+        :param max_count: (optional) Maximum number of data to return. The default value is 100.
+        :type max_count: int
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+
+        .. code:: python
+
+            index = client.futures_get_index('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "dataList": [
+                    {
+                        "symbol": ".KXBT",
+                        "granularity": 1000,
+                        "timePoint": 1557998570000,
+                        "value": 8016.24,
+                        "decomposionList": [
+                            {
+                                "exchange": "gemini",
+                                "price": 8016.24,
+                                "weight": 0.08042611
+                            },
+                            {
+                                "exchange": "kraken",
+                                "price": 8016.24,
+                                "weight": 0.02666502
+                            },
+                            {
+                                "exchange": "coinbase",
+                                "price": 8016.24,
+                                "weight": 0.03847059
+                            },
+                            {
+                                "exchange": "liquid",
+                                "price": 8016.24,
+                                "weight": 0.20419723
+                            },
+                            {
+                                "exchange": "bittrex",
+                                "price": 8016.24,
+                                "weight": 0.29848962
+                            },
+                            {
+                                "exchange": "bitstamp",
+                                "price": 8016.24,
+                                "weight": 0.35175143
+                            }
+                        ]
+                    }
+                ],
+                "hasMore": true
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if start is not None:
+            data['startAt'] = start
+        if end is not None:
+            data['endAt'] = end
+        if reverse is not None:
+            data['reverse'] = reverse
+        if offset is not None:
+            data['offset'] = offset
+        if forward is not None:
+            data['forward'] = forward
+        if max_count is not None:
+            data['maxCount'] = max_count
+
+        return self._get('index/query', False, data=dict(data, **params))
+
+    def futures_get_mark_price(self, symbol, **params):
+        """Get mark price
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-current-mark-price
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+        :type symbol: string
+
+        .. code:: python
+
+            mark_price = client.futures_get_mark_price('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "symbol": "XBTUSDM",
+                "granularity": 1000,
+                "timePoint": 1557999585000,
+                "value": 8052.51,
+                "indexPrice": 8041.95
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('mark-price/{}/current'.format(symbol), False, data=dict(data, **params))
+
+    def futures_get_premium_index(self, symbol, start=None, end=None, reverse=True,
+                                offset=None, forward=False, max_count=None, **params):
+        """Get premium index
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-premium-index
+
+        :param symbol: Name of symbol e.g. XBTUSDTM
+        :type symbol: string
+        :param start: Start time as unix timestamp (optional) default start of day in UTC
+        :type start: int
+        :param end: End time as unix timestamp (optional) default now in UTC
+        :type end: int
+        :param reverse: (optional) True means “yes”. False means no. This parameter is set as True by default.
+        :type reverse: bool
+        :param offset: (optional) Start offset. The unique attribute of the last returned result of the last request.
+                                The data of the first page will be returned by default.
+        :type offset: int
+        :param forward: (optional) True means “yes”. False means no. This parameter is set as False by default.
+        :type forward: bool
+        :param max_count: (optional) Maximum number of data to return. The default value is 100.
+        :type max_count: int
+
+        .. code:: python
+
+            premium_index = client.futures_get_premium_index('XBTUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "dataList": [
+                    {
+                        "symbol": ".XBTUSDMPI",
+                        "granularity": 60000,
+                        "timePoint": 1558000320000,
+                        "value": 0.022585
+                    },
+                    {
+                        "symbol": ".XBTUSDMPI",
+                        "granularity": 60000,
+                        "timePoint": 1558000260000,
+                        "value": 0.022611
+                    },
+                    {
+                        "symbol": ".XBTUSDMPI",
+                        "granularity": 60000,
+                        "timePoint": 1558000200000,
+                        "value": 0.021421
+                    }
+                ],
+                "hasMore": true
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if start is not None:
+            data['startAt'] = start
+        if end is not None:
+            data['endAt'] = end
+        if reverse is not None:
+            data['reverse'] = reverse
+        if offset is not None:
+            data['offset'] = offset
+        if forward is not None:
+            data['forward'] = forward
+        if max_count is not None:
+            data['maxCount'] = max_count
+
+        return self._get('premium/query', False, data=dict(data, **params))
+
+    def futures_get_24hr_stats(self, **params):
+        """Get 24hr stats
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-24hour-futures-transaction-volume
+
+        .. code:: python
+
+            stats = client.futures_get_24hr_stats()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": {
+                    "turnoverOf24h": 619
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('24hrStats', False, data=params)
+
     # User Account Endpoints
 
     def get_accounts(self, currency=None, account_type=None, **params):
@@ -1248,7 +2046,7 @@ class Client(object):
             data['type'] = query_type
 
         return self._get('margin/accounts', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
+
     def margin_get_isolated_account_detail(self, symbol=None, quote_currency=None, query_type=None, **params):
         """Get isolated account detail
 
@@ -1322,7 +2120,7 @@ class Client(object):
             data['type'] = query_type
 
         return self._get('isolated/accounts', True, api_version=self.API_VERSION3, data=dict(data, **params))
-    
+
     def futures_get_account_detail(self, currency=None, **params):
         """Get futures account detail
 
@@ -1345,12 +2143,12 @@ class Client(object):
                     "accountEquity": 99.8999305281,
                     "unrealisedPNL": 0,
                     "marginBalance": 99.8999305281,
-                    "positionMargin": 0, 
+                    "positionMargin": 0,
                     "orderMargin": 0,
                     "frozenFunds": 0,
                     "availableBalance":
                     "currency": "XBT" ,
-                    "riskRatio": 0 
+                    "riskRatio": 0
                 }
             }
 
@@ -1363,7 +2161,7 @@ class Client(object):
             data['currency'] = currency
 
         return self._get('account-overview', True, data=dict(data, **params))
-    
+
     def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
         """Get the account info of a sub-user specified by the subUserId
 
@@ -1550,7 +2348,7 @@ class Client(object):
             data['pageSize'] = limit
 
         return self._get('sub-accounts', True, api_version=self.API_VERSION2, data=dict(data, **params))
-    
+
     def futures_get_all_subaccounts_balance(self, currency=None, **params):
         """Get the account info of all sub-users
 
