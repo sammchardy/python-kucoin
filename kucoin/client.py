@@ -7662,8 +7662,6 @@ class Client(object):
 
         return self._get('mark-price/{}/current'.format(symbol), False, data=dict(data, **params))
 
-
-
     def margin_get_config(self, **params):
         """Get the margin configuration
 
@@ -8733,6 +8731,88 @@ class Client(object):
             data['pageSize'] = limit
 
         return self._get('purchase/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    # Futures Risk Limit Endpoints
+
+    def futures_get_risk_limit_level(self, symbol, **params):
+        """Get the risk limit level for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/risk-limit/get-futures-risk-limit-level
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+
+        .. code:: python
+
+            risk_limit_level = client.futures_get_risk_limit_level('XBTUSDM')
+
+        :returns: ApiResponse
+
+            {
+                "code": "200000",
+                "data": [
+                    {
+                        "symbol": "ADAUSDTM",
+                        "level": 1,
+                        "maxRiskLimit": 500,
+                        "minRiskLimit": 0,
+                        "maxLeverage": 20,
+                        "initialMargin": 0.05,
+                        "maintainMargin": 0.025
+                    },
+                    {
+                        "symbol": "ADAUSDTM",
+                        "level": 2,
+                        "maxRiskLimit": 1000,
+                        "minRiskLimit": 500,
+                        "maxLeverage": 2,
+                        "initialMargin": 0.5,
+                        "maintainMargin": 0.25
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('contracts/risk-limit{}'.format(symbol), True, data=dict(data, **params))
+
+    def futures_modify_risk_limit_level(self, symbol, level, **params):
+        """Modify the risk limit level for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/risk-limit/modify-risk-limit-level
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param level: Risk limit level
+        :type level: int
+
+        .. code:: python
+
+            risk_limit_level = client.futures_modify_risk_limit_level('XBTUSDM', 2)
+
+        :returns: ApiResponse
+
+            {
+                "code": "200000",
+                "data": true
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'level': level
+        }
+
+        return self._post('position/risk-limit-level/change', True, data=dict(data, **params))
 
     # Websocket Endpoints
 
