@@ -8814,6 +8814,179 @@ class Client(object):
 
         return self._post('position/risk-limit-level/change', True, data=dict(data, **params))
 
+    # Futures Funding Fees Endpoints
+
+    def futures_get_funding_rate(self, symbol, **params):
+        """Get the funding rate for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/funding-fees/get-current-funding-rate
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+
+        .. code:: python
+
+            funding_rate = client.futures_get_funding_rate('XBTUSDM')
+
+        :returns: ApiResponse
+
+            {
+                "code": "200000",
+                "data": {
+                    "symbol": ".XBTUSDTMFPI8H",
+                    "granularity": 28800000,
+                    "timePoint": 1731441600000,
+                    "value": 0.000641,
+                    "predictedValue": 0.000052,
+                    "fundingRateCap": 0.003,
+                    "fundingRateFloor": -0.003
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('funding-rate/{}/current'.format(symbol), True, data=dict(data, **params))
+
+    def futures_get_public_funding_history(self, symbol, start, end, **params):
+        """Get the public funding history for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/funding-fees/get-public-funding-history
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param start: Start time as unix timestamp
+        :type start: int
+        :param end: End time as unix timestamp
+        :type end: int
+
+        .. code:: python
+
+            funding_history = client.futures_get_public_funding_history('XBTUSDM', 1669508513820, 1669508513820)
+
+        :returns: ApiResponse
+
+            {
+                "success": true,
+                "code": "200",
+                "msg": "success",
+                "retry": false,
+                "data": [
+                    {
+                        "symbol": "IDUSDTM",
+                        "fundingRate": 0.018750,
+                        "timepoint": 1702310700000
+                    }
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'from': start,
+            'to': end
+        }
+
+        return self._get('contract/funding-rates', False, data=dict(data, **params))
+
+    def futures_get_private_funding_history(self, symbol, start=None, end=None, reverse=True,
+                                            offset=None, forward=False, max_count=None, **params):
+        """Get the private funding history for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/funding-fees/get-private-funding-history
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param reverse: (optional) Reverse the results
+        :type reverse: bool
+        :param offset: (optional) Offset
+        :type offset: int
+        :param forward: (optional) Forward the results
+        :type forward: bool
+        :param max_count: (optional) Maximum number of results
+        :type max_count: int
+
+        .. code:: python
+
+            funding_history = client.futures_get_private_funding_history('XBTUSDM')
+
+        :returns: ApiResponse
+
+            {
+                "dataList": [
+                    {
+                        "id": 36275152660006,
+                        "symbol": "XBTUSDM",
+                        "timePoint": 1557918000000,
+                        "fundingRate": 0.000013,
+                        "markPrice": 8058.27,
+                        "positionQty": 10,
+                        "positionCost": -0.001241,
+                        "funding": -0.00000464,
+                        "settleCurrency": "XBT"
+                    },
+                    {
+                        "id": 36275152660004,
+                        "symbol": "XBTUSDM",
+                        "timePoint": 1557914400000,
+                        "fundingRate": 0.00375,
+                        "markPrice": 8079.65,
+                        "positionQty": 10,
+                        "positionCost": -0.0012377,
+                        "funding": -0.00000465,
+                        "settleCurrency": "XBT"
+                    },
+                    {
+                        "id": 36275152660002,
+                        "symbol": "XBTUSDM",
+                        "timePoint": 1557910800000,
+                        "fundingRate": 0.00375,
+                        "markPrice": 7889.03,
+                        "positionQty": 10,
+                        "positionCost": -0.0012676,
+                        "funding": -0.00000476,
+                        "settleCurrency": "XBT"
+                    }
+                ],
+                "hasMore": true
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if reverse:
+            data['reverse'] = reverse
+        if offset:
+            data['offset'] = offset
+        if forward:
+            data['forward'] = forward
+        if max_count:
+            data['maxCount'] = max_count
+
+        return self._get('funding-history', True, data=dict(data, **params))
+
+
     # Websocket Endpoints
 
     def get_ws_endpoint(self, private=False):
