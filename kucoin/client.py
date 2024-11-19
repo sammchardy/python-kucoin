@@ -216,7 +216,7 @@ class Client(object):
     def _delete(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
         return self._request('delete', path, signed, api_version, is_futures, **kwargs)
 
-    def get_timestamp(self):
+    def get_timestamp(self, **params):
         """Get the server timestamp
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-server-time
@@ -224,9 +224,19 @@ class Client(object):
         :return: response timestamp in ms
 
         """
-        return self._get("timestamp")
+        return self._get("timestamp", data=params)
 
-    def get_status(self):
+    def futures_get_timestamp(self, **params):
+        """Get the futures server timestamp
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-server-time
+
+        :return: response timestamp in ms
+
+        """
+        return self._get("timestamp", is_futures=True, data=params)
+
+    def get_status(self, **params):
         """Get the service status
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-service-status
@@ -244,7 +254,27 @@ class Client(object):
             }
 
         """
-        return self._get("status")
+        return self._get("status", data=params)
+
+    def futures_get_status(self, **params):
+        """Get the futures service status
+
+        https://www.kucoin.com/docs/rest/futures-trading/market-data/get-service-status
+
+        .. code:: python
+
+            currencies = client.futures_get_status()
+
+        :returns: API Response
+
+        .. code-block:: python
+            {
+                "status": "open",                //open, close, cancelonly
+                "msg":  "upgrade match engine"   //remark for operation
+            }
+
+        """
+        return self._get("status", data=params)
 
     def get_announcements(self, page=None, limit=None, ann_type=None, lang=None, start=None, end=None, **params):
         """Get a list of the latest news announcements
@@ -4094,7 +4124,7 @@ class Client(object):
             raise KucoinRequestException('Invalid order type {}. Possible types are {} and {}'.format(type, self.ORDER_LIMIT, self.ORDER_MARKET))
 
         if client_oid:
-            data['clientOid'] = client_oid #todo check if it is mandatory
+            data['clientOid'] = client_oid
         if stp:
             data['stp'] = stp
         if remark:
@@ -5919,6 +5949,8 @@ class Client(object):
 
         return self._get('hf/orders/dead-cancel-all', True, data=params)
 
+    # Stop Orders
+
     def create_stop_order(self, symbol, type, side, stop_price, size=None, price=None, funds=None, client_oid=None, stp=None,
                      remark=None, time_in_force=None, cancel_after=None, post_only=None,
                      hidden=None, iceberg=None, visible_size=None, stop=None, trade_type=None, **params):
@@ -6232,6 +6264,8 @@ class Client(object):
 
         return self._get('stop-order/queryOrderByClientOid', True, data=dict(data, **params))
 
+    # OCO Orders
+
     def oco_create_order(self, symbol, side, size, price, stop_price, limit_price, client_oid=None, remark=None, **params):
         """Create an OCO order
 
@@ -6489,6 +6523,8 @@ class Client(object):
 
         return self._get('oco/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
+    # Margin Orders
+
     def margin_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                      remark=None, time_in_force=None, cancel_after=None, post_only=None, hidden=None,
                      iceberg=None, visible_size=None, margin_model=None, auto_borrow=None, auto_repay=None, **params):
@@ -6650,6 +6686,8 @@ class Client(object):
             data['autoRepay'] = auto_repay
 
         return self._post('margin/order/test', True, data=dict(data, **params))
+
+    # HF Margin Orders
 
     def hf_margin_create_order(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None, stp=None,
                      remark=None, time_in_force=None, cancel_after=None, post_only=None, hidden=None,
@@ -7084,6 +7122,418 @@ class Client(object):
         }
 
         return self._get('hf/margin/order/active/symbols', True, api_version=self.API_VERSION3, data=dict(data, **params))
+
+    # Futures Orders
+
+    def get_common_futures_order_data(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
+                             stp=None, remark=None, time_in_force=None, post_only=None,
+                             hidden=None, iceberg=None, visible_size=None, value_qty=None, leverage=None,
+                             stop=None, stop_price_type=None, trigger_stop_up_price=None, stop_price=None, trigger_stop_down_price=None,
+                             reduce_only=None, force_hold=None, margin_mode=None, is_tpsl_order=None, **params):
+
+        data = {
+            'symbol': symbol
+        }
+
+        client_oid = client_oid or params.get('clientOid')
+        if client_oid:
+            data['clientOid'] = client_oid
+        else:
+            data['clientOid'] = flat_uuid()
+
+        if type:
+            data['type'] = type
+        else:
+            raise KucoinRequestException('type is required for futures orders')
+
+        if side:
+            data['side'] = side
+        else:
+            raise KucoinRequestException('side is required for futures orders')
+
+        if leverage:
+            data['leverage'] = leverage
+        else:
+            raise KucoinRequestException('leverage is required for futures orders')
+
+        funds = funds or params.get('qty')
+        value_qty = value_qty or params.get('valueQty')
+        if size:
+            if funds or value_qty:
+                raise KucoinRequestException('size cannot be used with funds or value_qty')
+            data['size'] = size
+        elif funds:
+            if size or value_qty:
+                raise KucoinRequestException('funds cannot be used with size or value_qty')
+            data['qty'] = funds
+        elif value_qty:
+            if size or funds:
+                raise KucoinRequestException('value_qty cannot be used with size or funds')
+            data['valueQty'] = value_qty
+        else:
+            raise KucoinRequestException('size, funds or value_qty is required for futures orders')
+
+        if type == self.ORDER_MARKET:
+            if price:
+                raise MarketOrderException('Cannot use price parameter with market order')
+            if time_in_force:
+                raise MarketOrderException('Cannot use time_in_force parameter with market order')
+            if post_only:
+                raise MarketOrderException('Cannot use post_only parameter with market order')
+            if hidden:
+                raise MarketOrderException('Cannot use hidden parameter with market order')
+            if iceberg:
+                raise MarketOrderException('Cannot use iceberg parameter with market order')
+            if visible_size:
+                raise MarketOrderException('Cannot use visible_size parameter with market order')
+        elif type == self.ORDER_LIMIT:
+            if not price:
+                raise LimitOrderException('Price is required for limit order')
+            if hidden and iceberg:
+                raise LimitOrderException('Order can be either "hidden" or "iceberg"')
+            if iceberg and not visible_size:
+                raise LimitOrderException('Iceberg order requires visible_size')
+            data['price'] = price
+            if time_in_force:
+                data['timeInForce'] = time_in_force
+            if post_only:
+                data['postOnly'] = post_only
+            if hidden:
+                data['hidden'] = hidden
+            if iceberg:
+                data['iceberg'] = iceberg
+            if visible_size:
+                data['visibleSize'] = visible_size
+
+        if stp:
+            data['stp'] = stp
+        if remark:
+            data['remark'] = remark
+        if reduce_only:
+            data['reduceOnly'] = reduce_only
+        if force_hold:
+            data['forceHold'] = force_hold
+        if margin_mode:
+            data['marginMode'] = margin_mode
+
+        if is_tpsl_order:
+            if trigger_stop_up_price:
+                data['triggerStopUpPrice'] = trigger_stop_up_price
+            if stop_price_type:
+                data['stopPriceType'] = stop_price_type
+            if trigger_stop_down_price:
+                data['triggerStopDownPrice'] = trigger_stop_down_price
+        else:
+            if stop:
+                if (not stop_price_type) or (not stop_price):
+                    raise KucoinRequestException('stop_price_type and stop_price are required for stop orders')
+                data['stop'] = stop
+                data['stopPriceType'] = stop_price_type
+                data['stopPrice'] = stop_price
+
+        return data
+
+
+    def futures_create_order(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
+                             stp=None, remark=None, time_in_force=None, post_only=None,
+                             hidden=None, iceberg=None, visible_size=None, value_qty=None, leverage=None,
+                             stop=None, stop_price_type=None, stop_price=None, reduce_only=None, close_order=None,
+                             force_hold=None, margin_mode=None, **params):
+        """Create a futures order
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/place-order
+
+        :param symbol: Name of symbol e.g. ETHUSDTM
+        :type symbol: string
+        :param type: (optional)order type - limit or market (default is limit)
+            Is mandatory if close_order!=True
+        :type type: string
+        :param side: (optional) buy or sell
+            Is mandatory if close_order!=True
+        :type side: string
+        :param size: (optional) Desired amount in base currency
+            Is mandatory if funds and value_qty are not passed and close_order!=True
+        :type size: string
+        :param price: (optional) Price per base currency
+            Is mandatory for limit order
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use
+            Is mandatory if size and value_qty are not passed and close_order!=True
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO or CB (default is None). DC is not supported
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC or IOC - default is GTC
+        :type time_in_force: string
+        :param post_only: (optional) Post only flag (default is False)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (default is False)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (default is False)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: string
+        :param value_qty: (optional) Order size (Value), USDS-Swap correspond to USDT or USDC.
+            The unit of the quantity of coin-swap is size(lot), which is not supported
+            Is mandatory if size and funds are not passed and close_order!=True
+        :type value_qty: string
+        :param leverage: (optional) Leverage of the order
+            is mandatory if close_order!=True
+        :type leverage: string
+        :param stop: (optional) down or up. Requires stopPrice and stopPriceType to be defined
+        :type stop: string
+        :param stop_price_type: (optional) Either TP (trade price), IP (index price) or MP (mark price)
+            Is mandatory if stop is defined
+        :type stop_price_type: string
+        :param stop_price: (optional) The trigger price of the order
+            Is mandatory if stop is defined
+        :type stop_price: string
+        :param reduce_only: (optional) Reduce only flag (default is False)
+        :type reduce_only: bool
+        :param close_order: (optional) A flag to close the position. Set to false by default.
+            If closeOrder is set to True, the system will close the position and the position size will become 0.
+            Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
+        :type close_order: bool
+        :param force_hold: (optional) A flag to forcely hold the funds for an order, even though it's an order to reduce the position size.
+            This helps the order stay on the order book and not get canceled when the position size changes.
+            Set to false by default. The system will forcely freeze certain amount of funds for this order, including orders whose direction is opposite to the current positions.
+            This feature is to ensure that the order would not be canceled by the matching engine in such a circumstance that not enough funds are frozen for the order.
+        :type force_hold: bool
+        :param margin_mode: (optional) ISOLATED or CROSS (default is ISOLATED)
+        :type margin_mode: string
+
+        .. code:: python
+
+            order = client.futures_create_order('ETHUSDTM', type=Client.ORDER_LIMIT, side=Client.SIDE_BUY, size=20, price=2000)
+            order = client.futures_create_order('ETHUSDTM', type=Client.ORDER_MARKET, side=Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if close_order:
+            data = {
+                'symbol': symbol,
+            }
+        else:
+            data = self.get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
+                                                      client_oid=client_oid, stp=stp, remark=remark, time_in_force=time_in_force,
+                                                      post_only=post_only, hidden=hidden, iceberg=iceberg,
+                                                      visible_size=visible_size, value_qty=value_qty, leverage=leverage,
+                                                      stop=stop, stop_price_type=stop_price_type, stop_price=stop_price,
+                                                      reduce_only=reduce_only, force_hold=force_hold, margin_mode=margin_mode,
+                                                      is_tpsl_order=False, **params)
+
+        return self._post('orders', True, is_futures=True, data=dict(data, **params))
+
+    def futures_create_test_order(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
+                             stp=None, remark=None, time_in_force=None, post_only=None,
+                             hidden=None, iceberg=None, visible_size=None, value_qty=None, leverage=None,
+                             stop=None, stop_price_type=None, stop_price=None, reduce_only=None, close_order=None,
+                             force_hold=None, margin_mode=None, **params):
+        """Create a futures test order
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/place-order-test
+
+        :param symbol: Name of symbol e.g. ETHUSDTM
+        :type symbol: string
+        :param type: (optional)order type - limit or market (default is limit)
+            Is mandatory if close_order!=True
+        :type type: string
+        :param side: (optional) buy or sell
+            Is mandatory if close_order!=True
+        :type side: string
+        :param size: (optional) Desired amount in base currency
+            Is mandatory if funds and value_qty are not passed and close_order!=True
+        :type size: string
+        :param price: (optional) Price per base currency
+            Is mandatory for limit order
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use
+            Is mandatory if size and value_qty are not passed and close_order!=True
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO or CB (default is None). DC is not supported
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC or IOC - default is GTC
+        :type time_in_force: string
+        :param post_only: (optional) Post only flag (default is False)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (default is False)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (default is False)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: string
+        :param value_qty: (optional) Order size (Value), USDS-Swap correspond to USDT or USDC.
+            The unit of the quantity of coin-swap is size(lot), which is not supported
+            Is mandatory if size and funds are not passed and close_order!=True
+        :type value_qty: string
+        :param leverage: (optional) Leverage of the order
+            is mandatory if close_order!=True
+        :type leverage: string
+        :param stop: (optional) down or up. Requires stopPrice and stopPriceType to be defined
+        :type stop: string
+        :param stop_price_type: (optional) Either TP (trade price), IP (index price) or MP (mark price)
+            Is mandatory if stop is defined
+        :type stop_price_type: string
+        :param stop_price: (optional) The trigger price of the order
+            Is mandatory if stop is defined
+        :type stop_price: string
+        :param reduce_only: (optional) Reduce only flag (default is False)
+        :type reduce_only: bool
+        :param close_order: (optional) A flag to close the position. Set to false by default.
+            If closeOrder is set to True, the system will close the position and the position size will become 0.
+            Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
+        :type close_order: bool
+        :param force_hold: (optional) A flag to forcely hold the funds for an order, even though it's an order to reduce the position size.
+            This helps the order stay on the order book and not get canceled when the position size changes.
+            Set to false by default. The system will forcely freeze certain amount of funds for this order, including orders whose direction is opposite to the current positions.
+            This feature is to ensure that the order would not be canceled by the matching engine in such a circumstance that not enough funds are frozen for the order.
+        :type force_hold: bool
+        :param margin_mode: (optional) ISOLATED or CROSS (default is ISOLATED)
+        :type margin_mode: string
+
+        .. code:: python
+
+            order = client.futures_create_test_order('ETHUSDTM', type=Client.ORDER_LIMIT, side=Client.SIDE_BUY, size=20, price=2000)
+            order = client.futures_create_test_order('ETHUSDTM', type=Client.ORDER_MARKET, side=Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if close_order:
+            data = {
+                'symbol': symbol,
+            }
+        else:
+            data = self.get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
+                                                      client_oid=client_oid, stp=stp, remark=remark, time_in_force=time_in_force,
+                                                      post_only=post_only, hidden=hidden, iceberg=iceberg,
+                                                      visible_size=visible_size, value_qty=value_qty, leverage=leverage,
+                                                      stop=stop, stop_price_type=stop_price_type, stop_price=stop_price,
+                                                      reduce_only=reduce_only, force_hold=force_hold, margin_mode=margin_mode,
+                                                      is_tpsl_order=False, **params)
+
+        return self._post('orders/test', True, is_futures=True, data=dict(data, **params))
+
+    def futures_create_stop_order(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
+                             stp=None, remark=None, time_in_force=None, post_only=None,
+                             hidden=None, iceberg=None, visible_size=None, value_qty=None, leverage=None,
+                             trigger_stop_up_price=None, stop_price_type=None, trigger_stop_down_price=None,
+                             reduce_only=None, close_order=None, force_hold=None, margin_mode=None, **params):
+        """Create a futures take profit and/or stop loss order
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/place-take-profit-and-stop-loss-order
+
+        :param symbol: Name of symbol e.g. ETHUSDTM
+        :type symbol: string
+        :param type: (optional)order type - limit or market (default is limit)
+            Is mandatory if close_order!=True
+        :type type: string
+        :param side: (optional) buy or sell
+            Is mandatory if close_order!=True
+        :type side: string
+        :param size: (optional) Desired amount in base currency
+            Is mandatory if funds and value_qty are not passed and close_order!=True
+        :type size: string
+        :param price: (optional) Price per base currency
+            Is mandatory for limit order
+        :type price: string
+        :param funds: (optional) Desired amount of quote currency to use
+            Is mandatory if size and value_qty are not passed and close_order!=True
+        :type funds: string
+        :param client_oid: (optional) Unique order id (default flat_uuid())
+        :type client_oid: string
+        :param stp: (optional) self trade protection CN, CO or CB (default is None). DC is not supported
+        :type stp: string
+        :param remark: (optional) remark for the order, max 100 utf8 characters
+        :type remark: string
+        :param time_in_force: (optional) GTC or IOC - default is GTC
+        :type time_in_force: string
+        :param post_only: (optional) Post only flag (default is False)
+        :type post_only: bool
+        :param hidden: (optional) Hidden order flag (default is False)
+        :type hidden: bool
+        :param iceberg: (optional) Iceberg order flag (default is False)
+        :type iceberg: bool
+        :param visible_size: (optional) The maximum visible size of an iceberg order
+        :type visible_size: string
+        :param value_qty: (optional) Order size (Value), USDS-Swap correspond to USDT or USDC.
+            The unit of the quantity of coin-swap is size(lot), which is not supported
+            Is mandatory if size and funds are not passed and close_order!=True
+        :type value_qty: string
+        :param leverage: (optional) Leverage of the order
+            is mandatory if close_order!=True
+        :type leverage: string
+        :param trigger_stop_up_price: (optional) The trigger price of the take profit order
+        :type trigger_stop_up_price: string
+        :param stop_price_type: (optional) Either TP (trade price), IP (index price) or MP (mark price)
+        :type stop_price_type: string
+        :param trigger_stop_down_price: (optional) The trigger price of the stop loss order
+        :type trigger_stop_down_price: string
+        :param reduce_only: (optional) Reduce only flag (default is False)
+        :type reduce_only: bool
+        :param close_order: (optional) A flag to close the position. Set to false by default.
+            If closeOrder is set to True, the system will close the position and the position size will become 0.
+            Side, Size and Leverage fields can be left empty and the system will determine the side and size automatically.
+        :type close_order: bool
+        :param force_hold: (optional) A flag to forcely hold the funds for an order, even though it's an order to reduce the position size.
+            This helps the order stay on the order book and not get canceled when the position size changes.
+            Set to false by default. The system will forcely freeze certain amount of funds for this order, including orders whose direction is opposite to the current positions.
+            This feature is to ensure that the order would not be canceled by the matching engine in such a circumstance that not enough funds are frozen for the order.
+        :type force_hold: bool
+        :param margin_mode: (optional) ISOLATED or CROSS (default is ISOLATED)
+        :type margin_mode: string
+
+        .. code:: python
+
+            order = client.futures_create_stop_order('ETHUSDTM', type=Client.ORDER_LIMIT, side=Client.SIDE_BUY, size=20, price=2000)
+            order = client.futures_create_stop_order('ETHUSDTM', type=Client.ORDER_MARKET, side=Client.SIDE_BUY, funds=20)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        if close_order:
+            data = {
+                'symbol': symbol,
+            }
+        else:
+            data = self.get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
+                                                      client_oid=client_oid, stp=stp, remark=remark, time_in_force=time_in_force,
+                                                      post_only=post_only, hidden=hidden, iceberg=iceberg,
+                                                      visible_size=visible_size, value_qty=value_qty, leverage=leverage,
+                                                      trigger_stop_up_price=trigger_stop_up_price, stop_price_type=stop_price_type,
+                                                      trigger_stop_down_price=trigger_stop_down_price,reduce_only=reduce_only,
+                                                      force_hold=force_hold, margin_mode=margin_mode, is_tpsl_order=True, **params)
+
+        return self._post('st-orders', True, is_futures=True, data=dict(data, **params))
 
     # Fill Endpoints
 
