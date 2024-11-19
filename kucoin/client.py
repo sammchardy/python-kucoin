@@ -14,7 +14,8 @@ from .utils import compact_json_dict, flat_uuid
 
 
 class Client(object):
-    REST_API_URL = 'https://openapi-v2.kucoin.com'
+    REST_API_URL = 'https://api.kucoin.com'
+    REST_FUTURES_API_URL = 'https://api-futures.kucoin.com'
     # SANDBOX_API_URL = 'https://openapi-sandbox.kucoin.com' # does not supported anymore
     API_VERSION = 'v1'
     API_VERSION2 = 'v2'
@@ -79,6 +80,7 @@ class Client(object):
             raise KucoinAPIException('Sandbox mode is not supported anymore. See https://www.kucoin.com/docs/beginners/sandbox. To test orders, use test methods (e.g. create_test_order)')
         else:
             self.API_URL = self.REST_API_URL
+            self.FUTURES_API_URL = self.REST_FUTURES_API_URL
 
         self._requests_params = requests_params
         self.session = self._init_session()
@@ -137,10 +139,11 @@ class Client(object):
         api_version = api_version or self.API_VERSION
         return '/api/{}/{}'.format(api_version, path)
 
-    def _create_uri(self, path):
-        return '{}{}'.format(self.API_URL, path)
+    def _create_uri(self, path, is_futures=False):
+        base_url = self.FUTURES_API_URL if is_futures else self.API_URL
+        return '{}{}'.format(base_url, path)
 
-    def _request(self, method, path, signed, api_version=None, **kwargs):
+    def _request(self, method, path, signed, api_version=None, is_futures=False, **kwargs):
 
         # set default requests timeout
         kwargs['timeout'] = 10
@@ -153,7 +156,7 @@ class Client(object):
         kwargs['headers'] = kwargs.get('headers', {})
 
         full_path = self._create_path(path, api_version)
-        uri = self._create_uri(full_path)
+        uri = self._create_uri(full_path, is_futures)
 
         if signed:
             # generate signature
@@ -201,17 +204,17 @@ class Client(object):
         except ValueError:
             raise KucoinRequestException('Invalid Response: %s' % response.text)
 
-    def _get(self, path, signed=False, api_version=None, **kwargs):
-        return self._request('get', path, signed, api_version, **kwargs)
+    def _get(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
+        return self._request('get', path, signed, api_version, is_futures,  **kwargs)
 
-    def _post(self, path, signed=False, api_version=None, **kwargs):
-        return self._request('post', path, signed, api_version, **kwargs)
+    def _post(self, path, signed=False, api_version=None, is_futures=False,  **kwargs):
+        return self._request('post', path, signed, api_version, is_futures, **kwargs)
 
-    def _put(self, path, signed=False, api_version=None, **kwargs):
-        return self._request('put', path, signed, api_version, **kwargs)
+    def _put(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
+        return self._request('put', path, signed, api_version, is_futures, **kwargs)
 
-    def _delete(self, path, signed=False, api_version=None, **kwargs):
-        return self._request('delete', path, signed, api_version, **kwargs)
+    def _delete(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
+        return self._request('delete', path, signed, api_version, is_futures, **kwargs)
 
     def get_timestamp(self):
         """Get the server timestamp
@@ -1089,14 +1092,14 @@ class Client(object):
 
         """
 
-        return self._get('contracts/active', False, data=params)
+        return self._get('contracts/active', False, is_futures=True, data=params)
 
-    def futures_get_symbol(self, symbol=None, **params):
+    def futures_get_symbol(self, symbol, **params):
         """Get a symbol details for trading.
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-symbol-detail
 
-        :param symbol: (optional) Name of symbol e.g. XBTUSDTM
+        :param symbol: Name of symbol e.g. XBTUSDTM
         :type symbol: string
 
         .. code:: python
@@ -1188,12 +1191,7 @@ class Client(object):
 
         """
 
-        data = {}
-
-        if symbol:
-            data['symbol'] = symbol
-
-        return self._get('contracts/{}'.format(symbol), False, data=dict(data, **params))
+        return self._get('contracts/{}'.format(symbol), False, is_futures=True, data=params)
 
     def futures_get_ticker(self, symbol, **params):
         """Get symbol ticker
@@ -1235,7 +1233,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('ticker', False, data=dict(data, **params))
+        return self._get('ticker', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_tickers(self, **params):
         """Get symbol tickers
@@ -1277,7 +1275,7 @@ class Client(object):
 
         """
 
-        return self._get('allTickers', False, data=params)
+        return self._get('allTickers', False, is_futures=True, data=params)
 
     def futures_get_order_book(self, symbol, depth_20=False, **params):
         """Get a list of bids and asks aggregated by price for a symbol.
@@ -1327,7 +1325,7 @@ class Client(object):
         else:
             path += '100'
 
-        return self._get(path, False, data=dict(data, **params))
+        return self._get(path, False, is_futures=True, data=dict(data, **params))
 
     def futures_get_full_order_book(self, symbol, **params):
         """Get a list of all bids and asks aggregated by price for a symbol.
@@ -1371,7 +1369,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('level2/snapshot', False, data=dict(data, **params))
+        return self._get('level2/snapshot', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_trade_histories(self, symbol, **params):
         """List the latest trades for a symbol
@@ -1410,7 +1408,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('trade/history', False, data=dict(data, **params))
+        return self._get('trade/history', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_klines(self, symbol, kline_type='5min', start=None, end=None, **params):
         """Get kline data
@@ -1473,7 +1471,7 @@ class Client(object):
         if end is not None:
             data['to'] = end
 
-        return self._get('kline/query', False, data=dict(data, **params))
+        return self._get('kline/query', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_interest_rate(self, symbol, start=None, end=None, reverse=True,
                                 offset=None, forward=False, max_count=None, **params):
@@ -1550,7 +1548,7 @@ class Client(object):
         if max_count is not None:
             data['maxCount'] = max_count
 
-        return self._get('interest/query', False, data=dict(data, **params))
+        return self._get('interest/query', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_index(self, symbol, start=None, end=None, reverse=True,
                         offset=None, forward=False, max_count=None, **params):
@@ -1649,7 +1647,7 @@ class Client(object):
         if max_count is not None:
             data['maxCount'] = max_count
 
-        return self._get('index/query', False, data=dict(data, **params))
+        return self._get('index/query', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_mark_price(self, symbol, **params):
         """Get mark price
@@ -1683,7 +1681,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('mark-price/{}/current'.format(symbol), False, data=dict(data, **params))
+        return self._get('mark-price/{}/current'.format(symbol), False, is_futures=True, data=dict(data, **params))
 
     def futures_get_premium_index(self, symbol, start=None, end=None, reverse=True,
                                 offset=None, forward=False, max_count=None, **params):
@@ -1760,16 +1758,16 @@ class Client(object):
         if max_count is not None:
             data['maxCount'] = max_count
 
-        return self._get('premium/query', False, data=dict(data, **params))
+        return self._get('premium/query', False, is_futures=True, data=dict(data, **params))
 
-    def futures_get_24hr_stats(self, **params):
+    def futures_get_24hr_transaction_volume(self, **params):
         """Get 24hr stats
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-24hour-futures-transaction-volume
 
         .. code:: python
 
-            stats = client.futures_get_24hr_stats()
+            stats = client.futures_get_24hr_transaction_volume()
 
         :returns: ApiResponse
 
@@ -1789,7 +1787,7 @@ class Client(object):
 
         """
 
-        return self._get('trade-statistics', False, data=params)
+        return self._get('trade-statistics', False, is_futures=True, data=params)
 
     # User Account Endpoints
 
