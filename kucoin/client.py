@@ -45,11 +45,11 @@ class Client(object):
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = 'IOC'
     TIMEINFORCE_FILL_OR_KILL = 'FOK'
 
-    SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
-    SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
+    # SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
+    # SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
 
-    # SPOT_KC_PARTNER = 'python-kucoinspot'
-    # SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
+    SPOT_KC_PARTNER = 'python-kucoinspot'
+    SPOT_KC_KEY = '922783d1-067e-4a31-bb42-4d1589624e30'
 
     def __init__(self, api_key, api_secret, passphrase, sandbox=False, requests_params=None):
         """Kucoin API Client constructor
@@ -7231,7 +7231,7 @@ class Client(object):
                 data['stopPriceType'] = stop_price_type
                 data['stopPrice'] = stop_price
 
-        return data
+        return dict(data, **params)
 
 
     def futures_create_order(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
@@ -7283,7 +7283,8 @@ class Client(object):
         :param leverage: (optional) Leverage of the order
             is mandatory if close_order!=True
         :type leverage: string
-        :param stop: (optional) down or up. Requires stopPrice and stopPriceType to be defined
+        :param stop: (optional) down (triggers when the price reaches or goes below the stopPrice) or up (triggers when the price reaches or goes above the stopPrice).
+            Requires stopPrice and stopPriceType to be defined
         :type stop: string
         :param stop_price_type: (optional) Either TP (trade price), IP (index price) or MP (mark price)
             Is mandatory if stop is defined
@@ -7333,7 +7334,7 @@ class Client(object):
                                                       reduce_only=reduce_only, force_hold=force_hold, margin_mode=margin_mode,
                                                       is_tpsl_order=False, **params)
 
-        return self._post('orders', True, is_futures=True, data=dict(data, **params))
+        return self._post('orders', True, is_futures=True, data=data)
 
     def futures_create_test_order(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
                              stp=None, remark=None, time_in_force=None, post_only=None,
@@ -7384,7 +7385,8 @@ class Client(object):
         :param leverage: (optional) Leverage of the order
             is mandatory if close_order!=True
         :type leverage: string
-        :param stop: (optional) down or up. Requires stopPrice and stopPriceType to be defined
+        :param stop: (optional) down (triggers when the price reaches or goes below the stopPrice) or up (triggers when the price reaches or goes above the stopPrice).
+            Requires stopPrice and stopPriceType to be defined
         :type stop: string
         :param stop_price_type: (optional) Either TP (trade price), IP (index price) or MP (mark price)
             Is mandatory if stop is defined
@@ -7434,7 +7436,7 @@ class Client(object):
                                                       reduce_only=reduce_only, force_hold=force_hold, margin_mode=margin_mode,
                                                       is_tpsl_order=False, **params)
 
-        return self._post('orders/test', True, is_futures=True, data=dict(data, **params))
+        return self._post('orders/test', True, is_futures=True, data=data)
 
     def futures_create_stop_order(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
                              stp=None, remark=None, time_in_force=None, post_only=None,
@@ -7533,7 +7535,413 @@ class Client(object):
                                                       trigger_stop_down_price=trigger_stop_down_price,reduce_only=reduce_only,
                                                       force_hold=force_hold, margin_mode=margin_mode, is_tpsl_order=True, **params)
 
-        return self._post('st-orders', True, is_futures=True, data=dict(data, **params))
+        return self._post('st-orders', True, is_futures=True, data=data)
+
+    def futures_create_orders(self, orders_data):
+        """Create multiple futures orders
+        You can place up to 20 orders at one time, including limit orders, market orders, and stop orders
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/place-multiple-orders
+
+        :param orders_data: List of orders data
+        :type orders_data: list
+            Every order data is a dict with the same parameters as futures_create_order
+
+        .. code:: python
+
+            orders = [
+                {
+                    'symbol': 'ETHUSDTM',
+                    'type': Client.ORDER_LIMIT,
+                    'side': Client.SIDE_BUY,
+                    'size': 20,
+                    'price': 2000
+                },
+                {
+                    'symbol': 'ETHUSDTM',
+                    'type': Client.ORDER_MARKET,
+                    'side': Client.SIDE_BUY,
+                    'funds': 20
+                }
+            ]
+            order = client.futures_create_orders(orders)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
+
+        """
+
+        data = []
+        for order in orders_data:
+            if 'close_order' in order and order['close_order']:
+                data.append({
+                    'symbol': order['symbol'],
+                    'closeOrder': True
+                })
+            else:
+                order_data = self.get_common_futures_order_data(**order)
+                del order_data['clientOid']
+                data.append(order_data)
+
+        return self._post('orders/multi', True, is_futures=True, data=data)
+
+    def futures_cancel_order(self, order_id, **params):
+        """Cancel a futures order by order id
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-order-by-orderid
+
+        :param order_id: Order id
+        :type order_id: string
+
+        .. code:: python
+
+            res = client.futures_cancel_order('5bd6e9286d99522a52e458de')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "cancelledOrderIds": [
+                    "5bd6e9286d99522a52e458de"
+                ]
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        return self._delete('orders/{}'.format(order_id), True, is_futures=True, data=params)
+
+    def futures_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+        """Cancel a futures order by the clientOid
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-order-by-clientoid
+
+        :param client_oid: ClientOid
+        :type client_oid: string
+        :param symbol: Name of symbol e.g. KCS-BTC
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.futures_cancel_order_by_client_oid('6d539dc614db3', 'KCS-BTC')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._delete('orders/client-order/{}'.format(client_oid), True, is_futures=True, data=dict(data, **params))
+
+    def futures_cancel_orders(self, symbol=None, order_ids=None, client_oids=None, **params):
+        """Cancel multiple futures orders by order ids or clientOids
+        Either order_ids or client_oids and symbol are mandatory
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/batch-cancel-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETHUSDTM
+            Is mandatory if order_ids are not passed
+        :type symbol: string
+        :param order_ids: (optional) List of order ids
+            Is mandatory if client_oids is not passed
+        :type order_ids: list
+        :param client_oids: (optional) List of clientOids
+            Is mandatory if order_ids are not passed
+        :type client_oids: list
+
+        .. code:: python
+
+            res = client.futures_cancel_orders(['5bd6e9286d99522a52e458de', '5bd6e9286d99522a52e458df'])
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        KucoinAPIException If order_id is not found
+
+        """
+
+        data = {}
+        if order_ids and client_oids:
+            raise KucoinRequestException('Either order_ids or client_oids should be passed, not both')
+        if not order_ids and not client_oids:
+            raise KucoinRequestException('Either order_ids or client_oids should be passed')
+        if order_ids:
+            data['orderIdsList'] = order_ids
+        elif not symbol:
+            raise KucoinRequestException('symbol is required if client_oids are passed')
+        else:
+            data['clientOidsList'] = client_oids
+            data['symbol'] = symbol
+
+        return self._delete('orders/multi-cancel', True, is_futures=True, data=dict(data, **params))
+
+    def futures_cancel_all_orders(self, symbol=None, **params):
+        """Cancel all futures orders
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-multiple-futures-limit-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETHUSDTM
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.futures_cancel_all_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._delete('orders', True, is_futures=True, data=dict(data, **params))
+
+    def futures_cancel_all_stop_orders(self, symbol=None, **params):
+        """Cancel all futures stop orders
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-multiple-futures-stop-orders
+
+        :param symbol: (optional) Name of symbol e.g. ETHUSDTM
+        :type symbol: string
+
+        .. code:: python
+
+            res = client.futures_cancel_all_stop_orders()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._delete('stopOrders', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_orders(self, symbol=None, status=None, side=None, order_type=None,
+                           start=None, end=None, page=None, limit=None, **params):
+        """Get list of futures orders
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/get-order-list
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param status: (optional) Specify status active or done (default done)
+        :type status: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param order_type: (optional) limit, market, limit_stop or market_stop
+        :type order_type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of orders (default 50, max 1000)
+        :type limit: int
+
+        .. code:: python
+
+            orders = client.futures_get_orders(symbol='ETHUSDTM', status='active')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+        if status:
+            data['status'] = status
+        if side:
+            data['side'] = side
+        if order_type:
+            data['type'] = order_type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('orders', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_stop_orders(self, symbol=None, side=None, order_type=None,
+                                start=None, end=None, page=None, limit=None, **params):
+        """Get list of untriggered futures stop orders
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/get-untriggered-stop-order-list
+
+        :param symbol: (optional) Name of symbol e.g. KCS-BTC
+        :type symbol: string
+        :param side: (optional) buy or sell
+        :type side: string
+        :param order_type: (optional) limit, market, limit_stop or market_stop
+        :type order_type: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: string
+        :param end: (optional) End time as unix timestamp
+        :type end: string
+        :param page: (optional) Page to fetch
+        :type page: int
+        :param limit: (optional) Number of orders (default 50, max 1000)
+        :type limit: int
+
+        .. code:: python
+
+            orders = client.futures_get_stop_orders(symbol='ETHUSDTM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+        if side:
+            data['side'] = side
+        if order_type:
+            data['type'] = order_type
+        if start:
+            data['startAt'] = start
+        if end:
+            data['endAt'] = end
+        if page:
+            data['currentPage'] = page
+        if limit:
+            data['pageSize'] = limit
+
+        return self._get('stopOrders', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_recent_orders(self, symbol=None, **params):
+        """Get up to 1000 last futures done orders in the last 24 hours.
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/get-list-of-orders-completed-in-24h
+
+        :param symbol: (optional) Name of symbol e.g. ETHUSDTM
+        :type symbol: string
+
+        .. code:: python
+
+            orders = client.futures_get_recent_orders()
+
+        :returns: ApiResponse
+
+        todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+        if symbol:
+            data['symbol'] = symbol
+
+        return self._get('recentDoneOrders', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_order(self, order_id, **params):
+        """Get futures order details by order id
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/get-order-details-by-orderid-clientoid
+
+        :param order_id: orderOid value
+        :type order_id: str
+
+        .. code:: python
+
+            order = client.futures_get_order('5c35c02703aa673ceec2a168')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        return self._get('orders/{}'.format(order_id), True, is_futures=True, data=params)
+
+    def futures_get_order_by_client_oid(self, client_oid, **params):
+        """Get futures order details by clientOid
+
+        https://www.kucoin.com/docs/rest/futures-trading/orders/get-order-details-by-orderid-clientoid
+
+        :param client_oid: clientOid value
+        :type client_oid: string
+
+        .. code:: python
+
+            order = client.futures_get_order_by_client_oid('6d539dc614db312')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            todo add the response example
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'clientOid': client_oid
+        }
+
+        return self._get('orders/byClientOid', True, is_futures=True, data=params)
 
     # Fill Endpoints
 
