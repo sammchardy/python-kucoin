@@ -274,7 +274,7 @@ class Client(object):
             }
 
         """
-        return self._get("status", data=params)
+        return self._get("status", is_futures=True, data=params)
 
     def get_announcements(self, page=None, limit=None, ann_type=None, lang=None, start=None, end=None, **params):
         """Get a list of the latest news announcements
@@ -2188,7 +2188,7 @@ class Client(object):
         if currency:
             data['currency'] = currency
 
-        return self._get('account-overview', True, data=dict(data, **params))
+        return self._get('account-overview', True, is_futures=True, data=dict(data, **params))
 
     def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
         """Get the account info of a sub-user specified by the subUserId
@@ -2445,7 +2445,7 @@ class Client(object):
         if currency:
             data['currency'] = currency
 
-        return self._get('account-overview-all', True, data=dict(data, **params))
+        return self._get('account-overview-all', True, is_futures=True, data=dict(data, **params))
 
     def get_subaccount_api_list(self, sub_name, api_key=None, **params):
         """Get the API key list of a sub-user
@@ -2980,7 +2980,7 @@ class Client(object):
         if not forward:
             data['forward'] = False
 
-        return self._get('transaction-history', True, dict(data, **params))
+        return self._get('transaction-history', True, is_futures=True, data=dict(data, **params))
 
     # Transfer Endpoints
 
@@ -4051,7 +4051,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('trade-fees', True, data=dict(data, **params))
+        return self._get('trade-fees', True, is_futures=True, data=dict(data, **params))
 
     # Order Endpoints
 
@@ -8309,7 +8309,7 @@ class Client(object):
         if limit:
             data['pageSize'] = limit
 
-        return self._get('fills', False, data=dict(data, **params))
+        return self._get('fills', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_recent_fills(self, symbol=None, **params):
         """Get a list of recent futures fills.
@@ -8363,7 +8363,7 @@ class Client(object):
         if symbol:
             data['symbol'] = symbol
 
-        return self._get('recentFills', False, data=dict(data, **params))
+        return self._get('recentFills', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_active_order_value(self, symbol, **params):
         """Get the active order value of a symbol
@@ -8400,7 +8400,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('openOrderStatistics', False, data=dict(data, **params))
+        return self._get('openOrderStatistics', False, is_futures=True, data=dict(data, **params))
 
     # Margin Info Endpoints
 
@@ -9588,6 +9588,385 @@ class Client(object):
 
         return self._get('purchase/orders', True, api_version=self.API_VERSION3, data=dict(data, **params))
 
+    # Futures Position Endpoints
+
+    def futures_get_max_open_position_size(self, symbol, price, leverage, **params):
+        """Get the maximum open position size for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-maximum-open-position-size
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param price: Price
+        :type price: int
+        :param leverage: Leverage
+        :type leverage: int
+
+        .. code:: python
+
+            max_open_position_size = client.futures_get_max_open_position_size('XBTUSDM', 10000, 10)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'price': price,
+            'leverage': leverage
+        }
+
+        return self._get('getMaxOpenSize', True, api_version=self.API_VERSION2, is_futures=True, data=dict(data, **params))
+
+    def futures_get_position(self, symbol, **params):
+        """Get the position for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-position-details
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+
+        .. code:: python
+
+            position = client.get_position('XBTUSDM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('position', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_positions(self, currency=None, **params):
+        """Get the positions
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-position-list
+
+        :param currency: (optional) Currency
+        :type currency: string
+
+        .. code:: python
+
+            positions = client.get_positions()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if currency:
+            data['currency'] = currency
+
+        return self._get('positions', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_positions_history(self, symbol=None, start=None, end=None, page=None, limit=None, **params):
+        """Get the positions history
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-positions-history
+
+        :param symbol: (optional) Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param start: (optional) Start time as unix timestamp
+        :type start: int
+        :param end: (optional) End time as unix timestamp
+        :type end: int
+        :param page: (optional) Page number
+        :type page: int
+        :param limit: (optional) Number of requests per page, max 200, default 10
+        :type limit: int
+
+        .. code:: python
+
+            positions_history = client.get_positions_history()
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {}
+
+        if symbol:
+            data['symbol'] = symbol
+        if start:
+            data['from'] = start
+        if end:
+            data['to'] = end
+        if page:
+            data['pageId'] = page
+        if limit:
+            data['limit'] = limit
+
+        return self._get('history-positions', True, is_futures=True, data=dict(data, **params))
+
+    def futures_modify_auto_deposit_margin(self, symbol, status=True, **params):
+        """Modify the auto deposit margin status for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/modify-auto-deposit-margin-status
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param status: Status
+        :type status: bool
+
+        .. code:: python
+
+            auto_deposit_margin = client.modify_auto_deposit_margin('XBTUSDM', True)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'status': status
+        }
+
+        return self._post('position/margin/auto-deposit-status', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_max_withdraw_margin(self, symbol, **params):
+        """Get the maximum withdraw margin for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-max-withdraw-margin
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+
+        .. code:: python
+
+            max_withdraw_margin = client.get_max_withdraw_margin('XBTUSDM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('margin/maxWithdrawMargin', True, is_futures=True, data=dict(data, **params))
+
+    def futures_withdraw_margin(self, symbol, amount, **params):
+        """Withdraw margin for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/remove-margin-manually
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param amount: Amount to withdraw
+        :type amount: string
+
+        .. code:: python
+
+            withdraw_margin = client.withdraw_margin('XBTUSDM', '100')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'amount': amount
+        }
+
+        return self._post('margin/withdrawMargin', True, is_futures=True, data=dict(data, **params))
+
+    def futures_deposit_margin(self, symbol, margin, biz_no, **params):
+        """Deposit margin for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/add-margin-manually
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param margin: Margin
+        :type margin: int
+        :param biz_no: Business number
+        :type biz_no: string
+
+        .. code:: python
+
+            deposit_margin = client.deposit_margin('XBTUSDM', 100, '123456')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'margin': margin,
+            'bizNo': biz_no
+        }
+
+        return self._post('position/margin/deposit-margin', True, is_futures=True, data=dict(data, **params))
+
+    def futures_get_margin_mode(self, symbol, **params):
+        """Get the margin mode for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-margin-mode
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+
+        .. code:: python
+
+            margin_mode = client.get_margin_mode('XBTUSDM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('position/getMarginMode', True, api_version=self.API_VERSION2, is_futures=True, data=dict(data, **params))
+
+    def futures_modify_margin_mode(self, symbol, mode, **params):
+        """Modify the margin mode for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/modify-margin-mode
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param mode: Margin mode (CROSS or ISOLATED)
+        :type mode: string
+
+        .. code:: python
+
+            margin_mode = client.modify_margin_mode('XBTUSDM', 'CROSS')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'marginMode': mode
+        }
+
+        return self._post('position/changeMarginMode', True, api_version=self.API_VERSION2, is_futures=True, data=dict(data, **params))
+
+    def futures_get_cross_margin_leverage(self, symbol, **params):
+        """Get the cross margin leverage for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/get-cross-margin-leverage
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+
+        .. code:: python
+
+            cross_margin_leverage = client.get_cross_margin_leverage('XBTUSDM')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol
+        }
+
+        return self._get('getCrossUserLeverage', True, api_version=self.API_VERSION2, is_futures=True, data=dict(data, **params))
+
+    def futures_modify_cross_margin_leverage(self, symbol, leverage, **params):
+        """Modify the cross margin leverage for a symbol
+
+        https://www.kucoin.com/docs/rest/futures-trading/positions/modify-cross-margin-leverage
+
+        :param symbol: Name of symbol e.g. XBTUSDM
+        :type symbol: string
+        :param leverage: Leverage
+        :type leverage: string
+
+        .. code:: python
+
+            cross_margin_leverage = client.modify_cross_margin_leverage('XBTUSDM', '10')
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            # todo: example response
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        data = {
+            'symbol': symbol,
+            'leverage': leverage
+        }
+
+        return self._post('changeCrossUserLeverage', True, api_version=self.API_VERSION2, is_futures=True, data=dict(data, **params))
+
     # Futures Risk Limit Endpoints
 
     def futures_get_risk_limit_level(self, symbol, **params):
@@ -9636,7 +10015,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('contracts/risk-limit{}'.format(symbol), True, data=dict(data, **params))
+        return self._get('contracts/risk-limit{}'.format(symbol), True, is_futures=True, data=dict(data, **params))
 
     def futures_modify_risk_limit_level(self, symbol, level, **params):
         """Modify the risk limit level for a symbol
@@ -9668,7 +10047,7 @@ class Client(object):
             'level': level
         }
 
-        return self._post('position/risk-limit-level/change', True, data=dict(data, **params))
+        return self._post('position/risk-limit-level/change', True, is_futures=True, data=dict(data, **params))
 
     # Futures Funding Fees Endpoints
 
@@ -9707,7 +10086,7 @@ class Client(object):
             'symbol': symbol
         }
 
-        return self._get('funding-rate/{}/current'.format(symbol), True, data=dict(data, **params))
+        return self._get('funding-rate/{}/current'.format(symbol), True, is_futures=True, data=dict(data, **params))
 
     def futures_get_public_funding_history(self, symbol, start, end, **params):
         """Get the public funding history for a symbol
@@ -9751,7 +10130,7 @@ class Client(object):
             'to': end
         }
 
-        return self._get('contract/funding-rates', False, data=dict(data, **params))
+        return self._get('contract/funding-rates', False, is_futures=True, data=dict(data, **params))
 
     def futures_get_private_funding_history(self, symbol, start=None, end=None, reverse=True,
                                             offset=None, forward=False, max_count=None, **params):
@@ -9840,7 +10219,7 @@ class Client(object):
         if max_count:
             data['maxCount'] = max_count
 
-        return self._get('funding-history', True, data=dict(data, **params))
+        return self._get('funding-history', True, is_futures=True, data=dict(data, **params))
 
 
     # Websocket Endpoints
