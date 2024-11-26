@@ -2612,7 +2612,7 @@ class Client(object):
         if expire:
             data['expire'] = expire
 
-        return self._put('sub/api-key/update', True, data=dict(data, **params))
+        return self._post('sub/api-key/update', True, data=dict(data, **params))
 
     def delete_subaccount_api(self, api_key, passphrase, sub_name, **params):
         """Delete Spot APIs for sub-accounts
@@ -4055,7 +4055,7 @@ class Client(object):
 
     # Order Endpoints
 
-    def get_common_order_data(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None,
+    def _get_common_order_data(self, symbol, type, side, size=None, price=None, funds=None, client_oid=None,
                                   stp=None, remark=None, time_in_force=None, cancel_after=None, post_only=None,
                                   hidden=None, iceberg=None, visible_size=None):
         """Internal helper for creating a common data for order"""
@@ -4197,7 +4197,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
         return self._post('orders', True, data=dict(data, **params))
 
@@ -4369,7 +4369,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
         return self._post('orders/test', True, data=dict(data, **params))
 
@@ -4463,7 +4463,7 @@ class Client(object):
         for order in order_list:
             if 'type' in order and order['type'] != self.ORDER_LIMIT:
                 raise KucoinRequestException('Only limit orders are supported by create_orders')
-            order_data = self.get_common_order_data(symbol, self.ORDER_LIMIT, order['side'], order['size'], order['price'],
+            order_data = self._get_common_order_data(symbol, self.ORDER_LIMIT, order['side'], order['size'], order['price'],
                                                     client_oid=order.get('client_oid'), remark=order.get('remark'),
                                                     stp=order.get('stp'), time_in_force=order.get('time_in_force'),
                                                     cancel_after=order.get('cancel_after'), post_only=order.get('post_only'),
@@ -4902,7 +4902,7 @@ class Client(object):
 
         """
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if tags:
@@ -5081,7 +5081,7 @@ class Client(object):
 
         """
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if tags:
@@ -5162,7 +5162,7 @@ class Client(object):
 
         """
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if tags:
@@ -5229,7 +5229,7 @@ class Client(object):
         orders = []
 
         for order in order_list:
-            order_data = self.get_common_order_data(order.get('symbol'), order.get('type'), order.get('side'),
+            order_data = self._get_common_order_data(order.get('symbol'), order.get('type'), order.get('side'),
                                                     order.get('size'), order.get('price'), order.get('funds'),
                                                     order.get('client_oid'), order.get('stp'), order.get('remark'),
                                                     order.get('time_in_force'), order.get('cancel_after'), order.get('post_only'),
@@ -5306,7 +5306,7 @@ class Client(object):
         orders = []
 
         for order in order_list:
-            order_data = self.get_common_order_data(order.get('symbol'), order.get('type'), order.get('side'),
+            order_data = self._get_common_order_data(order.get('symbol'), order.get('type'), order.get('side'),
                                                     order.get('size'), order.get('price'), order.get('funds'),
                                                     order.get('client_oid'), order.get('stp'), order.get('remark'),
                                                     order.get('time_in_force'), order.get('cancel_after'), order.get('post_only'),
@@ -6019,7 +6019,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         data['stopPrice'] = stop_price
@@ -6592,7 +6592,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if margin_model:
@@ -6673,7 +6673,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if margin_model:
@@ -6756,7 +6756,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if is_isolated:
@@ -6835,7 +6835,7 @@ class Client(object):
         if not client_oid:
             client_oid = flat_uuid()
 
-        data = self.get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
+        data = self._get_common_order_data(symbol, type, side, size, price, funds, client_oid, stp, remark,
                                               time_in_force, cancel_after, post_only, hidden, iceberg, visible_size)
 
         if is_isolated:
@@ -7125,7 +7125,7 @@ class Client(object):
 
     # Futures Orders
 
-    def get_common_futures_order_data(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
+    def _get_common_futures_order_data(self, symbol, type=None, side=None, size=None, price=None, funds=None, client_oid=None,
                              stp=None, remark=None, time_in_force=None, post_only=None,
                              hidden=None, iceberg=None, visible_size=None, value_qty=None, leverage=None,
                              stop=None, stop_price_type=None, trigger_stop_up_price=None, stop_price=None, trigger_stop_down_price=None,
@@ -7326,7 +7326,7 @@ class Client(object):
                 'symbol': symbol,
             }
         else:
-            data = self.get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
+            data = self._get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
                                                       client_oid=client_oid, stp=stp, remark=remark, time_in_force=time_in_force,
                                                       post_only=post_only, hidden=hidden, iceberg=iceberg,
                                                       visible_size=visible_size, value_qty=value_qty, leverage=leverage,
@@ -7428,7 +7428,7 @@ class Client(object):
                 'symbol': symbol,
             }
         else:
-            data = self.get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
+            data = self._get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
                                                       client_oid=client_oid, stp=stp, remark=remark, time_in_force=time_in_force,
                                                       post_only=post_only, hidden=hidden, iceberg=iceberg,
                                                       visible_size=visible_size, value_qty=value_qty, leverage=leverage,
@@ -7527,7 +7527,7 @@ class Client(object):
                 'symbol': symbol,
             }
         else:
-            data = self.get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
+            data = self._get_common_futures_order_data(symbol, type=type, side=side, size=size, price=price, funds=funds,
                                                       client_oid=client_oid, stp=stp, remark=remark, time_in_force=time_in_force,
                                                       post_only=post_only, hidden=hidden, iceberg=iceberg,
                                                       visible_size=visible_size, value_qty=value_qty, leverage=leverage,
@@ -7584,7 +7584,7 @@ class Client(object):
                     'closeOrder': True
                 })
             else:
-                order_data = self.get_common_futures_order_data(**order)
+                order_data = self._get_common_futures_order_data(**order)
                 del order_data['clientOid']
                 data.append(order_data)
 
