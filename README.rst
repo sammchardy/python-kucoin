@@ -43,9 +43,12 @@ Features
 --------
 
 - Implementation of REST endpoints
+- Spot and Futures
+- Sync and Async suport
 - Simple handling of authentication
 - Response exception handling
 - Implement websockets (note only python3.5+)
+- Proxy support
 
 TODO
 ----
