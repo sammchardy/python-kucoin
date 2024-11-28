@@ -1,7 +1,7 @@
 import fs from 'fs'
 
 const SOURSE_FILE_NAME = './kucoin/client.py'
-const TARGET_FILE_NAME = './kucoin/async_methods.py'
+const TARGET_FILE_NAME = './kucoin/async_client.py'
 const METHOD_DEFINITION_MATCH = /def\s(\w+)/
 const METHOD_CALL_MATCH = /self\.(\w+)\(/
 const DEFINITION_PREFIX = 'def'
@@ -31,8 +31,8 @@ function replaceKeywords (data) {
             asyncClient.push ('class AsyncClient(AsyncClientBase):')
             continue
         }
-        if (line.startsWith('from base_client import BaseClient')) {
-            asyncClient.push ('from async_client import AsyncClientBase')
+        if (line.startsWith('from .base_client import BaseClient')) {
+            asyncClient.push ('from .async_client_base import AsyncClientBase')
             continue
         }
         const methodDefinition = line.match (METHOD_DEFINITION_MATCH)
@@ -40,17 +40,18 @@ function replaceKeywords (data) {
         const match = methodDefinition || methodCall
         if (match) {
             const methodName = match[1]
-            let replacementRequired = true
-            if (methodName.startsWith ('_')) {
-                replacementRequired = false
-            }
-            if (replacementRequired) {
+            if (methodName !== '__init__') {
                 if (methodDefinition) {
                     line = line.replace (DEFINITION_PREFIX, ASYNC_DEFINITION_PREFIX)
                 } else if (methodCall) {
                     line = line.replace (CALL_PREFIX, ASYNC_CALL_PREFIX)
                 }
             }
+            // let replacementRequired = true
+            // if (methodName.startsWith ('_')) {
+            //     replacementRequired = false
+            // }
+
         }
         asyncClient.push (line)
     }

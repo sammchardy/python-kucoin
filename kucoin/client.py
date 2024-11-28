@@ -6,7 +6,7 @@ from .exceptions import (
 )
 from .utils import flat_uuid
 
-from base_client import BaseClient
+from .base_client import BaseClient
 
 
 class Client(BaseClient):
@@ -38,7 +38,7 @@ class Client(BaseClient):
             client = Client(api_key, api_secret, api_passphrase)
 
         """
-        super.__init__(api_key, api_secret, passphrase, sandbox, requests_params)
+        super().__init__(api_key, api_secret, passphrase, sandbox, requests_params)
 
     def get_timestamp(self, **params):
         """Get the server timestamp
