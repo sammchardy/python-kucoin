@@ -10227,10 +10227,11 @@ class Client(object):
     def get_ws_endpoint(self, private=False):
         """Get websocket channel details
 
-        :param private: Name of symbol e.g. KCS-BTC
+        :param private: (optional) True for private channel
         :type private: bool
 
-        https://docs.kucoin.com/#websocket-feed
+        https://www.kucoin.com/docs/websocket/basic-info/apply-connect-token/public-token-no-authentication-required-
+        https://www.kucoin.com/docs/websocket/basic-info/apply-connect-token/private-channels-authentication-request-required-
 
         .. code:: python
 
@@ -10243,16 +10244,16 @@ class Client(object):
             {
                 "code": "200000",
                 "data": {
+                    "token": "2neAiuYvAU737TOajb2U3uT8AEZqSWYe0fBD4LoHuXJDSC7gIzJiH4kNTWhCPISWo6nDpAe7aUYs6Y1N4x9p7wSsRU5m3-PcVsqeGGI9bNupipWRcVoGHnwZIngtMdMrjqPnP-biofFWbNaP1cl0X1pZc2SQ-33hDH1LgNP-yg89NEzuQg4KjtLDa9zSoVaC.rc5an2wAXOiNB42guxeKhQ==",
                     "instanceServers": [
                         {
-                            "pingInterval": 50000,
-                            "endpoint": "wss://push1-v2.kucoin.net/endpoint",
-                            "protocol": "websocket",
+                            "endpoint": "wss://ws-api-spot.kucoin.com/",
                             "encrypt": true,
+                            "protocol": "websocket",
+                            "pingInterval": 18000,
                             "pingTimeout": 10000
                         }
-                    ],
-                    "token": "vYNlCtbz4XNJ1QncwWilJnBtmmfe4geLQDUA62kKJsDChc6I4bRDQc73JfIrlFaVYIAE"
+                    ]
                 }
             }
 
@@ -10266,6 +10267,50 @@ class Client(object):
             path = 'bullet-private'
 
         return self._post(path, signed)
+
+    def futures_get_ws_endpoint(self, private=False):
+        """Get websocket futures channel details
+
+        :param private: (optional) True for private channel
+        :type private: bool
+
+        https://www.kucoin.com/docs/websocket/basic-info/apply-connect-token/public-token-no-authentication-required-
+        https://www.kucoin.com/docs/websocket/basic-info/apply-connect-token/private-channels-authentication-request-required-
+
+        .. code:: python
+
+            ws_details = client.futures_get_ws_endpoint(private=True)
+
+        :returns: ApiResponse
+
+        .. code:: python
+
+            {
+                "code": "200000",
+                "data": {
+                    "token": "2neAiuYvAU737TOajb2U3uT8AEZqSWYe0fBD4LoHuXJDSC7gIzJiH4kNTWhCPISWo6nDpAe7aUYs6Y1N4x9p7wSsRU5m3-PcVsqeGGI9bNupipWRcVoGHnwZIngtMdMrjqPnP-biofFWbNaP1cl0X1pZc2SQ-33hDH1LgNP-yg9a0FbYvs_Bct6QYKlTjDiL.uo5fqwmeBei2enyEh62Qvg==",
+                    "instanceServers": [
+                        {
+                            "endpoint": "wss://ws-api-futures.kucoin.com/",
+                            "encrypt": true,
+                            "protocol": "websocket",
+                            "pingInterval": 18000,
+                            "pingTimeout": 10000
+                        }
+                    ]
+                }
+            }
+
+        :raises: KucoinResponseException, KucoinAPIException
+
+        """
+
+        path = 'bullet-public'
+        signed = private
+        if private:
+            path = 'bullet-private'
+
+        return self._post(path, signed, is_futures=True)
 
     def get_user_info(self):
         """Get account summary info
