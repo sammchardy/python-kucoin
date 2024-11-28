@@ -13,6 +13,6 @@ api_passphrase = os.environ.get('KUCOIN_PASSWORD')
 
 client = Client(api_key, api_secret, api_passphrase)
 
-order = client.get_timestamp()
+order = client.create_market_order('LTC-USDT', Client.SIDE_SELL, size=0.1)
 
 print(order)
