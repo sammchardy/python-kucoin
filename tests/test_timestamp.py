@@ -1,4 +1,3 @@
-import pytest
 
 def test_spot_timestamp(client):
     ping_response = client.get_timestamp()
