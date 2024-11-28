@@ -1,4 +1,5 @@
-const fs = require ('fs')
+import fs from 'fs'
+
 const SOURSE_FILE_NAME = './kucoin/client.py'
 const TARGET_FILE_NAME = './kucoin/async_client_generated.py'
 const REQUESTS = ['_get', '_post', '_put', '_delete', '_request']
@@ -50,16 +51,20 @@ function replaceKeywords (data) {
     return asyncClient.join ('\n')
 }
 
-fs.readFile (SOURSE_FILE_NAME, 'utf8', (err, data) => {
-    if (err) {
-        console.error (err)
-        return
-    }
-    const asyncClient = replaceKeywords (data)
-    fs.writeFile (TARGET_FILE_NAME, asyncClient, (err) => {
+function main () {
+    fs.readFile (SOURSE_FILE_NAME, 'utf8', (err, data) => {
         if (err) {
             console.error (err)
             return
         }
-        console.log (TARGET_FILE_NAME + ' file is generated')})
-    })
+        const asyncClient = replaceKeywords (data)
+        fs.writeFile (TARGET_FILE_NAME, asyncClient, (err) => {
+            if (err) {
+                console.error (err)
+                return
+            }
+            console.log (TARGET_FILE_NAME + ' file is generated')})
+        })
+}
+
+main ()
