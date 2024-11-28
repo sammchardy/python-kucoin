@@ -351,7 +351,7 @@ class Client(BaseClient):
             "currencies/{}".format(currency),
             False,
             api_version=self.API_VERSION3,
-            data=dict({"chain": chain}, **params),
+            data=dict(data, **params),
         )
 
     # Market Endpoints

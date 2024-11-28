@@ -1,6 +1,6 @@
 import time
 from kucoin.exceptions import KucoinAPIException, KucoinRequestException
-from kucoin.utils import compact_json_dict
+from kucoin.utils import compact_json_dict, get_loop
 import aiohttp
 from .base_client import BaseClient
 
@@ -12,14 +12,16 @@ class AsyncClientBase(BaseClient):
         api_secret: str = None,
         api_passphrase: str = None,
         is_sandbox: bool = False,
+        loop = None,
         request_params=None,
     ):
+        self.loop = loop or get_loop()
         super().__init__(
             api_key, api_secret, api_passphrase, is_sandbox, request_params
         )
 
     def _init_session(self) -> aiohttp.ClientSession:
-        session = aiohttp.ClientSession(headers=self._get_headers())
+        session = aiohttp.ClientSession(loop = self.loop, headers=self._get_headers())
         return session
 
     async def close(self):
