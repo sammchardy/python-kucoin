@@ -2,8 +2,6 @@
 Welcome to python-kucoin v2.1.3
 ===============================
 
-Last Updated 4th Oct 2021
-
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
 
@@ -22,7 +20,7 @@ Last Updated 4th Oct 2021
 .. image:: https://img.shields.io/pypi/pyversions/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
 
-This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_.
+This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v3 <https://docs.kucoin.com/>`_.
 I am in no way affiliated with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E5wkqe>`_, use at your own risk.
 
 
@@ -60,10 +58,7 @@ Quick Start
 
 Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_.
 
-To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
-
-`Generate an API Key <https://kucoin.com/account/api>`_
-or `Generate an API Key in Sandbox <https://sandbox.kucoin.com/account/api>`_ and enable it.
+`Generate an API Key <https://kucoin.com/account/api>`_.
 
 .. code:: bash
 
