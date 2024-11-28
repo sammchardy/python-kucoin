@@ -13,7 +13,7 @@ class AsyncClientBase(BaseClient):
         api_passphrase: str = None,
         is_sandbox: bool = False,
         loop = None,
-        request_params=None,
+        request_params = None,
     ):
         self.loop = loop or get_loop()
         super().__init__(
@@ -21,7 +21,7 @@ class AsyncClientBase(BaseClient):
         )
 
     def _init_session(self) -> aiohttp.ClientSession:
-        session = aiohttp.ClientSession(loop = self.loop, headers=self._get_headers())
+        session = aiohttp.ClientSession(loop =self.loop, headers=self._get_headers())
         return session
 
     async def close(self):
