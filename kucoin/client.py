@@ -2551,7 +2551,7 @@ class Client(BaseClient):
 
         return self._delete("sub/api-key", True, data=dict(data, **params))
 
-    def get_account(self, account_id):
+    def get_account(self, account_id, **params):
         """Get an individual account
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-detail-spot-margin-trade_hf
@@ -2578,7 +2578,11 @@ class Client(BaseClient):
 
         """
 
-        return self._get("accounts/{}".format(account_id), True)
+        data= {
+            'accountId': account_id
+        }
+
+        return self._get('accounts/{}'.format(account_id), True, data=dict(data, **params))
 
     def create_account(self, account_type, currency):
         """Create an account
