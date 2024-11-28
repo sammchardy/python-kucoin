@@ -15,7 +15,7 @@ api_passphrase = os.environ.get('KUCOIN_PASSWORD')
 async def main():
     client = AsyncClient(api_key, api_secret, api_passphrase)
 
-    order = await client.create_market_order('LTC-USDT', Client.SIDE_SELL, size=0.1)
+    order = await client.create_market_order('LTC-USDT', AsyncClient.SIDE_SELL, size=0.1)
 
     print(order)
 
