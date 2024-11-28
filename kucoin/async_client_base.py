@@ -1,6 +1,7 @@
 import time
+from kucoin.exceptions import KucoinAPIException, KucoinRequestException
 from kucoin.utils import compact_json_dict
-
+import aiohttp
 from .base_client import BaseClient
 
 
@@ -11,12 +12,31 @@ class AsyncClientBase(BaseClient):
         api_secret: str = None,
         api_passphrase: str = None,
         is_sandbox: bool = False,
-        request_params = None,
+        request_params=None,
     ):
-        super().__init__(api_key, api_secret, api_passphrase, is_sandbox, request_params)
+        super().__init__(
+            api_key, api_secret, api_passphrase, is_sandbox, request_params
+        )
+
+    def _init_session(self) -> aiohttp.ClientSession:
+        session = aiohttp.ClientSession(headers=self._get_headers())
+        return session
 
     async def close(self):
         await self._session.close()
+
+    async def _handle_response(self, response: aiohttp.ClientResponse):
+        """Internal helper for handling API responses from the Binance server.
+        Raises the appropriate exceptions when necessary; otherwise, returns the
+        response.
+        """
+        if not str(response.status).startswith("2"):
+            raise KucoinAPIException(response, response.status, await response.text())
+        try:
+            return await response.json()
+        except ValueError:
+            txt = await response.text()
+            raise KucoinRequestException(f"Invalid Response: {txt}")
 
     async def _request(
         self, method, path, signed, api_version=None, is_futures=False, **kwargs
@@ -59,14 +79,30 @@ class AsyncClientBase(BaseClient):
             self.response = response
             return await self._handle_response(response)
 
-    async def _get(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
-        return await self._request("get", path, signed, api_version, is_futures, **kwargs)
+    async def _get(
+        self, path, signed=False, api_version=None, is_futures=False, **kwargs
+    ):
+        return await self._request(
+            "get", path, signed, api_version, is_futures, **kwargs
+        )
 
-    async def _post(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
-        return await self._request("post", path, signed, api_version, is_futures, **kwargs)
+    async def _post(
+        self, path, signed=False, api_version=None, is_futures=False, **kwargs
+    ):
+        return await self._request(
+            "post", path, signed, api_version, is_futures, **kwargs
+        )
 
-    async def _put(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
-        return await self._request("put", path, signed, api_version, is_futures, **kwargs)
+    async def _put(
+        self, path, signed=False, api_version=None, is_futures=False, **kwargs
+    ):
+        return await self._request(
+            "put", path, signed, api_version, is_futures, **kwargs
+        )
 
-    async def _delete(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
-        return await self._request("delete", path, signed, api_version, is_futures, **kwargs)
+    async def _delete(
+        self, path, signed=False, api_version=None, is_futures=False, **kwargs
+    ):
+        return await self._request(
+            "delete", path, signed, api_version, is_futures, **kwargs
+        )

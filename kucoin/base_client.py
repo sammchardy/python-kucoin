@@ -64,8 +64,7 @@ class BaseClient:
         self._requests_params = requests_params
         self.session = self._init_session()
 
-    def _init_session(self):
-        session = requests.session()
+    def _get_headers(self):
         headers = {
             "Accept": "application/json",
             "User-Agent": "python-kucoin",
@@ -73,7 +72,11 @@ class BaseClient:
             "KC-API-KEY": self.API_KEY,
             "KC-API-PASSPHRASE": self.API_PASSPHRASE,
         }
-        session.headers.update(headers)
+        return headers
+
+    def _init_session(self):
+        session = requests.session()
+        session.headers.update(self._get_headers())
         return session
 
     def _sign_partner(self):
