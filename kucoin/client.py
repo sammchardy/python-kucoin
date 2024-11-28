@@ -6490,7 +6490,7 @@ class Client(BaseClient):
 
         return self._delete("stop-order/{}".format(order_id), True, data=params)
 
-    def cancel_order_by_client_oid(self, client_oid, symbol=None, **params):
+    def cancel_stop_order_by_client_oid(self, client_oid, symbol=None, **params):
         """Cancel a spot order by the clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-clientoid
@@ -7734,7 +7734,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
+    def hf_get_margin_order_by_client_oid(self, client_oid, symbol, **params):
         """Get hf margin order details by clientOid
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-order-details-by-clientoid

@@ -6490,7 +6490,7 @@ class AsyncClient(AsyncClientBase):
 
         return await self._delete("stop-order/{}".format(order_id), True, data=params)
 
-    async def cancel_order_by_client_oid(self, client_oid, symbol=None, **params):
+    async def cancel_stop_order_by_client_oid(self, client_oid, symbol=None, **params):
         """Cancel a spot order by the clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-clientoid
@@ -7734,7 +7734,7 @@ class AsyncClient(AsyncClientBase):
             data=dict(data, **params),
         )
 
-    async def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
+    async def hf_get_margin_order_by_client_oid(self, client_oid, symbol, **params):
         """Get hf margin order details by clientOid
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-order-details-by-clientoid
