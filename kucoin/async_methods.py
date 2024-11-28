@@ -6,10 +6,10 @@ from .exceptions import (
 )
 from .utils import flat_uuid
 
-from base_client import BaseClient
+from async_client import AsyncClientBase
 
 
-class Client(BaseClient):
+class AsyncClient(AsyncClientBase):
     def __init__(
         self,
         api_key=None,
@@ -40,7 +40,7 @@ class Client(BaseClient):
         """
         super.__init__(api_key, api_secret, passphrase, sandbox, requests_params)
 
-    def get_timestamp(self, **params):
+    async def get_timestamp(self, **params):
         """Get the server timestamp
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-server-time
@@ -50,7 +50,7 @@ class Client(BaseClient):
         """
         return self._get("timestamp", data=params)
 
-    def futures_get_timestamp(self, **params):
+    async def futures_get_timestamp(self, **params):
         """Get the futures server timestamp
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-server-time
@@ -60,7 +60,7 @@ class Client(BaseClient):
         """
         return self._get("timestamp", is_futures=True, data=params)
 
-    def get_status(self, **params):
+    async def get_status(self, **params):
         """Get the service status
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-service-status
@@ -80,7 +80,7 @@ class Client(BaseClient):
         """
         return self._get("status", data=params)
 
-    def futures_get_status(self, **params):
+    async def futures_get_status(self, **params):
         """Get the futures service status
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-service-status
@@ -100,7 +100,7 @@ class Client(BaseClient):
         """
         return self._get("status", is_futures=True, data=params)
 
-    def get_announcements(
+    async def get_announcements(
         self,
         page=None,
         limit=None,
@@ -187,7 +187,7 @@ class Client(BaseClient):
 
     # Currency Endpoints
 
-    def get_currencies(self):
+    async def get_currencies(self):
         """List known currencies
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-currency-list
@@ -263,7 +263,7 @@ class Client(BaseClient):
 
         return self._get("currencies", False, api_version=self.API_VERSION3)
 
-    def get_currency(self, currency, chain=None, **params):
+    async def get_currency(self, currency, chain=None, **params):
         """Get single currency detail
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-currency-detail
@@ -356,7 +356,7 @@ class Client(BaseClient):
 
     # Market Endpoints
 
-    def get_symbols(self, market=None, **params):
+    async def get_symbols(self, market=None, **params):
         """Get a list of available currency pairs for trading.
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbols-list
@@ -426,7 +426,7 @@ class Client(BaseClient):
             "symbols", False, api_version=self.API_VERSION2, data=dict(data, **params)
         )
 
-    def get_symbol(self, symbol=None, **params):
+    async def get_symbol(self, symbol=None, **params):
         """Get a symbol details for trading.
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbol-detail
@@ -477,7 +477,7 @@ class Client(BaseClient):
             "symbol", False, api_version=self.API_VERSION2, data=dict(data, **params)
         )
 
-    def get_ticker(self, symbol, **params):
+    async def get_ticker(self, symbol, **params):
         """Get symbol ticker
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-ticker
@@ -510,7 +510,7 @@ class Client(BaseClient):
         data = {"symbol": symbol}
         return self._get("market/orderbook/level1", False, data=dict(data, **params))
 
-    def get_tickers(self):
+    async def get_tickers(self):
         """Get symbol tickers
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-all-tickers
@@ -554,7 +554,7 @@ class Client(BaseClient):
         """
         return self._get("market/allTickers", False)
 
-    def get_24hr_stats(self, symbol, **params):
+    async def get_24hr_stats(self, symbol, **params):
         """Get 24hr stats for a symbol. Volume is in base currency units. open, high, low are in quote currency units.
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-24hr-stats
@@ -597,7 +597,7 @@ class Client(BaseClient):
 
         return self._get("market/stats", False, data=dict(data, **params))
 
-    def get_markets(self):
+    async def get_markets(self):
         """Get supported market list
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-market-list
@@ -632,7 +632,7 @@ class Client(BaseClient):
         """
         return self._get("markets", False)
 
-    def get_order_book(self, symbol, depth_20=False, **params):
+    async def get_order_book(self, symbol, depth_20=False, **params):
         """Get a list of bids and asks aggregated by price for a symbol.
 
         Returns up to 20 or 100 depth each side. Fastest Order book API
@@ -678,7 +678,7 @@ class Client(BaseClient):
 
         return self._get(path, False, data=dict(data, **params))
 
-    def get_full_order_book(self, symbol, **params):
+    async def get_full_order_book(self, symbol, **params):
         """Get a list of all bids and asks aggregated by price for a symbol.
 
         This call is generally used by professional traders because it uses more server resources and traffic,
@@ -722,7 +722,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def get_trade_histories(self, symbol, **params):
+    async def get_trade_histories(self, symbol, **params):
         """List the latest trades for a symbol
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-trade-histories
@@ -763,7 +763,7 @@ class Client(BaseClient):
 
         return self._get("market/histories", False, data=dict(data, **params))
 
-    def get_kline_data(self, symbol, kline_type="5min", start=None, end=None, **params):
+    async def get_kline_data(self, symbol, kline_type="5min", start=None, end=None, **params):
         """Get kline data
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-klines
@@ -825,7 +825,7 @@ class Client(BaseClient):
 
         return self._get("market/candles", False, data=dict(data, **params))
 
-    def get_fiat_prices(self, base=None, currencies=None, **params):
+    async def get_fiat_prices(self, base=None, currencies=None, **params):
         """Get fiat price for currency
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-fiat-price
@@ -866,7 +866,7 @@ class Client(BaseClient):
 
     # Futures Market Endpoints
 
-    def futures_get_symbols(self, **params):
+    async def futures_get_symbols(self, **params):
         """Get a list of available currency pairs for trading.
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-symbols-list
@@ -962,7 +962,7 @@ class Client(BaseClient):
 
         return self._get("contracts/active", False, is_futures=True, data=params)
 
-    def futures_get_symbol(self, symbol, **params):
+    async def futures_get_symbol(self, symbol, **params):
         """Get a symbol details for trading.
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-symbol-detail
@@ -1063,7 +1063,7 @@ class Client(BaseClient):
             "contracts/{}".format(symbol), False, is_futures=True, data=params
         )
 
-    def futures_get_ticker(self, symbol, **params):
+    async def futures_get_ticker(self, symbol, **params):
         """Get symbol ticker
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-ticker
@@ -1103,7 +1103,7 @@ class Client(BaseClient):
 
         return self._get("ticker", False, is_futures=True, data=dict(data, **params))
 
-    def futures_get_tickers(self, **params):
+    async def futures_get_tickers(self, **params):
         """Get symbol tickers
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-latest-ticker-for-all-contracts
@@ -1145,7 +1145,7 @@ class Client(BaseClient):
 
         return self._get("allTickers", False, is_futures=True, data=params)
 
-    def futures_get_order_book(self, symbol, depth_20=False, **params):
+    async def futures_get_order_book(self, symbol, depth_20=False, **params):
         """Get a list of bids and asks aggregated by price for a symbol.
 
         Returns up to 20 or 100 depth each side. Fastest Order book API
@@ -1193,7 +1193,7 @@ class Client(BaseClient):
 
         return self._get(path, False, is_futures=True, data=dict(data, **params))
 
-    def futures_get_full_order_book(self, symbol, **params):
+    async def futures_get_full_order_book(self, symbol, **params):
         """Get a list of all bids and asks aggregated by price for a symbol.
 
         This call is generally used by professional traders because it uses more server resources and traffic,
@@ -1237,7 +1237,7 @@ class Client(BaseClient):
             "level2/snapshot", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_trade_histories(self, symbol, **params):
+    async def futures_get_trade_histories(self, symbol, **params):
         """List the latest trades for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-transaction-history
@@ -1276,7 +1276,7 @@ class Client(BaseClient):
             "trade/history", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_klines(
+    async def futures_get_klines(
         self, symbol, kline_type="5min", start=None, end=None, **params
     ):
         """Get kline data
@@ -1340,7 +1340,7 @@ class Client(BaseClient):
             "kline/query", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_interest_rate(
+    async def futures_get_interest_rate(
         self,
         symbol,
         start=None,
@@ -1426,7 +1426,7 @@ class Client(BaseClient):
             "interest/query", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_index(
+    async def futures_get_index(
         self,
         symbol,
         start=None,
@@ -1534,7 +1534,7 @@ class Client(BaseClient):
             "index/query", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_mark_price(self, symbol, **params):
+    async def futures_get_mark_price(self, symbol, **params):
         """Get mark price
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-current-mark-price
@@ -1571,7 +1571,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_premium_index(
+    async def futures_get_premium_index(
         self,
         symbol,
         start=None,
@@ -1657,7 +1657,7 @@ class Client(BaseClient):
             "premium/query", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_24hr_transaction_volume(self, **params):
+    async def futures_get_24hr_transaction_volume(self, **params):
         """Get 24hr stats
 
         https://www.kucoin.com/docs/rest/futures-trading/market-data/get-24hour-futures-transaction-volume
@@ -1688,7 +1688,7 @@ class Client(BaseClient):
 
     # User Account Endpoints
 
-    def get_accounts(self, currency=None, account_type=None, **params):
+    async def get_accounts(self, currency=None, account_type=None, **params):
         """Get a list of accounts
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-list-spot-margin-trade_hf
@@ -1739,7 +1739,7 @@ class Client(BaseClient):
 
         return self._get("accounts", True, data=dict(data, **params))
 
-    def get_subaccounts(self, **params):
+    async def get_subaccounts(self, **params):
         """Get a list of subaccounts
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-info-v1-
@@ -1778,7 +1778,7 @@ class Client(BaseClient):
 
         return self._get("sub/user", True, data=params)
 
-    def get_subaccounts_v2(self, page=None, limit=None, **params):
+    async def get_subaccounts_v2(self, page=None, limit=None, **params):
         """Get a list of subaccounts
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-info-v2-
@@ -1834,7 +1834,7 @@ class Client(BaseClient):
             "sub/user", True, api_version=self.API_VERSION2, data=dict(data, **params)
         )
 
-    def margin_get_account_detail(self, **params):
+    async def margin_get_account_detail(self, **params):
         """Get account detail
 
         https://www.kucoin.com/docs/rest/funding/funding-overview/get-account-detail-margin
@@ -1879,7 +1879,7 @@ class Client(BaseClient):
 
         return self._get("margin/account", True, data=params)
 
-    def margin_get_cross_account_detail(
+    async def margin_get_cross_account_detail(
         self, quote_currency=None, query_type=None, **params
     ):
         """Get cross account detail
@@ -1951,7 +1951,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_get_isolated_account_detail(
+    async def margin_get_isolated_account_detail(
         self, symbol=None, quote_currency=None, query_type=None, **params
     ):
         """Get isolated account detail
@@ -2032,7 +2032,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_account_detail(self, currency=None, **params):
+    async def futures_get_account_detail(self, currency=None, **params):
         """Get futures account detail
 
         https://www.kucoin.com/docs/rest/funding/funding-overview/get-account-detail-futures
@@ -2075,7 +2075,7 @@ class Client(BaseClient):
             "account-overview", True, is_futures=True, data=dict(data, **params)
         )
 
-    def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
+    async def get_subaccount_balance(self, sub_user_id, include_base_ammount, **params):
         """Get the account info of a sub-user specified by the subUserId
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-a-sub-account-balance
@@ -2142,7 +2142,7 @@ class Client(BaseClient):
             "sub-accounts/{}".format(sub_user_id), True, data=dict(data, **params)
         )
 
-    def get_all_subaccounts_balance(self):
+    async def get_all_subaccounts_balance(self):
         """Get the account info of all sub-users
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-balance-v1-
@@ -2202,7 +2202,7 @@ class Client(BaseClient):
 
         return self._get("sub-accounts", True)
 
-    def get_all_subaccounts_balance_v2(self, page=None, limit=None, **params):
+    async def get_all_subaccounts_balance_v2(self, page=None, limit=None, **params):
         """Get the account info of all sub-users
 
         https://www.kucoin.com/docs/rest/account/sub-account/get-all-sub-accounts-balance-v2-
@@ -2266,7 +2266,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_all_subaccounts_balance(self, currency=None, **params):
+    async def futures_get_all_subaccounts_balance(self, currency=None, **params):
         """Get the account info of all sub-users
 
         https://www.kucoin.com/docs/rest/funding/funding-overview/get-all-sub-accounts-balance-futures
@@ -2338,7 +2338,7 @@ class Client(BaseClient):
             "account-overview-all", True, is_futures=True, data=dict(data, **params)
         )
 
-    def get_subaccount_api_list(self, sub_name, api_key=None, **params):
+    async def get_subaccount_api_list(self, sub_name, api_key=None, **params):
         """Get the API key list of a sub-user
 
         https://www.kucoin.com/docs/rest/account/sub-account-api/get-sub-account-api-list
@@ -2385,7 +2385,7 @@ class Client(BaseClient):
 
         return self._get("sub/api-key", True, data=dict(data, **params))
 
-    def create_subaccount_api(
+    async def create_subaccount_api(
         self,
         sub_name,
         passphrase,
@@ -2451,7 +2451,7 @@ class Client(BaseClient):
 
         return self._post("sub/api-key", True, data=dict(data, **params))
 
-    def modify_subaccount_api(
+    async def modify_subaccount_api(
         self,
         sub_name,
         api_key,
@@ -2513,7 +2513,7 @@ class Client(BaseClient):
 
         return self._post("sub/api-key/update", True, data=dict(data, **params))
 
-    def delete_subaccount_api(self, api_key, passphrase, sub_name, **params):
+    async def delete_subaccount_api(self, api_key, passphrase, sub_name, **params):
         """Delete Spot APIs for sub-accounts
 
         https://www.kucoin.com/docs/rest/account/sub-account-api/delete-sub-account-api
@@ -2551,7 +2551,7 @@ class Client(BaseClient):
 
         return self._delete("sub/api-key", True, data=dict(data, **params))
 
-    def get_account(self, account_id):
+    async def get_account(self, account_id):
         """Get an individual account
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-detail-spot-margin-trade_hf
@@ -2580,7 +2580,7 @@ class Client(BaseClient):
 
         return self._get("accounts/{}".format(account_id), True)
 
-    def create_account(self, account_type, currency):
+    async def create_account(self, account_type, currency):
         """Create an account
 
         https://docs.kucoin.com/#create-an-account
@@ -2611,7 +2611,7 @@ class Client(BaseClient):
 
         return self._post("accounts", True, data=data)
 
-    def create_subaccount(self, password, sub_name, access, remarks=None, **params):
+    async def create_subaccount(self, password, sub_name, access, remarks=None, **params):
         """Create a subaccount
 
         https://www.kucoin.com/docs/rest/account/sub-account/create-sub-account
@@ -2654,7 +2654,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def get_account_activity(
+    async def get_account_activity(
         self,
         currency=None,
         direction=None,
@@ -2754,7 +2754,7 @@ class Client(BaseClient):
 
         return self._get("accounts/ledgers", True, dict(data, **params))
 
-    def hf_get_account_activity(
+    async def hf_get_account_activity(
         self,
         currency=None,
         direction=None,
@@ -2844,7 +2844,7 @@ class Client(BaseClient):
             path = "hf/margin/account/ledgers"
         return self._get(path, True, data=dict(data, **params))
 
-    def futures_get_account_activity(
+    async def futures_get_account_activity(
         self,
         currency=None,
         type=None,
@@ -2910,7 +2910,7 @@ class Client(BaseClient):
 
     # Transfer Endpoints
 
-    def get_transferable_balance(self, currency, type, tag=None, **params):
+    async def get_transferable_balance(self, currency, type, tag=None, **params):
         """Get transferable balance
 
         https://www.kucoin.com/docs/rest/funding/transfer/get-the-transferable
@@ -2948,7 +2948,7 @@ class Client(BaseClient):
 
         return self._get("accounts/transferable", True, data=dict(data, **params))
 
-    def create_universal_transfer(
+    async def create_universal_transfer(
         self,
         client_oid,
         amount,
@@ -3030,7 +3030,7 @@ class Client(BaseClient):
             "accounts/universal-transfer", True, data=dict(data, **params)
         )
 
-    def create_subaccount_transfer(
+    async def create_subaccount_transfer(
         self,
         client_oid,
         currency,
@@ -3095,7 +3095,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def create_inner_transfer(
+    async def create_inner_transfer(
         self,
         client_oid,
         currency,
@@ -3160,7 +3160,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def create_transfer_out(self, amount, currency, rec_account_type, **params):
+    async def create_transfer_out(self, amount, currency, rec_account_type, **params):
         """Transfer to Main or TRADE Account
 
         https://www.kucoin.com/docs/rest/funding/transfer/transfer-to-main-or-trade-account
@@ -3217,7 +3217,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def create_transfer_in(self, amount, currency, pay_account_type, **params):
+    async def create_transfer_in(self, amount, currency, pay_account_type, **params):
         """Transfer to Futures Account
 
         https://www.kucoin.com/docs/rest/funding/transfer/transfer-to-futures-account
@@ -3256,7 +3256,7 @@ class Client(BaseClient):
 
         return self._post("accounts/transfer-in", True, data=dict(data, **params))
 
-    def get_transfer_list(
+    async def get_transfer_list(
         self,
         start=None,
         end=None,
@@ -3345,7 +3345,7 @@ class Client(BaseClient):
 
     # Deposit Endpoints
 
-    def create_deposit_address(
+    async def create_deposit_address(
         self, currency, chain=None, to=None, amount=None, **params
     ):
         """Create deposit address for a currency you intend to deposit
@@ -3406,7 +3406,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def get_deposit_addresses(self, currency, amount=None, chain=None, **params):
+    async def get_deposit_addresses(self, currency, amount=None, chain=None, **params):
         """Get all deposit addresses for the currency you intend to deposit.
 
         https://www.kucoin.com/docs/rest/funding/deposit/get-deposit-addresses-v3-
@@ -3480,7 +3480,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def get_deposits(
+    async def get_deposits(
         self,
         currency=None,
         status=None,
@@ -3564,7 +3564,7 @@ class Client(BaseClient):
 
         return self._get("deposits", True, data=dict(data, **params))
 
-    def get_deposit_history(
+    async def get_deposit_history(
         self,
         currency=None,
         status=None,
@@ -3639,7 +3639,7 @@ class Client(BaseClient):
 
         return self._get("hist-deposits", True, data=dict(data, **params))
 
-    def get_user_type(self, **params):
+    async def get_user_type(self, **params):
         """Get user type (the current user is a spot high-frequency user or a spot low-frequency user)
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-user-type
@@ -3665,7 +3665,7 @@ class Client(BaseClient):
 
     # Withdraw Endpoints
 
-    def get_withdrawals(
+    async def get_withdrawals(
         self,
         currency=None,
         status=None,
@@ -3749,7 +3749,7 @@ class Client(BaseClient):
 
         return self._get("withdrawals", True, data=dict(data, **params))
 
-    def get_historical_withdrawals(
+    async def get_historical_withdrawals(
         self,
         currency=None,
         status=None,
@@ -3824,7 +3824,7 @@ class Client(BaseClient):
 
         return self._get("hist-withdrawals", True, data=dict(data, **params))
 
-    def get_withdrawal_quotas(self, currency, chain=None, **params):
+    async def get_withdrawal_quotas(self, currency, chain=None, **params):
         """Get withdrawal quotas for a currency
 
         https://www.kucoin.com/docs/rest/funding/withdrawals/get-withdrawal-quotas
@@ -3874,7 +3874,7 @@ class Client(BaseClient):
 
         return self._get("withdrawals/quotas", True, data=dict(data, **params))
 
-    def create_withdrawal(
+    async def create_withdrawal(
         self,
         currency,
         amount,
@@ -3949,7 +3949,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def cancel_withdrawal(self, withdrawal_id, **params):
+    async def cancel_withdrawal(self, withdrawal_id, **params):
         """Cancel a withdrawal
 
         https://www.kucoin.com/docs/rest/funding/withdrawals/cancel-withdrawal
@@ -3981,7 +3981,7 @@ class Client(BaseClient):
 
     # Trade Fee Endpoints
 
-    def get_base_fee(self, currency_type=None, **params):
+    async def get_base_fee(self, currency_type=None, **params):
         """Get base fee
 
         https://www.kucoin.com/docs/rest/funding/trade-fee/basic-user-fee-spot-margin-trade_hf
@@ -4016,7 +4016,7 @@ class Client(BaseClient):
 
         return self._get("base-fee", True, data=dict(data, **params))
 
-    def get_trading_pair_fee(self, symbols, **params):
+    async def get_trading_pair_fee(self, symbols, **params):
         """Trading pair actual fee - Spot/Margin/trade_hf
 
         https://www.kucoin.com/docs/rest/funding/trade-fee/trading-pair-actual-fee-spot-margin-trade_hf
@@ -4059,7 +4059,7 @@ class Client(BaseClient):
 
         return self._get("trade-fees", True, data=dict(data, **params))
 
-    def futures_get_trading_pair_fee(self, symbol, **params):
+    async def futures_get_trading_pair_fee(self, symbol, **params):
         """Trading pair actual fee - Futures
 
         https://www.kucoin.com/docs/rest/funding/trade-fee/trading-pair-actual-fee-futures
@@ -4205,7 +4205,7 @@ class Client(BaseClient):
             data["remark"] = remark
         return data
 
-    def create_order(
+    async def create_order(
         self,
         symbol,
         type,
@@ -4308,7 +4308,7 @@ class Client(BaseClient):
         )
         return self._post("orders", True, data=dict(data, **params))
 
-    def create_market_order(
+    async def create_market_order(
         self,
         symbol,
         side,
@@ -4356,7 +4356,7 @@ class Client(BaseClient):
 
         """
 
-        return self.create_order(
+        return await self.create_order(
             symbol,
             self.ORDER_MARKET,
             side,
@@ -4368,7 +4368,7 @@ class Client(BaseClient):
             **params,
         )
 
-    def create_limit_order(
+    async def create_limit_order(
         self,
         symbol,
         side,
@@ -4446,7 +4446,7 @@ class Client(BaseClient):
                 "stop and stop_price in create_limit_order are deprecated. To create a stop order please use create_stop_order()"
             )
 
-        return self.create_order(
+        return await self.create_order(
             symbol,
             self.ORDER_LIMIT,
             side,
@@ -4465,7 +4465,7 @@ class Client(BaseClient):
             **params,
         )
 
-    def create_test_order(
+    async def create_test_order(
         self,
         symbol,
         type,
@@ -4561,7 +4561,7 @@ class Client(BaseClient):
         )
         return self._post("orders/test", True, data=dict(data, **params))
 
-    def create_orders(self, symbol, order_list, **params):
+    async def create_orders(self, symbol, order_list, **params):
         """Create multiple spot limit orders
 
         Maximum of 5 orders can be created at once
@@ -4689,7 +4689,7 @@ class Client(BaseClient):
 
         return self._post("orders/multi", True, data=dict(data, **params))
 
-    def cancel_order(self, order_id, **params):
+    async def cancel_order(self, order_id, **params):
         """Cancel a spot order
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-orderid
@@ -4719,7 +4719,7 @@ class Client(BaseClient):
 
         return self._delete("orders/{}".format(order_id), True, data=params)
 
-    def cancel_order_by_client_oid(self, client_oid, **params):
+    async def cancel_order_by_client_oid(self, client_oid, **params):
         """Cancel a spot order by the clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-clientoid
@@ -4750,7 +4750,7 @@ class Client(BaseClient):
             "order/client-order/{}".format(client_oid), True, data=params
         )
 
-    def cancel_all_orders(self, symbol=None, trade_type=None, **params):
+    async def cancel_all_orders(self, symbol=None, trade_type=None, **params):
         """Cancel all orders
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-all-orders
@@ -4787,7 +4787,7 @@ class Client(BaseClient):
 
         return self._delete("orders", True, data=dict(data, **params))
 
-    def get_orders(
+    async def get_orders(
         self,
         symbol=None,
         status=None,
@@ -4904,7 +4904,7 @@ class Client(BaseClient):
 
         return self._get("orders", True, data=dict(data, **params))
 
-    def get_historical_orders(
+    async def get_historical_orders(
         self, symbol=None, side=None, start=None, end=None, page=None, limit=None
     ):
         """Deprecated"""
@@ -4913,7 +4913,7 @@ class Client(BaseClient):
             "The interface has been deprecated. Please use get_orders"
         )
 
-    def get_recent_orders(self, page=None, limit=None, **params):
+    async def get_recent_orders(self, page=None, limit=None, **params):
         """Get up to 1000 last orders in the last 24 hours.
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/get-recent-orders-list
@@ -4943,7 +4943,7 @@ class Client(BaseClient):
 
         return self._get("limit/orders", True, data=dict(data, **params))
 
-    def get_order(self, order_id, **params):
+    async def get_order(self, order_id, **params):
         """Get order details
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/get-order-details-by-orderid
@@ -4997,7 +4997,7 @@ class Client(BaseClient):
 
         return self._get("orders/{}".format(order_id), True, data=params)
 
-    def get_order_by_client_oid(self, client_oid, **params):
+    async def get_order_by_client_oid(self, client_oid, **params):
         """Get order details by clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/get-order-details-by-clientoid
@@ -5054,7 +5054,7 @@ class Client(BaseClient):
 
     # HF Order Endpoints
 
-    def hf_create_order(
+    async def hf_create_order(
         self,
         symbol,
         type,
@@ -5155,7 +5155,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders", True, data=dict(data, **params))
 
-    def hf_create_market_order(
+    async def hf_create_market_order(
         self,
         symbol,
         side,
@@ -5210,7 +5210,7 @@ class Client(BaseClient):
 
         """
 
-        return self.hf_create_order(
+        return await self.hf_create_order(
             symbol,
             self.ORDER_MARKET,
             side,
@@ -5223,7 +5223,7 @@ class Client(BaseClient):
             **params,
         )
 
-    def hf_create_limit_order(
+    async def hf_create_limit_order(
         self,
         symbol,
         side,
@@ -5296,7 +5296,7 @@ class Client(BaseClient):
 
         """
 
-        return self.hf_create_order(
+        return await self.hf_create_order(
             symbol,
             self.ORDER_LIMIT,
             side,
@@ -5315,7 +5315,7 @@ class Client(BaseClient):
             **params,
         )
 
-    def hf_create_test_order(
+    async def hf_create_test_order(
         self,
         symbol,
         type,
@@ -5416,7 +5416,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders/test", True, data=dict(data, **params))
 
-    def sync_hf_create_order(
+    async def sync_hf_create_order(
         self,
         symbol,
         type,
@@ -5529,7 +5529,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders/sync", True, data=dict(data, **params))
 
-    def hf_create_orders(self, order_list, **params):
+    async def hf_create_orders(self, order_list, **params):
         """Create multiple hf spot orders
 
         Maximum of 5 orders can be created at once
@@ -5613,7 +5613,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders/multi", True, data=dict(data, **params))
 
-    def sync_hf_create_orders(self, order_list, **params):
+    async def sync_hf_create_orders(self, order_list, **params):
         """Create multiple hf spot orders
 
         The difference between this interface and hf_create_orders is that this interface will
@@ -5700,7 +5700,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders/multi/sync", True, data=dict(data, **params))
 
-    def hf_modify_order(
+    async def hf_modify_order(
         self,
         symbol,
         order_id=None,
@@ -5758,7 +5758,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders/alter", True, data=dict(data, **params))
 
-    def hf_cancel_order(self, order_id, symbol, **params):
+    async def hf_cancel_order(self, order_id, symbol, **params):
         """Cancel an hf order by the orderId
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-hf-order-by-orderid
@@ -5790,7 +5790,7 @@ class Client(BaseClient):
             "hf/orders/{}".format(order_id), True, data=dict(data, **params)
         )
 
-    def sync_hf_cancel_order(self, order_id, symbol, **params):
+    async def sync_hf_cancel_order(self, order_id, symbol, **params):
         """Cancel an hf order by the orderId
         The difference between this interface and hf_cancel_order is that this interface will
         synchronously return the order information after the order canceling is completed.
@@ -5825,7 +5825,7 @@ class Client(BaseClient):
             "hf/orders/sync/{}".format(order_id), True, data=dict(data, **params)
         )
 
-    def hf_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+    async def hf_cancel_order_by_client_oid(self, client_oid, symbol, **params):
         """Cancel a hf order by the clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-hf-order-by-clientoid
@@ -5859,7 +5859,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def sync_hf_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+    async def sync_hf_cancel_order_by_client_oid(self, client_oid, symbol, **params):
         """Cancel a hf order by the clientOid
         The difference between this interface and hf_cancel_order is that this interface will
         synchronously return the order information after the order canceling is completed.
@@ -5895,7 +5895,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_cancel_specified_quantity_of_order(
+    async def hf_cancel_specified_quantity_of_order(
         self, order_id, symbol, cancel_size, **params
     ):
         """Cancel a specified quantity of an hf order by the orderId
@@ -5931,7 +5931,7 @@ class Client(BaseClient):
             "hf/orders/cancel/{}".format(order_id), True, data=dict(data, **params)
         )
 
-    def hf_cancel_orders_by_symbol(self, symbol, **params):
+    async def hf_cancel_orders_by_symbol(self, symbol, **params):
         """Cancel all hf orders by symbol
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-all-hf-orders-by-symbol
@@ -5957,7 +5957,7 @@ class Client(BaseClient):
 
         return self._delete("hf/orders", True, data=dict(data, **params))
 
-    def hf_cancel_all_orders(self, **params):
+    async def hf_cancel_all_orders(self, **params):
         """Cancel all hf orders
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/cancel-all-hf-orders
@@ -5987,7 +5987,7 @@ class Client(BaseClient):
         """
         return self._delete("hf/orders/cancelAll", True, data=params)
 
-    def hf_get_active_orders(self, symbol, **params):
+    async def hf_get_active_orders(self, symbol, **params):
         """Get a list of active hf orders
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-active-hf-orders-list
@@ -6051,7 +6051,7 @@ class Client(BaseClient):
 
         return self._get("hf/orders/active", True, data=dict(data, **params))
 
-    def hf_get_symbol_with_active_orders(self, **params):
+    async def hf_get_symbol_with_active_orders(self, **params):
         """Get a list of symbols with active hf orders
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-symbol-with-active-hf-orders-list
@@ -6080,7 +6080,7 @@ class Client(BaseClient):
 
         return self._get("hf/orders/active/symbols", True, data=params)
 
-    def hf_get_completed_orders(
+    async def hf_get_completed_orders(
         self,
         symbol,
         side=None,
@@ -6183,7 +6183,7 @@ class Client(BaseClient):
 
         return self._get("hf/orders/done", True, data=dict(data, **params))
 
-    def hf_get_order(self, order_id, symbol, **params):
+    async def hf_get_order(self, order_id, symbol, **params):
         """Get an hf order details by the orderId
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-order-details-by-orderid
@@ -6250,7 +6250,7 @@ class Client(BaseClient):
             "hf/orders/{}".format(order_id), True, data=dict(data, **params)
         )
 
-    def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
+    async def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
         """Get hf order details by clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/get-hf-order-details-by-clientoid
@@ -6282,7 +6282,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_auto_cancel_order(self, timeout, symbol=None, **params):
+    async def hf_auto_cancel_order(self, timeout, symbol=None, **params):
         """Auto cancel a hf order
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/auto-cancel-hf-order-setting
@@ -6319,7 +6319,7 @@ class Client(BaseClient):
 
         return self._post("hf/orders/dead-cancel-all", True, data=dict(data, **params))
 
-    def hf_get_auto_cancel_order(self, **params):
+    async def hf_get_auto_cancel_order(self, **params):
         """Get auto cancel setting
 
         https://www.kucoin.com/docs/rest/spot-trading/spot-hf-trade-pro-account/auto-cancel-hf-order-setting-query
@@ -6347,7 +6347,7 @@ class Client(BaseClient):
 
     # Stop Orders
 
-    def create_stop_order(
+    async def create_stop_order(
         self,
         symbol,
         type,
@@ -6460,7 +6460,7 @@ class Client(BaseClient):
 
         return self._post("stop-order", True, data=dict(data, **params))
 
-    def cancel_stop_order(self, order_id, **params):
+    async def cancel_stop_order(self, order_id, **params):
         """Cancel a stop order
 
         https://www.kucoin.com/docs/rest/spot-trading/stop-order/cancel-order-by-orderid
@@ -6490,7 +6490,7 @@ class Client(BaseClient):
 
         return self._delete("stop-order/{}".format(order_id), True, data=params)
 
-    def cancel_order_by_client_oid(self, client_oid, symbol=None, **params):
+    async def cancel_order_by_client_oid(self, client_oid, symbol=None, **params):
         """Cancel a spot order by the clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/orders/cancel-order-by-clientoid
@@ -6528,7 +6528,7 @@ class Client(BaseClient):
             "stop-order/cancelOrderByClientOid", True, data=dict(data, **params)
         )
 
-    def cancel_all_stop_orders(
+    async def cancel_all_stop_orders(
         self, symbol=None, trade_type=None, order_ids=None, **params
     ):
         """Cancel all stop orders
@@ -6571,7 +6571,7 @@ class Client(BaseClient):
 
         return self._delete("stop-order/cancel", True, data=dict(data, **params))
 
-    def get_stop_orders(
+    async def get_stop_orders(
         self,
         symbol=None,
         side=None,
@@ -6651,7 +6651,7 @@ class Client(BaseClient):
 
         return self._get("stop-order", True, data=dict(data, **params))
 
-    def get_stop_order(self, order_id, **params):
+    async def get_stop_order(self, order_id, **params):
         """Get stop order details
 
         https://www.kucoin.com/docs/rest/spot-trading/stop-order/get-order-details-by-orderid
@@ -6675,7 +6675,7 @@ class Client(BaseClient):
 
         return self._get("stop-order/{}".format(order_id), True, data=params)
 
-    def get_stop_order_by_client_oid(self, client_oid, symbol=None, **params):
+    async def get_stop_order_by_client_oid(self, client_oid, symbol=None, **params):
         """Get stop order details by clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/stop-order/get-order-details-by-clientoid
@@ -6710,7 +6710,7 @@ class Client(BaseClient):
 
     # OCO Orders
 
-    def oco_create_order(
+    async def oco_create_order(
         self,
         symbol,
         side,
@@ -6778,7 +6778,7 @@ class Client(BaseClient):
             "oco/order", True, api_version=self.API_VERSION3, data=dict(data, **params)
         )
 
-    def oco_cancel_order(self, order_id, **params):
+    async def oco_cancel_order(self, order_id, **params):
         """Cancel an oco order
 
         https://www.kucoin.com/docs/rest/spot-trading/oco-order/cancel-order-by-orderid
@@ -6807,7 +6807,7 @@ class Client(BaseClient):
             data=params,
         )
 
-    def oco_cancel_order_by_client_oid(self, client_oid, **params):
+    async def oco_cancel_order_by_client_oid(self, client_oid, **params):
         """Cancel a spot order by the clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/oco-order/cancel-order-by-clientoid
@@ -6838,7 +6838,7 @@ class Client(BaseClient):
             data=params,
         )
 
-    def oco_cancel_all_orders(self, symbol=None, order_ids=None, **params):
+    async def oco_cancel_all_orders(self, symbol=None, order_ids=None, **params):
         """Cancel all oco orders
 
         https://www.kucoin.com/docs/rest/spot-trading/oco-order/cancel-multiple-orders
@@ -6871,7 +6871,7 @@ class Client(BaseClient):
             "oco/orders", True, api_version=self.API_VERSION3, data=dict(data, **params)
         )
 
-    def oco_get_order_info(self, order_id, **params):
+    async def oco_get_order_info(self, order_id, **params):
         """Get oco order information
         for the order details use oco_get_order()
 
@@ -6901,7 +6901,7 @@ class Client(BaseClient):
             data=params,
         )
 
-    def oco_get_order(self, order_id, **params):
+    async def oco_get_order(self, order_id, **params):
         """Get oco order information
 
         https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-details-by-orderid
@@ -6930,7 +6930,7 @@ class Client(BaseClient):
             data=params,
         )
 
-    def oco_get_order_by_client_oid(self, client_oid, **params):
+    async def oco_get_order_by_client_oid(self, client_oid, **params):
         """Get oco order details by clientOid
 
         https://www.kucoin.com/docs/rest/spot-trading/oco-order/get-order-info-by-clientoid
@@ -6959,7 +6959,7 @@ class Client(BaseClient):
             data=params,
         )
 
-    def oco_get_orders(
+    async def oco_get_orders(
         self,
         symbol=None,
         start=None,
@@ -7020,7 +7020,7 @@ class Client(BaseClient):
 
     # Margin Orders
 
-    def margin_create_order(
+    async def margin_create_order(
         self,
         symbol,
         type,
@@ -7137,7 +7137,7 @@ class Client(BaseClient):
 
         return self._post("margin/order", True, data=dict(data, **params))
 
-    def margin_create_test_order(
+    async def margin_create_test_order(
         self,
         symbol,
         type,
@@ -7256,7 +7256,7 @@ class Client(BaseClient):
 
     # HF Margin Orders
 
-    def hf_margin_create_order(
+    async def hf_margin_create_order(
         self,
         symbol,
         type,
@@ -7376,7 +7376,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_create_test_order(
+    async def hf_margin_create_test_order(
         self,
         symbol,
         type,
@@ -7496,7 +7496,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_cancel_order(self, order_id, symbol, **params):
+    async def hf_margin_cancel_order(self, order_id, symbol, **params):
         """Cancel an hf margin order by the orderId
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/cancel-hf-order-by-orderid
@@ -7531,7 +7531,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+    async def hf_margin_cancel_order_by_client_oid(self, client_oid, symbol, **params):
         """Cancel a hf margin order by the clientOid
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/cancel-hf-order-by-clientoid
@@ -7566,7 +7566,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_cancel_orders_by_symbol(self, symbol, trade_type, **params):
+    async def hf_margin_cancel_orders_by_symbol(self, symbol, trade_type, **params):
         """Cancel all hf margin orders by symbol
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/cancel-all-hf-orders-by-symbol
@@ -7599,7 +7599,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_get_active_orders(self, symbol, trade_type, **params):
+    async def hf_margin_get_active_orders(self, symbol, trade_type, **params):
         """Get a list of active hf margin orders
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-active-hf-orders-list
@@ -7632,7 +7632,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_get_completed_orders(
+    async def hf_margin_get_completed_orders(
         self,
         symbol,
         trade_type,
@@ -7701,7 +7701,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_get_order(self, order_id, symbol, **params):
+    async def hf_margin_get_order(self, order_id, symbol, **params):
         """Get an hf margin order details by the orderId
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-order-details-by-orderid
@@ -7734,7 +7734,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
+    async def hf_get_order_by_client_oid(self, client_oid, symbol, **params):
         """Get hf margin order details by clientOid
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-hf-order-details-by-clientoid
@@ -7767,7 +7767,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def hf_margin_get_symbol_with_active_orders(self, trade_type, **params):
+    async def hf_margin_get_symbol_with_active_orders(self, trade_type, **params):
         """Get a list of symbols with active hf margin orders
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-hf-trade/get-active-hf-order-symbols
@@ -7957,7 +7957,7 @@ class Client(BaseClient):
 
         return dict(data, **params)
 
-    def futures_create_order(
+    async def futures_create_order(
         self,
         symbol,
         type=None,
@@ -8100,7 +8100,7 @@ class Client(BaseClient):
 
         return self._post("orders", True, is_futures=True, data=data)
 
-    def futures_create_test_order(
+    async def futures_create_test_order(
         self,
         symbol,
         type=None,
@@ -8243,7 +8243,7 @@ class Client(BaseClient):
 
         return self._post("orders/test", True, is_futures=True, data=data)
 
-    def futures_create_stop_order(
+    async def futures_create_stop_order(
         self,
         symbol,
         type=None,
@@ -8383,7 +8383,7 @@ class Client(BaseClient):
 
         return self._post("st-orders", True, is_futures=True, data=data)
 
-    def futures_create_orders(self, orders_data):
+    async def futures_create_orders(self, orders_data):
         """Create multiple futures orders
         You can place up to 20 orders at one time, including limit orders, market orders, and stop orders
 
@@ -8433,7 +8433,7 @@ class Client(BaseClient):
 
         return self._post("orders/multi", True, is_futures=True, data=data)
 
-    def futures_cancel_order(self, order_id, **params):
+    async def futures_cancel_order(self, order_id, **params):
         """Cancel a futures order by order id
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-order-by-orderid
@@ -8465,7 +8465,7 @@ class Client(BaseClient):
             "orders/{}".format(order_id), True, is_futures=True, data=params
         )
 
-    def futures_cancel_order_by_client_oid(self, client_oid, symbol, **params):
+    async def futures_cancel_order_by_client_oid(self, client_oid, symbol, **params):
         """Cancel a futures order by the clientOid
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-order-by-clientoid
@@ -8500,7 +8500,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_cancel_orders(
+    async def futures_cancel_orders(
         self, symbol=None, order_ids=None, client_oids=None, **params
     ):
         """Cancel multiple futures orders by order ids or clientOids
@@ -8555,7 +8555,7 @@ class Client(BaseClient):
             "orders/multi-cancel", True, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_cancel_all_orders(self, symbol=None, **params):
+    async def futures_cancel_all_orders(self, symbol=None, **params):
         """Cancel all futures orders
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-multiple-futures-limit-orders
@@ -8582,7 +8582,7 @@ class Client(BaseClient):
 
         return self._delete("orders", True, is_futures=True, data=dict(data, **params))
 
-    def futures_cancel_all_stop_orders(self, symbol=None, **params):
+    async def futures_cancel_all_stop_orders(self, symbol=None, **params):
         """Cancel all futures stop orders
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/cancel-multiple-futures-stop-orders
@@ -8611,7 +8611,7 @@ class Client(BaseClient):
             "stopOrders", True, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_orders(
+    async def futures_get_orders(
         self,
         symbol=None,
         status=None,
@@ -8679,7 +8679,7 @@ class Client(BaseClient):
 
         return self._get("orders", True, is_futures=True, data=dict(data, **params))
 
-    def futures_get_stop_orders(
+    async def futures_get_stop_orders(
         self,
         symbol=None,
         side=None,
@@ -8742,7 +8742,7 @@ class Client(BaseClient):
 
         return self._get("stopOrders", True, is_futures=True, data=dict(data, **params))
 
-    def futures_get_recent_orders(self, symbol=None, **params):
+    async def futures_get_recent_orders(self, symbol=None, **params):
         """Get up to 1000 last futures done orders in the last 24 hours.
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/get-list-of-orders-completed-in-24h
@@ -8770,7 +8770,7 @@ class Client(BaseClient):
             "recentDoneOrders", True, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_order(self, order_id, **params):
+    async def futures_get_order(self, order_id, **params):
         """Get futures order details by order id
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/get-order-details-by-orderid-clientoid
@@ -8796,7 +8796,7 @@ class Client(BaseClient):
             "orders/{}".format(order_id), True, is_futures=True, data=params
         )
 
-    def futures_get_order_by_client_oid(self, client_oid, **params):
+    async def futures_get_order_by_client_oid(self, client_oid, **params):
         """Get futures order details by clientOid
 
         https://www.kucoin.com/docs/rest/futures-trading/orders/get-order-details-by-orderid-clientoid
@@ -8824,7 +8824,7 @@ class Client(BaseClient):
 
     # Fill Endpoints
 
-    def get_fills(
+    async def get_fills(
         self,
         trade_type,
         order_id=None,
@@ -8921,7 +8921,7 @@ class Client(BaseClient):
 
         return self._get("fills", False, data=dict(data, **params))
 
-    def get_recent_fills(self, **params):
+    async def get_recent_fills(self, **params):
         """Get a list of recent fills.
 
         https://www.kucoin.com/docs/rest/spot-trading/fills/get-recent-filled-list
@@ -8965,7 +8965,7 @@ class Client(BaseClient):
 
         return self._get("limit/fills", True, data=params)
 
-    def hf_get_fills(
+    async def hf_get_fills(
         self,
         symbol,
         order_id=None,
@@ -9058,7 +9058,7 @@ class Client(BaseClient):
 
         return self._get("hf/fills", True, data=dict(data, **params))
 
-    def hf_margin_get_fills(
+    async def hf_margin_get_fills(
         self,
         symbol,
         trade_type,
@@ -9132,7 +9132,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_fills(
+    async def futures_get_fills(
         self,
         order_id=None,
         symbol=None,
@@ -9234,7 +9234,7 @@ class Client(BaseClient):
 
         return self._get("fills", False, is_futures=True, data=dict(data, **params))
 
-    def futures_get_recent_fills(self, symbol=None, **params):
+    async def futures_get_recent_fills(self, symbol=None, **params):
         """Get a list of recent futures fills.
 
         https://www.kucoin.com/docs/rest/futures-trading/fills/get-recent-filled-list
@@ -9290,7 +9290,7 @@ class Client(BaseClient):
             "recentFills", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_active_order_value(self, symbol, **params):
+    async def futures_get_active_order_value(self, symbol, **params):
         """Get the active order value of a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/fills/get-active-order-value-calculation
@@ -9329,7 +9329,7 @@ class Client(BaseClient):
 
     # Margin Info Endpoints
 
-    def margin_get_leverage_token_info(self, currency=None, **params):
+    async def margin_get_leverage_token_info(self, currency=None, **params):
         """Get a list of leverage token info
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-leveraged-token-info
@@ -9375,7 +9375,7 @@ class Client(BaseClient):
             "etf/info", True, api_version=self.API_VERSION3, data=dict(data, **params)
         )
 
-    def margin_get_all_trading_pairs_mark_prices(self, **params):
+    async def margin_get_all_trading_pairs_mark_prices(self, **params):
         """Get a list of trading pairs and their mark prices
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-all-trading-pairs-mark-price
@@ -9412,7 +9412,7 @@ class Client(BaseClient):
             "mark-price/all-symbols", False, api_version=self.API_VERSION3, data=params
         )
 
-    def margin_get_mark_price(self, symbol, **params):
+    async def margin_get_mark_price(self, symbol, **params):
         """Get the mark price of a symbol
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-mark-price
@@ -9447,7 +9447,7 @@ class Client(BaseClient):
             "mark-price/{}/current".format(symbol), False, data=dict(data, **params)
         )
 
-    def margin_get_config(self, **params):
+    async def margin_get_config(self, **params):
         """Get the margin configuration
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-margin-configuration-info
@@ -9481,7 +9481,7 @@ class Client(BaseClient):
 
         return self._get("margin/config", True, data=params)
 
-    def margin_get_cross_isolated_risk_limit_config(
+    async def margin_get_cross_isolated_risk_limit_config(
         self, isolated, symbol=None, currency=None, **params
     ):
         """Get the cross or isolated margin risk limit configuration
@@ -9576,7 +9576,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_get_isolated_synbols_config(self, **params):
+    async def margin_get_isolated_synbols_config(self, **params):
         """Get the isolated margin symbol configuration
 
         https://www.kucoin.com/docs/rest/margin-trading/isolated-margin/get-isolated-margin-symbols-configuration
@@ -9629,7 +9629,7 @@ class Client(BaseClient):
 
         return self._get("isolated/symbols", True, data=params)
 
-    def margin_get_isolated_account_info(self, balance_currency=None, **params):
+    async def margin_get_isolated_account_info(self, balance_currency=None, **params):
         """Get the isolated margin account info
 
         https://www.kucoin.com/docs/rest/margin-trading/isolated-margin/get-isolated-margin-account-info
@@ -9712,7 +9712,7 @@ class Client(BaseClient):
 
         return self._get("isolated/accounts", True, data=dict(data, **params))
 
-    def margin_get_single_isolated_account_info(self, symbol, **params):
+    async def margin_get_single_isolated_account_info(self, symbol, **params):
         """Get the isolated margin account info for a single symbol
 
         https://www.kucoin.com/docs/rest/margin-trading/isolated-margin/get-single-isolated-margin-account-info
@@ -9765,7 +9765,7 @@ class Client(BaseClient):
             "isolated/account/{}".format(symbol), True, data=dict(data, **params)
         )
 
-    def margin_borrow(
+    async def margin_borrow(
         self,
         currency,
         size,
@@ -9831,7 +9831,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_repay(
+    async def margin_repay(
         self, currency, size, isolated=False, symbol=None, is_hf=False, **params
     ):
         """Repay borrowed funds for margin trading
@@ -9888,7 +9888,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_get_borrow_history(
+    async def margin_get_borrow_history(
         self,
         currency,
         isolated=False,
@@ -9975,7 +9975,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_get_repay_history(
+    async def margin_get_repay_history(
         self,
         currency,
         isolated=False,
@@ -10060,7 +10060,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_get_cross_isolated_interest_records(
+    async def margin_get_cross_isolated_interest_records(
         self,
         isolated=False,
         symbol=None,
@@ -10141,7 +10141,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_get_cross_trading_pairs_config(self, symbol=None, **params):
+    async def margin_get_cross_trading_pairs_config(self, symbol=None, **params):
         """Get the cross margin trading pairs configuration
 
         https://www.kucoin.com/docs/rest/margin-trading/margin-trading-v3-/get-cross-margin-trading-pairs-configuration
@@ -10198,7 +10198,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_modify_leverage_multiplier(
+    async def margin_modify_leverage_multiplier(
         self, leverage, symbol=None, isolated=False, **params
     ):
         """Modify the leverage multiplier
@@ -10246,7 +10246,7 @@ class Client(BaseClient):
 
     # Lending Market Endpoints
 
-    def margin_lending_get_currency_info(self, currency=None, **params):
+    async def margin_lending_get_currency_info(self, currency=None, **params):
         """Get the lending currency info
 
         https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/get-currency-information
@@ -10300,7 +10300,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_lending_get_interest_rate(self, currency, **params):
+    async def margin_lending_get_interest_rate(self, currency, **params):
         """Get the interest rate for a currency
 
         https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/get-interest-rates
@@ -10346,7 +10346,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_lending_subscribtion(self, currency, size, interest_rate, **params):
+    async def margin_lending_subscribtion(self, currency, size, interest_rate, **params):
         """Subscribe to a lending product
 
         https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/subscription
@@ -10386,7 +10386,7 @@ class Client(BaseClient):
             "purchase", True, api_version=self.API_VERSION3, data=dict(data, **params)
         )
 
-    def margin_lending_redemption(self, currency, size, purchase_order_no, **params):
+    async def margin_lending_redemption(self, currency, size, purchase_order_no, **params):
         """Redeem a lending product
 
         https://www.kucoin.com/docs/rest/margin-trading/lending-market-v3-/redemption
@@ -10430,7 +10430,7 @@ class Client(BaseClient):
             "redeem", True, api_version=self.API_VERSION3, data=dict(data, **params)
         )
 
-    def margin_lending_modify_subscription_orders(
+    async def margin_lending_modify_subscription_orders(
         self, currency, purchase_order_no, interest_rate, **params
     ):
         """Modify subscription orders
@@ -10476,7 +10476,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_lending_get_redemtion_orders(
+    async def margin_lending_get_redemtion_orders(
         self, currency, status, redeem_order_no=None, page=None, limit=None, **params
     ):
         """Get redemption orders
@@ -10540,7 +10540,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def margin_lending_get_subscription_orders(
+    async def margin_lending_get_subscription_orders(
         self, currency, status, purchase_order_no=None, page=None, limit=None, **params
     ):
         """Get subscription orders
@@ -10608,7 +10608,7 @@ class Client(BaseClient):
 
     # Futures Position Endpoints
 
-    def futures_get_max_open_position_size(self, symbol, price, leverage, **params):
+    async def futures_get_max_open_position_size(self, symbol, price, leverage, **params):
         """Get the maximum open position size for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/get-maximum-open-position-size
@@ -10644,7 +10644,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_position(self, symbol, **params):
+    async def futures_get_position(self, symbol, **params):
         """Get the position for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/get-position-details
@@ -10669,7 +10669,7 @@ class Client(BaseClient):
 
         return self._get("position", True, is_futures=True, data=dict(data, **params))
 
-    def futures_get_positions(self, currency=None, **params):
+    async def futures_get_positions(self, currency=None, **params):
         """Get the positions
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/get-position-list
@@ -10698,7 +10698,7 @@ class Client(BaseClient):
 
         return self._get("positions", True, is_futures=True, data=dict(data, **params))
 
-    def futures_get_positions_history(
+    async def futures_get_positions_history(
         self, symbol=None, start=None, end=None, page=None, limit=None, **params
     ):
         """Get the positions history
@@ -10747,7 +10747,7 @@ class Client(BaseClient):
             "history-positions", True, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_modify_auto_deposit_margin(self, symbol, status=True, **params):
+    async def futures_modify_auto_deposit_margin(self, symbol, status=True, **params):
         """Modify the auto deposit margin status for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/modify-auto-deposit-margin-status
@@ -10780,7 +10780,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_max_withdraw_margin(self, symbol, **params):
+    async def futures_get_max_withdraw_margin(self, symbol, **params):
         """Get the maximum withdraw margin for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/get-max-withdraw-margin
@@ -10808,7 +10808,7 @@ class Client(BaseClient):
             "margin/maxWithdrawMargin", True, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_withdraw_margin(self, symbol, amount, **params):
+    async def futures_withdraw_margin(self, symbol, amount, **params):
         """Withdraw margin for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/remove-margin-manually
@@ -10838,7 +10838,7 @@ class Client(BaseClient):
             "margin/withdrawMargin", True, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_deposit_margin(self, symbol, margin, biz_no, **params):
+    async def futures_deposit_margin(self, symbol, margin, biz_no, **params):
         """Deposit margin for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/add-margin-manually
@@ -10873,7 +10873,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_margin_mode(self, symbol, **params):
+    async def futures_get_margin_mode(self, symbol, **params):
         """Get the margin mode for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/get-margin-mode
@@ -10905,7 +10905,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_modify_margin_mode(self, symbol, mode, **params):
+    async def futures_modify_margin_mode(self, symbol, mode, **params):
         """Modify the margin mode for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/modify-margin-mode
@@ -10939,7 +10939,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_cross_margin_leverage(self, symbol, **params):
+    async def futures_get_cross_margin_leverage(self, symbol, **params):
         """Get the cross margin leverage for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/get-cross-margin-leverage
@@ -10971,7 +10971,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_modify_cross_margin_leverage(self, symbol, leverage, **params):
+    async def futures_modify_cross_margin_leverage(self, symbol, leverage, **params):
         """Modify the cross margin leverage for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/positions/modify-cross-margin-leverage
@@ -11007,7 +11007,7 @@ class Client(BaseClient):
 
     # Futures Risk Limit Endpoints
 
-    def futures_get_risk_limit_level(self, symbol, **params):
+    async def futures_get_risk_limit_level(self, symbol, **params):
         """Get the risk limit level for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/risk-limit/get-futures-risk-limit-level
@@ -11058,7 +11058,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_modify_risk_limit_level(self, symbol, level, **params):
+    async def futures_modify_risk_limit_level(self, symbol, level, **params):
         """Modify the risk limit level for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/risk-limit/modify-risk-limit-level
@@ -11094,7 +11094,7 @@ class Client(BaseClient):
 
     # Futures Funding Fees Endpoints
 
-    def futures_get_funding_rate(self, symbol, **params):
+    async def futures_get_funding_rate(self, symbol, **params):
         """Get the funding rate for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/funding-fees/get-current-funding-rate
@@ -11134,7 +11134,7 @@ class Client(BaseClient):
             data=dict(data, **params),
         )
 
-    def futures_get_public_funding_history(self, symbol, start, end, **params):
+    async def futures_get_public_funding_history(self, symbol, start, end, **params):
         """Get the public funding history for a symbol
 
         https://www.kucoin.com/docs/rest/futures-trading/funding-fees/get-public-funding-history
@@ -11176,7 +11176,7 @@ class Client(BaseClient):
             "contract/funding-rates", False, is_futures=True, data=dict(data, **params)
         )
 
-    def futures_get_private_funding_history(
+    async def futures_get_private_funding_history(
         self,
         symbol,
         start=None,
@@ -11276,7 +11276,7 @@ class Client(BaseClient):
 
     # Websocket Endpoints
 
-    def get_ws_endpoint(self, private=False):
+    async def get_ws_endpoint(self, private=False):
         """Get websocket channel details
 
         :param private: (optional) True for private channel
@@ -11320,7 +11320,7 @@ class Client(BaseClient):
 
         return self._post(path, signed)
 
-    def futures_get_ws_endpoint(self, private=False):
+    async def futures_get_ws_endpoint(self, private=False):
         """Get websocket futures channel details
 
         :param private: (optional) True for private channel
@@ -11364,7 +11364,7 @@ class Client(BaseClient):
 
         return self._post(path, signed, is_futures=True)
 
-    def get_user_info(self):
+    async def get_user_info(self):
         """Get account summary info
 
         https://www.kucoin.com/docs/rest/account/basic-info/get-account-summary-info

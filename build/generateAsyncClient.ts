@@ -1,21 +1,19 @@
 import fs from 'fs'
 
 const SOURSE_FILE_NAME = './kucoin/client.py'
-const TARGET_FILE_NAME = './kucoin/async_client_generated.py'
-const REQUESTS = ['_get', '_post', '_put', '_delete', '_request']
+const TARGET_FILE_NAME = './kucoin/async_methods.py'
 const METHOD_DEFINITION_MATCH = /def\s(\w+)/
 const METHOD_CALL_MATCH = /self\.(\w+)\(/
 const DEFINITION_PREFIX = 'def'
 const ASYNC_DEFINITION_PREFIX = 'async def'
 const CALL_PREFIX = 'self.'
 const ASYNC_CALL_PREFIX = 'await self.'
-const ASYNC_CLIENT_TEMPLATE = 'import asyncio'
 const SPECIAL_REPLACEMENTS = {} // Add special replacements here
 const SPECIAL_REPLACEMENTS_KEYS = Object.keys (SPECIAL_REPLACEMENTS)
 
 function replaceKeywords (data) {
     const lines = data.split ('\n')
-    const asyncClient = [ ASYNC_CLIENT_TEMPLATE ]
+    const asyncClient = [ ] as any
     for (let line of lines) {
         let specialMatch = false
         for (let key of SPECIAL_REPLACEMENTS_KEYS) {
@@ -29,13 +27,21 @@ function replaceKeywords (data) {
         if (specialMatch) {
             continue
         }
+        if (line.startsWith('class Client(BaseClient):')) {
+            asyncClient.push ('class AsyncClient(AsyncClientBase):')
+            continue
+        }
+        if (line.startsWith('from base_client import BaseClient')) {
+            asyncClient.push ('from async_client import AsyncClientBase')
+            continue
+        }
         const methodDefinition = line.match (METHOD_DEFINITION_MATCH)
         const methodCall = line.match (METHOD_CALL_MATCH)
         const match = methodDefinition || methodCall
         if (match) {
             const methodName = match[1]
             let replacementRequired = true
-            if (methodName.startsWith ('_') && !REQUESTS.includes (methodName)) {
+            if (methodName.startsWith ('_')) {
                 replacementRequired = false
             }
             if (replacementRequired) {
