@@ -8,10 +8,11 @@ proxy = os.getenv("PROXY")
 
 api_key = "apiKey"
 api_secret = "secret"
+passphrase = "passphrase"
 
 @pytest.fixture(scope="function")
 def client():
-    return Client(api_key, api_secret)
+    return Client(api_key, api_secret, passphrase)
 
 
 @pytest.fixture(autouse=True, scope="function")
@@ -29,4 +30,4 @@ def event_loop():
 
 @pytest.fixture(scope="function")
 def asyncClient():
-    return AsyncClient(api_key, api_secret)
+    return AsyncClient(api_key, api_secret, passphrase)
