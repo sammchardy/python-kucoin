@@ -86,7 +86,7 @@ class BaseClient:
         )
         key = self.FUTURES_KC_KEY if is_futures else self.SPOT_KC_KEY
         m = hmac.new(key.encode("utf-8"), sig_str, hashlib.sha256)
-        return base64.b64encode(m.digest())
+        return base64.b64encode(m.digest()).decode('latin-1')
 
     @staticmethod
     def _get_params_for_sig(data):
@@ -121,7 +121,7 @@ class BaseClient:
             "{}{}{}{}".format(nonce, method.upper(), endpoint, data_json)
         ).encode("utf-8")
         m = hmac.new(self.API_SECRET.encode("utf-8"), sig_str, hashlib.sha256)
-        return base64.b64encode(m.digest())
+        return base64.b64encode(m.digest()).decode('latin-1')
 
     def _create_path(self, path, api_version=None):
         api_version = api_version or self.API_VERSION
