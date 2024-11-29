@@ -3,27 +3,9 @@ import codecs
 import os
 import re
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-
-
-def find_packages():
-    """adapted from IPython's setupbase.find_packages()"""
-    packages = []
-    for dir, subdirs, files in os.walk('kucoin'):
-        package = dir.replace(os.path.sep, '.')
-        if '__init__.py' not in files:
-            # not a package
-            continue
-        if sys.version_info < (3, 4) and 'asyncio' in package and 'sdist' not in sys.argv:
-            # Don't install asyncio packages on old Python
-            # avoids issues with tools like compileall, pytest, etc.
-            # that get confused by presence of Python 3-only sources,
-            # even when they are never imported.
-            continue
-        packages.append(package)
-    return packages
 
 
 def read(*parts):
@@ -42,7 +24,7 @@ def find_version(*file_paths):
 
 def install_requires():
 
-    requires = ['requests']
+    requires = ['requests', 'aiohttp']
     if sys.version_info > (3, 4):
         requires.extend(['websockets'])
     return requires
@@ -51,8 +33,8 @@ def install_requires():
 setup(
     name='python-kucoin',
     version=find_version("kucoin", "__init__.py"),
-    packages=find_packages(),
-    description='Kucoin REST API v2 python implementation',
+    packages=find_packages(exclude=['tests', 'examples']),
+    description='Kucoin REST API v3 python implementation',
     url='https://github.com/sammchardy/python-kucoin',
     author='Sam McHardy',
     license='MIT',
@@ -63,12 +45,10 @@ setup(
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.4',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11',
+          'Programming Language :: Python :: 3.12',
           'Programming Language :: Python',
           'Topic :: Software Development :: Libraries :: Python Modules',
     ],

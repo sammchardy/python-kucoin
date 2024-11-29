@@ -2,8 +2,6 @@
 Welcome to python-kucoin v2.1.3
 ===============================
 
-Last Updated 4th Oct 2021
-
 .. image:: https://img.shields.io/pypi/v/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
 
@@ -22,7 +20,7 @@ Last Updated 4th Oct 2021
 .. image:: https://img.shields.io/pypi/pyversions/python-kucoin.svg
     :target: https://pypi.python.org/pypi/python-kucoin
 
-This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v2 <https://docs.kucoin.com/>`_.
+This is an unofficial Python wrapper for the `Kucoin exchanges REST and Websocket API v3 <https://docs.kucoin.com/>`_.
 I am in no way affiliated with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E5wkqe>`_, use at your own risk.
 
 
@@ -35,17 +33,20 @@ Source code
 Documentation
   https://python-kucoin.readthedocs.io/en/latest/
 
-Blog with examples
-  https://sammchardy.github.io
+Examples
+  https://github.com/sammchardy/python-kucoin/tree/master/examples
 
 
 Features
 --------
 
 - Implementation of REST endpoints
+- Spot and Futures
+- Sync and Async suport
 - Simple handling of authentication
 - Response exception handling
 - Implement websockets (note only python3.5+)
+- Proxy support
 
 TODO
 ----
@@ -57,10 +58,7 @@ Quick Start
 
 Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E42cWB>`_.
 
-To test on the Sandbox register with `Kucoin Sandbox <https://sandbox.kucoin.com/ucenter/signup?rcode=ewcefH>`_.
-
-`Generate an API Key <https://kucoin.com/account/api>`_
-or `Generate an API Key in Sandbox <https://sandbox.kucoin.com/account/api>`_ and enable it.
+`Generate an API Key <https://kucoin.com/account/api>`_.
 
 .. code:: bash
 
@@ -68,16 +66,13 @@ or `Generate an API Key in Sandbox <https://sandbox.kucoin.com/account/api>`_ an
 
 .. code:: python
 
-    from kucoin.client import Client
+    from kucoin import Client
 
     api_key = '<api_key>'
     api_secret = '<api_secret>'
     api_passphrase = '<api_passphrase>'
 
     client = Client(api_key, api_secret, api_passphrase)
-
-    # or connect to Sandbox
-    # client = Client(api_key, api_secret, api_passphrase, sandbox=True)
 
     # get currencies
     currencies = client.get_currencies()
@@ -96,6 +91,23 @@ or `Generate an API Key in Sandbox <https://sandbox.kucoin.com/account/api>`_ an
 
     # get list of active orders
     orders = client.get_active_orders('KCS-BTC')
+
+
+Async
+-----
+
+.. code:: python
+
+    from kucoin import AsyncClient
+
+    api_key = '<api_key>'
+    api_secret = '<api_secret>'
+    api_passphrase = '<api_passphrase>'
+
+    client = AsyncClient(api_key, api_secret, api_passphrase)
+
+    # get currencies
+    currencies = await client.get_currencies()
 
 Websockets
 ----------
@@ -199,5 +211,6 @@ For more `check out the documentation <https://python-kucoin.readthedocs.io/en/l
 Other Exchanges
 ---------------
 
-If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+- If you use `Binance <https://accounts.binance.com/register?ref=PGDFCE46>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+- Check out `CCXT <https://github.com/ccxt/ccxt>`_ for more than 100 crypto exchanges with a unified trading API.
 
