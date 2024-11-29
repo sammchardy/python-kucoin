@@ -33,8 +33,8 @@ Source code
 Documentation
   https://python-kucoin.readthedocs.io/en/latest/
 
-Blog with examples
-  https://sammchardy.github.io
+Examples
+  https://github.com/sammchardy/python-kucoin/tree/master/examples
 
 
 Features
@@ -66,16 +66,13 @@ Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E4
 
 .. code:: python
 
-    from kucoin.client import Client
+    from kucoin import Client
 
     api_key = '<api_key>'
     api_secret = '<api_secret>'
     api_passphrase = '<api_passphrase>'
 
     client = Client(api_key, api_secret, api_passphrase)
-
-    # or connect to Sandbox
-    # client = Client(api_key, api_secret, api_passphrase, sandbox=True)
 
     # get currencies
     currencies = client.get_currencies()
@@ -94,6 +91,23 @@ Register an account with `Kucoin <https://www.kucoin.com/ucenter/signup?rcode=E4
 
     # get list of active orders
     orders = client.get_active_orders('KCS-BTC')
+
+
+Async
+-----
+
+.. code:: python
+
+    from kucoin import AsyncClient
+
+    api_key = '<api_key>'
+    api_secret = '<api_secret>'
+    api_passphrase = '<api_passphrase>'
+
+    client = AsyncClient(api_key, api_secret, api_passphrase)
+
+    # get currencies
+    currencies = await client.get_currencies()
 
 Websockets
 ----------
@@ -197,5 +211,6 @@ For more `check out the documentation <https://python-kucoin.readthedocs.io/en/l
 Other Exchanges
 ---------------
 
-If you use `Binance <https://www.binance.com/?ref=10099792>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+- If you use `Binance <https://accounts.binance.com/register?ref=PGDFCE46>`_ check out my `python-binance <https://github.com/sammchardy/python-binance>`_ library.
+- Check out `CCXT <https://github.com/ccxt/ccxt>`_ for more than 100 crypto exchanges with a unified trading API.
 
