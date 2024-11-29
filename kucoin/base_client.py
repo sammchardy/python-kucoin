@@ -179,15 +179,15 @@ class BaseClient:
         """
 
         if not str(response.status_code).startswith("2"):
-            raise KucoinAPIException(response)
+            raise KucoinAPIException(response, response.status_code, response.text)
         try:
             res = response.json()
 
             if "code" in res and res["code"] != "200000":
-                raise KucoinAPIException(response)
+                raise KucoinAPIException(response, response.status_code, response.text)
 
             if "success" in res and not res["success"]:
-                raise KucoinAPIException(response)
+                raise KucoinAPIException(response, response.status_code, response.text)
 
             # by default return full response
             # if it's a normal response we have a data attribute, return that
