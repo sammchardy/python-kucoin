@@ -27,18 +27,32 @@ class AsyncClientBase(BaseClient):
     async def close(self):
         await self._session.close()
 
-    async def _handle_response(self, response: aiohttp.ClientResponse):
-        """Internal helper for handling API responses from the Binance server.
+    @staticmethod
+    async def _handle_response(response):
+        """Internal helper for handling API responses from the Kucoin server.
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
+
+        text = await response.text()
         if not str(response.status).startswith("2"):
-            raise KucoinAPIException(response, response.status, await response.text())
+            raise KucoinAPIException(response, response.status, text)
         try:
-            return await response.json()
+            res = await response.json()
+
+            if "code" in res and res["code"] != "200000":
+                raise KucoinAPIException(response, response.status, text)
+
+            if "success" in res and not res["success"]:
+                raise KucoinAPIException(response, response.status, text)
+
+            # by default return full response
+            # if it's a normal response we have a data attribute, return that
+            if "data" in res:
+                res = res["data"]
+            return res
         except ValueError:
-            txt = await response.text()
-            raise KucoinRequestException(f"Invalid Response: {txt}")
+            raise KucoinRequestException("Invalid Response: %s" % text)
 
     async def _request(
         self, method, path, signed, api_version=None, is_futures=False, **kwargs
