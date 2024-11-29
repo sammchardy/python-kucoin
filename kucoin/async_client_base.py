@@ -12,8 +12,8 @@ class AsyncClientBase(BaseClient):
         api_secret: str = None,
         api_passphrase: str = None,
         is_sandbox: bool = False,
-        loop = None,
-        request_params = None,
+        loop=None,
+        request_params=None,
     ):
         self.loop = loop or get_loop()
         super().__init__(
@@ -21,7 +21,7 @@ class AsyncClientBase(BaseClient):
         )
 
     def _init_session(self) -> aiohttp.ClientSession:
-        session = aiohttp.ClientSession(loop =self.loop, headers=self._get_headers())
+        session = aiohttp.ClientSession(loop=self.loop, headers=self._get_headers())
         return session
 
     async def close(self):
@@ -63,9 +63,11 @@ class AsyncClientBase(BaseClient):
             kwargs["headers"]["KC-API-SIGN"] = self._generate_signature(
                 nonce, method, full_path, kwargs["data"]
             )
-            kwargs["headers"]["KC-API-PARTNER"] = self.SPOT_KC_PARTNER
+            kwargs["headers"]["KC-API-PARTNER"] = (
+                self.FUTURES_KC_PARTNER if is_futures else self.SPOT_KC_PARTNER
+            )
             kwargs["headers"]["KC-API-PARTNER-VERIFY"] = "true"
-            kwargs["headers"]["KC-API-PARTNER-SIGN"] = self._sign_partner()
+            kwargs["headers"]["KC-API-PARTNER-SIGN"] = self._sign_partner(is_futures)
 
         if kwargs["data"]:
             if method == "post":
@@ -108,3 +110,8 @@ class AsyncClientBase(BaseClient):
         return await self._request(
             "delete", path, signed, api_version, is_futures, **kwargs
         )
+
+    async def close_connection(self):
+        if self.session:
+            assert self.session
+            await self.session.close()

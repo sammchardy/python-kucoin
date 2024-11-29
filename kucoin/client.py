@@ -2578,7 +2578,7 @@ class Client(BaseClient):
 
         """
 
-        data= {
+        data = {
             'accountId': account_id
         }
 

@@ -41,11 +41,10 @@ class BaseClient:
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = "IOC"
     TIMEINFORCE_FILL_OR_KILL = "FOK"
 
-
     SPOT_KC_PARTNER = "python-kucoinspot"
     SPOT_KC_KEY = "922783d1-067e-4a31-bb42-4d1589624e30"
 
-    FUTURES_KC_KEY = "python-kucoinfutures"
+    FUTURES_KC_PARTNER = "python-kucoinfutures"
     FUTURES_KC_KEY = "5c0f0e56-a866-44d9-a50b-8c7c179dc915"
 
     def __init__(
@@ -155,7 +154,9 @@ class BaseClient:
             kwargs["headers"]["KC-API-SIGN"] = self._generate_signature(
                 nonce, method, full_path, kwargs["data"]
             )
-            kwargs["headers"]["KC-API-PARTNER"] = self.FUTURES_KC_KEY if is_futures else self.SPOT_KC_PARTNER
+            kwargs["headers"]["KC-API-PARTNER"] = (
+                self.FUTURES_KC_PARTNER if is_futures else self.SPOT_KC_PARTNER
+            )
             kwargs["headers"]["KC-API-PARTNER-VERIFY"] = "true"
             kwargs["headers"]["KC-API-PARTNER-SIGN"] = self._sign_partner(is_futures)
 
@@ -206,3 +207,8 @@ class BaseClient:
 
     def _delete(self, path, signed=False, api_version=None, is_futures=False, **kwargs):
         return self._request("delete", path, signed, api_version, is_futures, **kwargs)
+
+    def close_connection(self):
+        if self.session:
+            assert self.session
+            self.session.close()
