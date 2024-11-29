@@ -41,11 +41,12 @@ class BaseClient:
     TIMEINFORCE_IMMEDIATE_OR_CANCEL = "IOC"
     TIMEINFORCE_FILL_OR_KILL = "FOK"
 
-    # SPOT_KC_PARTNER = 'ccxt' # todo handle with standard python-kucoin signature
-    # SPOT_KC_KEY = '9e58cc35-5b5e-4133-92ec-166e3f077cb8'
 
     SPOT_KC_PARTNER = "python-kucoinspot"
     SPOT_KC_KEY = "922783d1-067e-4a31-bb42-4d1589624e30"
+
+    FUTURES_KC_KEY = "python-kucoinfutures"
+    FUTURES_KC_KEY = "5c0f0e56-a866-44d9-a50b-8c7c179dc915"
 
     def __init__(
         self, api_key, api_secret, passphrase, sandbox=False, requests_params=None
@@ -79,12 +80,13 @@ class BaseClient:
         session.headers.update(self._get_headers())
         return session
 
-    def _sign_partner(self):
+    def _sign_partner(self, is_futures=False):
         nonce = int(time.time() * 1000)
         sig_str = "{}{}{}".format(nonce, self.SPOT_KC_PARTNER, self.API_KEY).encode(
             "utf-8"
         )
-        m = hmac.new(self.SPOT_KC_KEY.encode("utf-8"), sig_str, hashlib.sha256)
+        key = self.FUTURES_KC_KEY if is_futures else self.SPOT_KC_KEY
+        m = hmac.new(key.encode("utf-8"), sig_str, hashlib.sha256)
         return base64.b64encode(m.digest())
 
     @staticmethod
@@ -153,9 +155,9 @@ class BaseClient:
             kwargs["headers"]["KC-API-SIGN"] = self._generate_signature(
                 nonce, method, full_path, kwargs["data"]
             )
-            kwargs["headers"]["KC-API-PARTNER"] = self.SPOT_KC_PARTNER
+            kwargs["headers"]["KC-API-PARTNER"] = self.FUTURES_KC_KEY if is_futures else self.SPOT_KC_PARTNER
             kwargs["headers"]["KC-API-PARTNER-VERIFY"] = "true"
-            kwargs["headers"]["KC-API-PARTNER-SIGN"] = self._sign_partner()
+            kwargs["headers"]["KC-API-PARTNER-SIGN"] = self._sign_partner(is_futures)
 
         if kwargs["data"]:
             if method == "post":
@@ -174,7 +176,6 @@ class BaseClient:
         response.
         """
 
-        print(response.text)
         if not str(response.status_code).startswith("2"):
             raise KucoinAPIException(response)
         try:
