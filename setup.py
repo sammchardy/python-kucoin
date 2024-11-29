@@ -8,7 +8,7 @@ from setuptools import setup
 here = os.path.abspath(os.path.dirname(__file__))
 
 
-def find_packages():
+def find_packages(exclude=None):
     """adapted from IPython's setupbase.find_packages()"""
     packages = []
     for dir, subdirs, files in os.walk('kucoin'):
@@ -21,6 +21,8 @@ def find_packages():
             # avoids issues with tools like compileall, pytest, etc.
             # that get confused by presence of Python 3-only sources,
             # even when they are never imported.
+            continue
+        if exclude is not None and package in exclude:
             continue
         packages.append(package)
     return packages

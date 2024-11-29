@@ -54,7 +54,7 @@ class AsyncClientBase(BaseClient):
         kwargs["headers"] = kwargs.get("headers", {})
 
         full_path = self._create_path(path, api_version)
-        uri = self._create_uri(full_path, is_futures)
+        url = self._create_url(full_path, is_futures)
 
         if signed:
             # generate signature
@@ -75,7 +75,7 @@ class AsyncClientBase(BaseClient):
                 del kwargs["data"]
 
         async with getattr(self.session, method)(
-            uri,
+            url,
             **kwargs,
         ) as response:
             self.response = response

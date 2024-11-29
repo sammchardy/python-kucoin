@@ -126,7 +126,7 @@ class BaseClient:
         api_version = api_version or self.API_VERSION
         return "/api/{}/{}".format(api_version, path)
 
-    def _create_uri(self, path, is_futures=False):
+    def _create_url(self, path, is_futures=False):
         base_url = self.FUTURES_API_URL if is_futures else self.API_URL
         return "{}{}".format(base_url, path)
 
@@ -144,7 +144,7 @@ class BaseClient:
         kwargs["headers"] = kwargs.get("headers", {})
 
         full_path = self._create_path(path, api_version)
-        uri = self._create_uri(full_path, is_futures)
+        url = self._create_url(full_path, is_futures)
 
         if signed:
             # generate signature
@@ -164,7 +164,7 @@ class BaseClient:
                 kwargs["params"] = kwargs["data"]
                 del kwargs["data"]
 
-        response = getattr(self.session, method)(uri, **kwargs)
+        response = getattr(self.session, method)(url, **kwargs)
         return self._handle_response(response)
 
     @staticmethod
