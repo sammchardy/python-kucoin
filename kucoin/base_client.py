@@ -81,7 +81,8 @@ class BaseClient:
 
     def _sign_partner(self, is_futures=False):
         nonce = int(time.time() * 1000)
-        sig_str = "{}{}{}".format(nonce, self.SPOT_KC_PARTNER, self.API_KEY).encode(
+        partner = self.FUTURES_KC_PARTNER if is_futures else self.SPOT_KC_PARTNER
+        sig_str = "{}{}{}".format(nonce, partner, self.API_KEY).encode(
             "utf-8"
         )
         key = self.FUTURES_KC_KEY if is_futures else self.SPOT_KC_KEY
