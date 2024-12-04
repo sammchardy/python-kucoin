@@ -1273,7 +1273,7 @@ class AsyncClient(AsyncClientBase):
         )
 
     async def futures_get_klines(
-        self, symbol, kline_type="5min", start=None, end=None, **params
+        self, symbol, kline_type=5, start=None, end=None, **params
     ):
         """Get kline data
 
