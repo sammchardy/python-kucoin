@@ -769,7 +769,7 @@ class AsyncClient(AsyncClientBase):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
+        :param kline_type: type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
                            4hour, 6hour, 8hour, 12hour, 1day, 1week
         :type kline_type: string
         :param start: Start time as unix timestamp (optional) default start of day in UTC
@@ -1283,9 +1283,8 @@ class AsyncClient(AsyncClientBase):
 
         :param symbol: Name of symbol e.g. XBTUSDTM
         :type symbol: string
-        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
-                            4hour, 6hour, 8hour, 12hour, 1day, 1week
-        :type kline_type: string
+        :param kline_type: type of candlestick in minutes: 1, 5, 50 etc.
+        :type kline_type: int
         :param start: Start time as unix timestamp (optional) default start of day in UTC
         :type start: int
         :param end: End time as unix timestamp (optional) default now in UTC
@@ -1293,7 +1292,7 @@ class AsyncClient(AsyncClientBase):
 
         .. code:: python
 
-            klines = client.futures_get_klines('XBTUSDTM', '5min', 1507479171, 1510278278)
+            klines = client.futures_get_klines('XBTUSDTM', 5, 1507479171, 1510278278)
 
         :returns: ApiResponse
 
