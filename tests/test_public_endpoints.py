@@ -124,13 +124,13 @@ async def test_trade_histories_async(asyncClient):
     response = await asyncClient.get_trade_histories("ETH-USDT")
     assert response is not None
 
-def test_kline_data(client):
-    response = client.get_kline_data("ETH-USDT")
+def test_klines(client):
+    response = client.get_klines("ETH-USDT")
     assert response is not None
 
 @pytest.mark.asyncio()
-async def test_kline_data_async(asyncClient):
-    response = await asyncClient.get_kline_data("ETH-USDT")
+async def test_klines(asyncClient):
+    response = await asyncClient.get_klines("ETH-USDT")
     assert response is not None
 
 def test_fiat_prices(client):
@@ -143,3 +143,72 @@ async def test_fiat_prices_async(asyncClient):
     code = "BTC"
     response = await asyncClient.get_fiat_prices(None, code)
     assert code in response
+
+def test_futures_symbols(client):
+    response = client.futures_get_symbols()
+    assert response is not None
+
+@pytest.mark.asyncio()
+async def test_futures_symbols_async(asyncClient):
+    response = await asyncClient.futures_get_symbols()
+    assert response is not None
+
+def test_futures_tickers(client):
+    response = client.futures_get_tickers()
+    assert response is not None
+
+@pytest.mark.asyncio()
+async def test_futures_tickers_async(asyncClient):
+    response = await asyncClient.futures_get_tickers()
+    assert response is not None
+
+def test_futures_ticker(client):
+    response = client.futures_get_ticker("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+@pytest.mark.asyncio()
+async def test_futures_ticker_async(asyncClient):
+    response = await asyncClient.futures_get_ticker("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+def test_futures_order_book(client):
+    response = client.futures_get_order_book("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+@pytest.mark.asyncio()
+async def test_futures_order_book_async(asyncClient):
+    response = await asyncClient.futures_get_order_book("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+def test_futures_full_order_book(client):
+    response = client.futures_get_full_order_book("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+@pytest.mark.asyncio()
+async def test_futures_full_order_book_async(asyncClient):
+    response = await asyncClient.futures_get_full_order_book("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+def test_futures_trade_histories(client):
+    response = client.futures_get_trade_histories("ETHUSDTM")
+    assert response is not None
+
+@pytest.mark.asyncio()
+async def test_futures_trade_histories_async(asyncClient):
+    response = await asyncClient.futures_get_trade_histories("ETHUSDTM")
+    assert response is not None
+
+def test_futures_klines(client):
+    response = client.futures_get_klines("ETHUSDTM")
+    assert response is not None
+
+@pytest.mark.asyncio()
+async def test_futures_klines_async(asyncClient):
+    response = await asyncClient.futures_get_klines("ETHUSDTM")
+    assert response is not None
