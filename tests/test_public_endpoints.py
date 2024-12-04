@@ -129,7 +129,7 @@ def test_klines(client):
     assert response is not None
 
 @pytest.mark.asyncio()
-async def test_klines(asyncClient):
+async def test_klines_async(asyncClient):
     response = await asyncClient.get_klines("ETH-USDT")
     assert response is not None
 
@@ -212,3 +212,40 @@ def test_futures_klines(client):
 async def test_futures_klines_async(asyncClient):
     response = await asyncClient.futures_get_klines("ETHUSDTM")
     assert response is not None
+
+def test_futures_interest_rate(client):
+    response = client.futures_get_interest_rate(".KXBT")
+    assert response is not None
+
+# todo:
+# File "/opt/homebrew/lib/python3.11/site-packages/yarl/_url.py", line 946, in _query_var
+#     raise TypeError(
+# TypeError: Invalid variable type: value should be str, int or float, got True of type <class 'bool'>
+# @pytest.mark.asyncio()
+# async def test_futures_interest_rate_async(asyncClient):
+#     response = await asyncClient.futures_get_interest_rate(".KXBT")
+#     assert response is not None
+
+# def test_futures_index(client):
+#     response = client.futures_get_index(".KXBT")
+#     assert response is not None
+
+# todo:
+# File "/opt/homebrew/lib/python3.11/site-packages/yarl/_url.py", line 946, in _query_var
+#     raise TypeError(
+# TypeError: Invalid variable type: value should be str, int or float, got True of type <class 'bool'>
+# @pytest.mark.asyncio()
+# async def test_futures_index_async(asyncClient):
+#     response = await asyncClient.futures_get_index(".KXBT")
+#     assert response is not None
+
+def test_futures_mark_price(client):
+    response = client.futures_get_mark_price("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+@pytest.mark.asyncio()
+async def test_futures_mark_price_async(asyncClient):
+    response = await asyncClient.futures_get_mark_price("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
