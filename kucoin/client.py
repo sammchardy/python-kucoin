@@ -361,13 +361,13 @@ class Client(BaseClient):
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbols-list
 
-        :param market: (optional) Name of market e.g. BTC
+        :param market: (optional) Name of market e.g. ETH-USDT
         :type market: string
 
         .. code:: python
 
             symbols = client.get_symbols()
-            symbols = client.get_symbols('USDS')
+            symbols = client.get_symbols('ETH-USDT')
 
         :returns: ApiResponse
 
@@ -469,12 +469,8 @@ class Client(BaseClient):
 
         """
 
-        data = {}
-        if symbol:
-            data["symbol"] = symbol
-
         return self._get(
-            "symbol", False, api_version=self.API_VERSION2, data=dict(data, **params)
+            "symbols/{}".format(symbol), False, api_version=self.API_VERSION2, data=params
         )
 
     def get_ticker(self, symbol, **params):

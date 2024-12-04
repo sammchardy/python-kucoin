@@ -469,12 +469,8 @@ class AsyncClient(AsyncClientBase):
 
         """
 
-        data = {}
-        if symbol:
-            data["symbol"] = symbol
-
         return await self._get(
-            "symbol", False, api_version=self.API_VERSION2, data=dict(data, **params)
+            "symbols/{}".format(symbol), False, api_version=self.API_VERSION2, **params
         )
 
     async def get_ticker(self, symbol, **params):
