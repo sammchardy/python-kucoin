@@ -759,7 +759,7 @@ class Client(BaseClient):
 
         return self._get("market/histories", False, data=dict(data, **params))
 
-    def get_kline_data(self, symbol, kline_type="5min", start=None, end=None, **params):
+    def get_klines(self, symbol, kline_type="5min", start=None, end=None, **params):
         """Get kline data
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-klines
@@ -779,7 +779,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            klines = client.get_kline_data('KCS-BTC', '5min', 1507479171, 1510278278)
+            klines = client.get_klines('KCS-BTC', '5min', 1507479171, 1510278278)
 
         :returns: ApiResponse
 
