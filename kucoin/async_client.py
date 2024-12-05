@@ -8914,7 +8914,7 @@ class AsyncClient(AsyncClientBase):
         if limit:
             data["pageSize"] = limit
 
-        return await self._get("fills", False, data=dict(data, **params))
+        return await self._get("fills", True, data=dict(data, **params))
 
     async def get_recent_fills(self, **params):
         """Get a list of recent fills.
@@ -9227,7 +9227,7 @@ class AsyncClient(AsyncClientBase):
         if limit:
             data["pageSize"] = limit
 
-        return await self._get("fills", False, is_futures=True, data=dict(data, **params))
+        return await self._get("fills", True, is_futures=True, data=dict(data, **params))
 
     async def futures_get_recent_fills(self, symbol=None, **params):
         """Get a list of recent futures fills.
@@ -9282,7 +9282,7 @@ class AsyncClient(AsyncClientBase):
             data["symbol"] = symbol
 
         return await self._get(
-            "recentFills", False, is_futures=True, data=dict(data, **params)
+            "recentFills", True, is_futures=True, data=dict(data, **params)
         )
 
     async def futures_get_active_order_value(self, symbol, **params):
@@ -9319,7 +9319,7 @@ class AsyncClient(AsyncClientBase):
         data = {"symbol": symbol}
 
         return await self._get(
-            "openOrderStatistics", False, is_futures=True, data=dict(data, **params)
+            "openOrderStatistics", True, is_futures=True, data=dict(data, **params)
         )
 
     # Margin Info Endpoints
@@ -9373,7 +9373,7 @@ class AsyncClient(AsyncClientBase):
     async def margin_get_all_trading_pairs_mark_prices(self, **params):
         """Get a list of trading pairs and their mark prices
 
-        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-all-trading-pairs-mark-price
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-all-margin-trading-pairs-mark-prices
 
         .. code:: python
 
@@ -10290,7 +10290,7 @@ class AsyncClient(AsyncClientBase):
 
         return await self._get(
             "project/list",
-            False,
+            True,
             api_version=self.API_VERSION3,
             data=dict(data, **params),
         )
@@ -10336,7 +10336,7 @@ class AsyncClient(AsyncClientBase):
 
         return await self._get(
             "project/marketInterestRatet",
-            False,
+            True,
             api_version=self.API_VERSION3,
             data=dict(data, **params),
         )
