@@ -144,6 +144,17 @@ async def test_fiat_prices_async(asyncClient):
     response = await asyncClient.get_fiat_prices(None, code)
     assert code in response
 
+def test_futures_symbol(client):
+    response = client.futures_get_symbol("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
+@pytest.mark.asyncio()
+async def test_futures_symbol_async(asyncClient):
+    response = await asyncClient.futures_get_symbol("ETHUSDTM")
+    symbol = response["symbol"]
+    assert symbol == "ETHUSDTM"
+
 def test_futures_symbols(client):
     response = client.futures_get_symbols()
     assert response is not None
@@ -226,9 +237,9 @@ def test_futures_interest_rate(client):
 #     response = await asyncClient.futures_get_interest_rate(".KXBT")
 #     assert response is not None
 
-# def test_futures_index(client):
-#     response = client.futures_get_index(".KXBT")
-#     assert response is not None
+def test_futures_index(client):
+    response = client.futures_get_index(".KXBT")
+    assert response is not None
 
 # todo:
 # File "/opt/homebrew/lib/python3.11/site-packages/yarl/_url.py", line 946, in _query_var
@@ -249,3 +260,32 @@ async def test_futures_mark_price_async(asyncClient):
     response = await asyncClient.futures_get_mark_price("ETHUSDTM")
     symbol = response["symbol"]
     assert symbol == "ETHUSDTM"
+
+def test_futures_premium_index(client):
+    response = client.futures_get_premium_index("ETHUSDTM")
+    assert response is not None
+
+# todo:
+# TypeError: Invalid variable type: value should be str, int or float, got True of type <class 'bool'>
+# @pytest.mark.asyncio()
+# async def test_futures_premium_index_async(asyncClient):
+#     response = await asyncClient.futures_get_premium_index("ETHUSDTM")
+#     assert response is not None
+
+def test_margin_all_trading_pairs_mark_prices(client):
+    response = client.margin_get_all_trading_pairs_mark_prices()
+    assert response is not None
+
+@pytest.mark.asyncio()
+def test_margin_all_trading_pairs_mark_prices_async(asyncClient):
+    response = asyncClient.margin_get_all_trading_pairs_mark_prices()
+    assert response is not None
+
+def test_futures_public_funding_history(client):
+    response = client.futures_get_public_funding_history('ETHUSDTM', start=1622505600000, end=1622592000000)
+    assert response is not None
+
+@pytest.mark.asyncio()
+async def test_futures_public_funding_history_async(asyncClient):
+    response = await asyncClient.futures_get_public_funding_history('ETHUSDTM', start=1622505600000, end=1622592000000)
+    assert response is not None
