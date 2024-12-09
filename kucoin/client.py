@@ -361,13 +361,13 @@ class Client(BaseClient):
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-symbols-list
 
-        :param market: (optional) Name of market e.g. BTC
+        :param market: (optional) Name of market e.g. ETH-USDT
         :type market: string
 
         .. code:: python
 
             symbols = client.get_symbols()
-            symbols = client.get_symbols('USDS')
+            symbols = client.get_symbols('ETH-USDT')
 
         :returns: ApiResponse
 
@@ -469,12 +469,8 @@ class Client(BaseClient):
 
         """
 
-        data = {}
-        if symbol:
-            data["symbol"] = symbol
-
         return self._get(
-            "symbol", False, api_version=self.API_VERSION2, data=dict(data, **params)
+            "symbols/{}".format(symbol), False, api_version=self.API_VERSION2, data=params
         )
 
     def get_ticker(self, symbol, **params):
@@ -763,7 +759,7 @@ class Client(BaseClient):
 
         return self._get("market/histories", False, data=dict(data, **params))
 
-    def get_kline_data(self, symbol, kline_type="5min", start=None, end=None, **params):
+    def get_klines(self, symbol, kline_type="5min", start=None, end=None, **params):
         """Get kline data
 
         https://www.kucoin.com/docs/rest/spot-trading/market-data/get-klines
@@ -773,7 +769,7 @@ class Client(BaseClient):
 
         :param symbol: Name of symbol e.g. KCS-BTC
         :type symbol: string
-        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
+        :param kline_type: type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
                            4hour, 6hour, 8hour, 12hour, 1day, 1week
         :type kline_type: string
         :param start: Start time as unix timestamp (optional) default start of day in UTC
@@ -783,7 +779,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            klines = client.get_kline_data('KCS-BTC', '5min', 1507479171, 1510278278)
+            klines = client.get_klines('KCS-BTC', '5min', 1507479171, 1510278278)
 
         :returns: ApiResponse
 
@@ -1277,7 +1273,7 @@ class Client(BaseClient):
         )
 
     def futures_get_klines(
-        self, symbol, kline_type="5min", start=None, end=None, **params
+        self, symbol, kline_type=5, start=None, end=None, **params
     ):
         """Get kline data
 
@@ -1287,9 +1283,8 @@ class Client(BaseClient):
 
         :param symbol: Name of symbol e.g. XBTUSDTM
         :type symbol: string
-        :param kline_type: type of symbol, type of candlestick patterns: 1min, 3min, 5min, 15min, 30min, 1hour, 2hour,
-                            4hour, 6hour, 8hour, 12hour, 1day, 1week
-        :type kline_type: string
+        :param kline_type: type of candlestick in minutes: 1, 5, 50 etc.
+        :type kline_type: int
         :param start: Start time as unix timestamp (optional) default start of day in UTC
         :type start: int
         :param end: End time as unix timestamp (optional) default now in UTC
@@ -1297,7 +1292,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            klines = client.futures_get_klines('XBTUSDTM', '5min', 1507479171, 1510278278)
+            klines = client.futures_get_klines('XBTUSDTM', 5, 1507479171, 1510278278)
 
         :returns: ApiResponse
 
@@ -8923,7 +8918,7 @@ class Client(BaseClient):
         if limit:
             data["pageSize"] = limit
 
-        return self._get("fills", False, data=dict(data, **params))
+        return self._get("fills", True, data=dict(data, **params))
 
     def get_recent_fills(self, **params):
         """Get a list of recent fills.
@@ -9236,7 +9231,7 @@ class Client(BaseClient):
         if limit:
             data["pageSize"] = limit
 
-        return self._get("fills", False, is_futures=True, data=dict(data, **params))
+        return self._get("fills", True, is_futures=True, data=dict(data, **params))
 
     def futures_get_recent_fills(self, symbol=None, **params):
         """Get a list of recent futures fills.
@@ -9291,7 +9286,7 @@ class Client(BaseClient):
             data["symbol"] = symbol
 
         return self._get(
-            "recentFills", False, is_futures=True, data=dict(data, **params)
+            "recentFills", True, is_futures=True, data=dict(data, **params)
         )
 
     def futures_get_active_order_value(self, symbol, **params):
@@ -9328,7 +9323,7 @@ class Client(BaseClient):
         data = {"symbol": symbol}
 
         return self._get(
-            "openOrderStatistics", False, is_futures=True, data=dict(data, **params)
+            "openOrderStatistics", True, is_futures=True, data=dict(data, **params)
         )
 
     # Margin Info Endpoints
@@ -9382,7 +9377,7 @@ class Client(BaseClient):
     def margin_get_all_trading_pairs_mark_prices(self, **params):
         """Get a list of trading pairs and their mark prices
 
-        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-all-trading-pairs-mark-price
+        https://www.kucoin.com/docs/rest/margin-trading/margin-info/get-all-margin-trading-pairs-mark-prices
 
         .. code:: python
 
@@ -10299,7 +10294,7 @@ class Client(BaseClient):
 
         return self._get(
             "project/list",
-            False,
+            True,
             api_version=self.API_VERSION3,
             data=dict(data, **params),
         )
@@ -10345,7 +10340,7 @@ class Client(BaseClient):
 
         return self._get(
             "project/marketInterestRatet",
-            False,
+            True,
             api_version=self.API_VERSION3,
             data=dict(data, **params),
         )
