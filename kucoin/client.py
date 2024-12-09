@@ -8819,7 +8819,7 @@ class Client(BaseClient):
 
         data = {"clientOid": client_oid}
 
-        return self._get("orders/byClientOid", True, is_futures=True, data=params)
+        return self._get("orders/byClientOid", True, is_futures=True, data=dict(data, **params))
 
     # Fill Endpoints
 
