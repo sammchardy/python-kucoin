@@ -1,6 +1,4 @@
 import requests_mock
-import pytest
-from aioresponses import aioresponses
 
 
 def test_get_accounts(client):
