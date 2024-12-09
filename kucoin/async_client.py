@@ -8815,7 +8815,7 @@ class AsyncClient(AsyncClientBase):
 
         data = {"clientOid": client_oid}
 
-        return await self._get("orders/byClientOid", True, is_futures=True, data=params)
+        return await self._get("orders/byClientOid", True, is_futures=True, data=dict(data, **params))
 
     # Fill Endpoints
 
