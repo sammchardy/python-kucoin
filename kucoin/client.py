@@ -2246,7 +2246,6 @@ class Client(BaseClient):
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
-        # todo check and add the response
 
         data = {}
         if page:
@@ -2634,14 +2633,16 @@ class Client(BaseClient):
         .. code-block:: python
 
             {
-                "id": "5bd6e9286d99522a52e458de"
+                'uid': 232103664,
+                'subName': 'raySubAccount',
+                'remarks': None,
+                'access': 'Spot'
             }
 
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
 
-        # todo check and add the response (last time it was 100010: Network error. Please try again later)
         data = {"password": password, "subName": sub_name, "access": access}
         if remarks:
             data["remarks"] = remarks
@@ -2875,18 +2876,25 @@ class Client(BaseClient):
 
         .. code:: python
 
-            history = client.get_futures_account_activity()
+            history = client.futures_get_account_activity()
 
-            history = client.get_account_activity('ETH', start='1540296039000')
+            history = client.futures_get_account_activity('ETH', start='1540296039000')
 
-            history = client.get_account_activity('ETH', forward=TRUE, page_size=10)
+            history = client.futures_get_account_activity('ETH', forward=TRUE, page_size=10)
 
         :returns: API Response
+
+        {
+            'dataList': [],
+            'hasMore': False
+        }
+
+        # todo add the whole response when available
 
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
-        # todo check and add the response
+
         data = {}
         if currency:
             data["currency"] = currency
@@ -3320,6 +3328,8 @@ class Client(BaseClient):
                 ]
             }
 
+            # todo unknown error
+
         :raises:  KucoinResponseException, KucoinAPIException
 
         """
@@ -3362,10 +3372,10 @@ class Client(BaseClient):
 
         .. code:: python
 
-            address = client.create_deposit_address_v3('USDT')
-            address = client.create_deposit_address_v3('USDT', 'ERC20')
-            address = client.create_deposit_address_v3('USDT', 'ERC20', '0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5')
-            address = client.create_deposit_address_v3('USDT', 'ERC20', '0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5', 100)
+            address = client.create_deposit_address('USDT')
+            address = client.create_deposit_address('USDT', 'ERC20')
+            address = client.create_deposit_address('USDT', 'ERC20', '0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5')
+            address = client.create_deposit_address('USDT', 'ERC20', '0x0a2586d5a901c8e7e68f6b0dc83bfd8bd8600ff5', 100)
 
         :returns: ApiResponse
 
@@ -4020,12 +4030,11 @@ class Client(BaseClient):
 
         https://www.kucoin.com/docs/rest/funding/trade-fee/trading-pair-actual-fee-spot-margin-trade_hf
 
-        :param symbols: Trading pair (optional, you can inquire fee rates of 10 trading pairs each time at most)
+        :param symbols: Trading pair
         :type symbols: string
 
         .. code:: python
 
-            fee = client.get_trading_pair_fee()
             fee = client.get_trading_pair_fee('BTC-USDT')
 
         :returns: ApiResponse
@@ -5120,6 +5129,10 @@ class Client(BaseClient):
         .. code:: python
 
             {
+                'orderId': '67600a7b716ab30007374962'
+            }
+
+            {
                 "code": "200000",
                 "data": {
                     "orderId": "672a249054d62a0007ae04b8",
@@ -5196,6 +5209,10 @@ class Client(BaseClient):
         :returns: ApiResponse
 
         .. code:: python
+
+            {
+                'orderId': '67600da71ed0d8000750a36c'
+            }
 
             {
                 "code": "200000",
@@ -5282,6 +5299,10 @@ class Client(BaseClient):
         :returns: ApiResponse
 
         .. code:: python
+
+            {
+                'orderId': '67600fe83bb37e0007de0f34'
+            }
 
             {
                 "code": "200000",
@@ -5578,7 +5599,16 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            [
+                {
+                    'orderId': '6760128a7cf7ff00071eae8d',
+                    'success': True
+                },
+                {
+                    'orderId': '6760128a9574f300078a8f46',
+                    'success': True
+                }
+            ]
 
         :raises: KucoinResponseException, KucoinAPIException, KucoinRequestException, LimitOrderException
 
@@ -5731,7 +5761,10 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'newOrderId': '6760a8b4f517900007dfbbde',
+                'clientOid': None
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -5775,7 +5808,9 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6760a9803ecf4300076b3fc4'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -5810,7 +5845,14 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6760a9c43ecf4300076ca15d',
+                'originSize': '3000',
+                'dealSize': '0',
+                'remainSize': '0',
+                'canceledSize': '3000',
+                'status': 'done'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -5842,7 +5884,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            todo add the response example, cancel failed
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -5946,7 +5988,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            success
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6267,7 +6309,42 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'id': '6760aaecaef36e0007b895c8',
+                'symbol': 'ETH-USDT',
+                'opType': 'DEAL',
+                'type': 'limit',
+                'side': 'buy',
+                'price': '0.01',
+                'size': '3000',
+                'funds': '30',
+                'dealSize': '0',
+                'dealFunds': '0',
+                'fee': '0',
+                'feeCurrency': 'USDT',
+                'stp': None,
+                'timeInForce': 'GTC',
+                'postOnly': False,
+                'hidden': False,
+                'iceberg': False,
+                'visibleSize': '0',
+                'cancelAfter': 0,
+                'channel': 'API',
+                'clientOid': 'adsfadf31341',
+                'remark': None, 'tags':
+                'partner:python-kucoinspot',
+                'cancelExist': True,
+                'createdAt': 1734388460821,
+                'lastUpdatedAt': 1734388534742,
+                'tradeType': 'TRADE',
+                'inOrderBook': False,
+                'cancelledSize': '3000',
+                'cancelledFunds': '30',
+                'remainSize': '0',
+                'remainFunds': '0',
+                'tax': '0',
+                'active': False
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6342,7 +6419,7 @@ class Client(BaseClient):
 
         """
 
-        return self._get("hf/orders/dead-cancel-all", True, data=params)
+        return self._get("hf/orders/dead-cancel-all/query", True, data=params)
 
     # Stop Orders
 
@@ -6619,7 +6696,50 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'currentPage': 1,
+                'pageSize': 50,
+                'totalNum': 1,
+                'totalPage': 1,
+                'items': [
+                    {
+                        'id': 'vs8t6pr0lso3c9t2003lnkha',
+                        'symbol': 'ETH-USDT',
+                        'userId': '64f99aced178640001306e6e',
+                        'status': 'NEW',
+                        'type': 'limit',
+                        'side': 'buy',
+                        'price': '2000.00000000000000000000',
+                        'size': '20.00000000000000000000',
+                        'funds': None,
+                        'stp': None,
+                        'timeInForce': 'GTC',
+                        'cancelAfter': -1,
+                        'postOnly': False,
+                        'hidden': False,
+                        'iceberg': False,
+                        'visibleSize': None,
+                        'channel': 'API',
+                        'clientOid': '10f80634d976445e9154285b5fc2313a',
+                        'remark': None,
+                        'tags': 'partner:python-kucoinspot',
+                        'relatedNo': None,
+                        'orderTime': 1734389552383000029,
+                        'domainId': 'kucoin', 'tradeSource':
+                        'USER', 'tradeType': 'TRADE',
+                        'feeCurrency': 'USDT',
+                        'takerFeeRate': '0.00100000000000000000',
+                        'makerFeeRate': '0.00100000000000000000',
+                        'createdAt': 1734389552383,
+                        'stop': 'loss',
+                        'stopTriggerTime': None,
+                        'stopPrice': '2100.00000000000000000000',
+                        'limitPrice': None,
+                        'pop': None,
+                        'activateCondition': None
+                    }
+                ]
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6666,7 +6786,43 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'id': 'vs8t6pr0lso3c9t2003lnkha',
+                'symbol': 'ETH-USDT',
+                'userId': '64f99aced178640001306e6e',
+                'status': 'NEW',
+                'type': 'limit',
+                'side': 'buy',
+                'price': '2000.00000000000000000000',
+                'size': '20.00000000000000000000',
+                'funds': None,
+                'stp': None,
+                'timeInForce': 'GTC',
+                'cancelAfter': -1,
+                'postOnly': False,
+                'hidden': False,
+                'iceberg': False,
+                'visibleSize': None,
+                'channel': 'API',
+                'clientOid': '10f80634d976445e9154285b5fc2313a',
+                'remark': None,
+                'tags': 'partner:python-kucoinspot',
+                'relatedNo': None,
+                'orderTime': 1734389552383000029,
+                'domainId': 'kucoin',
+                'tradeSource': 'USER',
+                'tradeType': 'TRADE',
+                'feeCurrency': 'USDT',
+                'takerFeeRate': '0.00100000000000000000',
+                'makerFeeRate': '0.00100000000000000000',
+                'createdAt': 1734389552383,
+                'stop': 'loss',
+                'stopTriggerTime': None,
+                'stopPrice': '2100.00000000000000000000',
+                'limitPrice': None,
+                'pop': None,
+                'activateCondition': None
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6692,7 +6848,45 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            [
+                {
+                    'id': 'vs8t6pr0lso3c9t2003lnkha',
+                    'symbol': 'ETH-USDT',
+                    'userId': '64f99aced178640001306e6e',
+                    'status': 'NEW',
+                    'type': 'limit',
+                    'side': 'buy',
+                    'price': '2000.00000000000000000000',
+                    'size': '20.00000000000000000000',
+                    'funds': None,
+                    'stp': None,
+                    'timeInForce': 'GTC',
+                    'cancelAfter': -1,
+                    'postOnly': False,
+                    'hidden': False,
+                    'iceberg': False,
+                    'visibleSize': None,
+                    'channel': 'API',
+                    'clientOid': '10f80634d976445e9154285b5fc2313a',
+                    'remark': None,
+                    'tags': 'partner:python-kucoinspot',
+                    'relatedNo': None,
+                    'orderTime': 1734389552383000029,
+                    'domainId': 'kucoin',
+                    'tradeSource': 'USER',
+                    'tradeType': 'TRADE',
+                    'feeCurrency': 'USDT',
+                    'takerFeeRate': '0.00100000000000000000',
+                    'makerFeeRate': '0.00100000000000000000',
+                    'createdAt': 1734389552383,
+                    'stop': 'loss',
+                    'stopTriggerTime': None,
+                    'stopPrice': '2100.00000000000000000000',
+                    'limitPrice': None,
+                    'pop': None,
+                    'activateCondition': None
+                }
+            ]
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6744,13 +6938,15 @@ class Client(BaseClient):
 
         .. code:: python
 
-            order = client.oco_create_order('ETH-USDT', Client.SIDE_BUY, size=20, price=2000, stop_price=2100, limit_price=2200)
+            order = client.oco_create_order('ETH-USDT', Client.SIDE_BUY, 20, 2000, 2100, 2200)
 
         :returns: ApiResponse
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6762c1e8bc4b57000790a417'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6767,8 +6963,7 @@ class Client(BaseClient):
 
         if not client_oid:
             client_oid = flat_uuid()
-        else:
-            data["clientOid"] = client_oid
+        data["clientOid"] = client_oid
 
         if remark:
             data["remark"] = remark
@@ -6791,7 +6986,12 @@ class Client(BaseClient):
 
         :returns: ApiResponse
 
-        todo add the response example
+            {
+                'cancelledOrderIds': [
+                        'vs8t6pr2o7kboiqn003p190o',
+                        'vs8t6pr2o7kboiqn003p190p'
+                    ]
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6822,7 +7022,12 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'cancelledOrderIds': [
+                    'vs8t6pr2oeba2d6m003jmbi4',
+                    'vs8t6pr2oeba2d6m003jmbi5'
+                ]
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6855,7 +7060,12 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'cancelledOrderIds': [
+                    'vs8t6pr2oh0roiqn003p1921',
+                    'vs8t6pr2oh0roiqn003p1922'
+                ]
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6887,7 +7097,13 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6762c441bc4b57000790a440',
+                'symbol': 'ETH-USDT',
+                'clientOid': '10482bc28f12465bb0ed6b0d789019ee',
+                'orderTime': 1734526017481,
+                'status': 'CANCELLED'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6916,7 +7132,29 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6762c441bc4b57000790a440',
+                'symbol': 'ETH-USDT',
+                'clientOid': '10482bc28f12465bb0ed6b0d789019ee',
+                'orderTime': 1734526017481, 'status': 'CANCELLED',
+                'orders': [
+                    {
+                        'id': 'vs8t6pr2oh0roiqn003p1921',
+                        'symbol': 'ETH-USDT',
+                        'side': 'sell',
+                        'price': '4000.00000000000000000000',
+                        'stopPrice': '4000.00000000000000000000',
+                        'size': '0.01000000000000000000',
+                        'status': 'CANCELLED'}, {'id': 'vs8t6pr2oh0roiqn003p1922',
+                        'symbol': 'ETH-USDT',
+                        'side': 'sell',
+                        'price': '2900.00000000000000000000',
+                        'stopPrice': '3000.00000000000000000000',
+                        'size': '0.01000000000000000000',
+                        'status': 'CANCELLED'
+                    }
+                ]
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6945,7 +7183,13 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6762c396a134d600073b2e43',
+                'symbol': 'ETH-USDT',
+                'clientOid': 'rqeqrqer13234',
+                'orderTime': 1734525846792,
+                'status': 'CANCELLED'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -6992,7 +7236,28 @@ class Client(BaseClient):
         :returns: ApiResponse
         .. code:: python
 
-            todo add the response example
+            {
+                'currentPage': 1,
+                'pageSize': 50,
+                'totalNum': 2,
+                'totalPage': 1,
+                'items': [
+                    {
+                        'orderId': '6762c441bc4b57000790a440',
+                        'symbol': 'ETH-USDT',
+                        'clientOid': '10482bc28f12465bb0ed6b0d789019ee',
+                        'orderTime': 1734526017481,
+                        'status': 'CANCELLED'
+                    },
+                    {
+                        'orderId': '6762c396a134d600073b2e43',
+                        'symbol': 'ETH-USDT',
+                        'clientOid': 'rqeqrqer13234',
+                        'orderTime': 1734525846792,
+                        'status': 'CANCELLED'
+                    }
+                ]
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -7096,7 +7361,12 @@ class Client(BaseClient):
 
         .. code:: python
 
-            todo add the response example
+            {
+                'orderId': '6762c7fe52528d000773316d',
+                'loanApplyId': None,
+                'borrowSize': None,
+                'clientOid': None
+            }
 
         :raises: KucoinResponseException, KucoinAPIException, MarketOrderException, LimitOrderException, KucoinRequestException
 
@@ -10627,7 +10897,11 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            {
+                'symbol': 'ETHUSDM',
+                'maxBuyOpenSize': 0,
+                'maxSellOpenSize': 0
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10658,7 +10932,52 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            {
+                'id': '',
+                'symbol': 'ETHUSDM',
+                'autoDeposit': False,
+                'crossMode': False,
+                'maintMarginReq': 0,
+                'riskLimit': 5,
+                'realLeverage': 0.0,
+                'delevPercentage': 0.0,
+                'openingTimestamp': 0,
+                'currentTimestamp': 1734528178995,
+                'currentQty': 0,
+                'currentCost': 0,
+                'currentComm': 0,
+                'unrealisedCost': 0,
+                'realisedGrossCost': 0.0,
+                'realisedCost': 0.0,
+                'isOpen': False,
+                'markPrice': 0,
+                'markValue': 0.0,
+                'posCost': 0,
+                'posCross': 0,
+                'posCrossMargin': 0,
+                'posInit': 0,
+                'posComm': 0,
+                'posCommCommon': 0,
+                'posLoss': 0,
+                'posMargin': 0,
+                'posFunding': 0,
+                'posMaint': 0,
+                'maintMargin': 0.0,
+                'realisedGrossPnl': 0.0,
+                'realisedPnl': 0.0,
+                'unrealisedPnl': 0.0,
+                'unrealisedPnlPcnt': 0,
+                'unrealisedRoePcnt': 0,
+                'avgEntryPrice': 0,
+                'liquidationPrice': 0,
+                'bankruptPrice': 0,
+                'settleCurrency': 'ETH',
+                'maintainMargin': 0,
+                'riskLimitLevel': 1,
+                'marginMode': 'ISOLATED',
+                'positionSide': 'BOTH',
+                'leverage': 0.0
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10684,7 +11003,52 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            {
+                'id': '',
+                'symbol': 'ETHUSDM',
+                'autoDeposit': False,
+                'crossMode': False,
+                'maintMarginReq': 0,
+                'riskLimit': 5,
+                'realLeverage': 0.0,
+                'delevPercentage': 0.0,
+                'openingTimestamp': 0,
+                'currentTimestamp': 1734528178995,
+                'currentQty': 0,
+                'currentCost': 0,
+                'currentComm': 0,
+                'unrealisedCost': 0,
+                'realisedGrossCost': 0.0,
+                'realisedCost': 0.0,
+                'isOpen': False,
+                'markPrice': 0,
+                'markValue': 0.0,
+                'posCost': 0,
+                'posCross': 0,
+                'posCrossMargin': 0,
+                'posInit': 0,
+                'posComm': 0,
+                'posCommCommon': 0,
+                'posLoss': 0,
+                'posMargin': 0,
+                'posFunding': 0,
+                'posMaint': 0,
+                'maintMargin': 0.0,
+                'realisedGrossPnl': 0.0,
+                'realisedPnl': 0.0,
+                'unrealisedPnl': 0.0,
+                'unrealisedPnlPcnt': 0,
+                'unrealisedRoePcnt': 0,
+                'avgEntryPrice': 0,
+                'liquidationPrice': 0,
+                'bankruptPrice': 0,
+                'settleCurrency': 'ETH',
+                'maintainMargin': 0,
+                'riskLimitLevel': 1,
+                'marginMode': 'ISOLATED',
+                'positionSide': 'BOTH',
+                'leverage': 0.0
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10764,7 +11128,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            True
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10795,7 +11159,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            0
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10888,7 +11252,10 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            {
+                'symbol': 'ETHUSDM',
+                'marginMode': 'ISOLATED'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10922,7 +11289,10 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            {
+                'symbol': 'ETHUSDM',
+                'marginMode': 'CROSS'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10954,7 +11324,10 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            {
+                'symbol': 'ETHUSDM',
+                'leverage': '3'
+            }
 
         :raises: KucoinResponseException, KucoinAPIException
 
@@ -10988,7 +11361,7 @@ class Client(BaseClient):
 
         .. code:: python
 
-            # todo: example response
+            True
 
         :raises: KucoinResponseException, KucoinAPIException
 
